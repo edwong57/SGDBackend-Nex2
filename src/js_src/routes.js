@@ -28,6 +28,7 @@ import Blank from './components/blank';
 import NewReference from './containers/newReference';
 import CurateLit from './containers/curateLit/layout';
 import CurateLitBasic from './containers/curateLit/basic';
+import CurateLitSettings from './containers/curateLit/referenceSettings';
 import CurateLitPhenotype from './containers/curateLit/phenotype';
 import GeneNameReservationIndex from './containers/reserve/index';
 import GeneNameReservation from './containers/reserve/show';
@@ -67,6 +68,7 @@ export default (
       <Route component={requireAuthentication(NewReference)} path='curate/reference/new' />
       <Route component={requireAuthentication(CurateLit)} path='curate/reference/:id'>
         <IndexRoute component={requireAuthentication(CurateLitBasic)} />
+        <Route component={requireAuthentication(CurateLitSettings)} path='settings' />
         <Route component={requireAuthentication(Blank)} path='protein' />
         <Route component={requireAuthentication(CurateLitPhenotype)} path='phenotypes' />
         <Route component={requireAuthentication(Blank)} path='go' />

@@ -16,7 +16,8 @@ import { PREVIEW_URL } from '../../constants.js';
 
 const BASE_CURATE_URL = '/curate/reference';
 const SECTIONS = [
-  'tags'
+  'tags',
+  'settings'
 ];
 
 class CurateLitLayout extends Component {
