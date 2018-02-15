@@ -19,7 +19,13 @@ class FlexiForm extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    if (this.props.confirmRequired) {
+      window.console.log(this.props);
+      let response = window.confirm('Are you sure you want to delete this reference?');
+      if (!response) return;
+    }
     let value = this.formInput.getValue();
+
     let strValue = JSON.stringify(value);
     let method = this.props.requestMethod || 'PUT';
     this.setState({ isPending: true, data: value });
@@ -74,6 +80,7 @@ FlexiForm.propTypes = {
   tFormOptions: React.PropTypes.object,
   timeout: React.PropTypes.number,
   updateUrl: React.PropTypes.string.isRequired,
+  confirmRequired: React.PropTypes.bool,
 };
 
 function mapStateToProps() {
