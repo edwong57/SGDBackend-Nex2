@@ -300,6 +300,18 @@ def refresh_homepage_cache(request):
     ban_from_cache(['/'], True)
     return True
 
+@view_config(route_name='delete_reference', request_method='POST', renderer='json')
+def delete_reference(request):
+    reason_deleted = request.json_body.get('reason_deleted')
+    reference = DBSession.query(Referencedbentity.sgdid).filter_by(sgdid=request.matchdict['id']).scalar()
+    try:
+        print "Ref ID = " + reference
+        print "Reason deleted = " + reason_deleted
+        raise Exception("Not implemented")
+    except Exception, e:
+        log.error(e)
+        return HTTPBadRequest(body=json.dumps({ 'error': str(e) }), content_type='text/json')
+
 @view_config(route_name='db_sign_in', request_method='POST', renderer='json')
 def db_sign_in(request):
     Temp_session = None

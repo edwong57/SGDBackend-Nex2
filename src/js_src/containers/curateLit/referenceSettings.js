@@ -26,7 +26,7 @@ class ReferenceSettings extends Component {
       <div style={{ maxWidth: '25rem' }}>
         <FlexiForm
           requestMethod='POST' tFormSchema={refSettingsSchema} submitText='Delete'
-          updateUrl={`${ref_id}/delete_reference`} confirmRequired
+          updateUrl={`reference/${ref_id}/delete_reference`} confirmRequired
         />
         </div>
     );

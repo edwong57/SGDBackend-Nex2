@@ -157,6 +157,7 @@ def main(global_config, **settings):
     config.add_route('reference_triage_id_update', '/reference/triage/{id}', request_method='PUT')
     config.add_route('reference_triage_id_delete', '/reference/triage/{id}', request_method='DELETE')
     config.add_route('reference_tags', '/reference/{id}/tags', request_method='GET')
+    config.add_route('delete_reference', '/reference/{id}/delete_reference', request_method='POST')
     config.add_route('update_reference_tags', '/reference/{id}/tags', request_method='PUT')
 
     config.add_route('get_locus_curate', '/locus/{sgdid}/curate', request_method='GET')
