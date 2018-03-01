@@ -1537,6 +1537,24 @@ class ContigUrl(Base):
         }
 
 
+class Contignote(Base):
+    __tablename__ = 'contignote'
+    __table_args__ = (
+        UniqueConstraint('note_id'),
+        {u'schema': 'nex'}
+    )
+
+    note_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.note_seq'::regclass)"))
+    source_id = Column(ForeignKey(u'nex.source.source_id', ondelete=u'CASCADE'), nullable=False, index=True)
+    bud_id = Column(Integer, nullable=True)
+    contig_id = Column(ForeignKey(u'nex.contig.contig_id', ondelete=u'CASCADE'), nullable=False)
+    note_class = Column(String(40), nullable=False)
+    note_type = Column(String(40), nullable=False)
+    note = Column(String(2000), nullable=False)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+
 class Contignoteannotation(Base):
     __tablename__ = 'contignoteannotation'
     __table_args__ = (
@@ -1560,6 +1578,25 @@ class Contignoteannotation(Base):
     reference = relationship(u'Referencedbentity')
     source = relationship(u'Source')
     taxonomy = relationship(u'Taxonomy')
+
+
+class ContignoteReference(Base):
+    __tablename__ = 'contignote_reference'
+    __table_args__ = (
+        UniqueConstraint('note_reference_id'),
+        {u'schema': 'nex'}
+    )
+
+    note_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.reference_seq'::regclass"))
+    note_id = Column(ForeignKey(u'nex.contignote.note_id', ondelete=u'CASCADE'), index=True)
+    reference_id = Column(ForeignKey(u'nex.referencedbentity.dbentity_id', ondelete=u'CASCADE'), index=True)
+    source_id = Column(ForeignKey(u'nex.source.source_id', ondelete=u'CASCADE'), index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    note = relationship(u'Contignote')
+    reference = relationship(u'Referencedbentity')
+    source = relationship(u'Source')
 
 
 class CurationLocus(Base):
@@ -2343,6 +2380,53 @@ class Referencedbentity(Dbentity):
                 'comment': comment
             })
         return tag_list
+
+    def delete_reference(self, username, reason_deleted):
+        curator_session = None
+        annotation_list = dict()
+        try:
+            curator_session = get_curator_session(username)
+            author_response = curator_session.query(Authorresponse).filter_by(reference_id=self.dbentity_id)
+            binding_motif = curator_session.query(Bindingmotifannotation).filter_by(reference_id=self.dbentity_id)
+            colleague_ref = curator_session.query(ColleageReference).filter_by(reference_id=self.dbentity_id)
+            contignote_ref = curator_session.query(ContignoteReference).filter_by(reference_id=self.dbentity_id)
+            curation_ref = curator_session.query(CurationReference).filter_by(reference_id=self.dbentity_id)
+            dataset_ref = curator_session.query(DatasetReference).filter_by(reference_id=self.dbentity_id)
+            disease_annot = curator_session.query(Diseaseannotation).filter_by(reference_id=self.dbentity_id)
+            disease_subset_annot = curator_session.query(Diseasesubsetannotation).filter_by(reference_id=self.dbentity_id)
+            dnaseq_annot = curator_session.query(Dnasequenceannotation).filter_by(reference_id=self.dbentity_id)
+            enzyme_annot = curator_session.query(Enzymeannotation).filter_by(reference_id=self.dbentity_id)
+            expression_annot = curator_session.query(Expressionannotation).filter_by(reference_id=self.dbentity_id)
+            geninteraction_annot = curator_session.query(Geninteractionannotation).filter_by(reference_id=self.dbentity_id)
+            go_annot = curator_session.query(Goannotation).filter_by(reference_id=self.dbentity_id)
+            goslim_annot = curator_session.query(Goslimannotation).filter_by(reference_id=self.dbentity_id)
+            literature_annot = curator_session.query(Literatureannotation).filter_by(reference_id=self.dbentity_id)
+            locus_ref = curator_session.query(LocusReferences).filter_by(reference_id=self.dbentity_id)
+            locusalias_ref = curator_session.query(LocusAliasReferences).filter_by(reference_id=self.dbentity_id)
+            locusnote_ref = curator_session.query(LocusnoteReference).filter_by(reference_id=self.dbentity_id)
+            locusrelation_ref = curator_session.query(LocusrelationReference).filter_by(reference_id=self.dbentity_id)
+            locussummary_ref = curator_session.query(LocussummaryReference).filter_by(reference_id=self.dbentity_id)
+            pathway_annot = curator_session.query(Pathwayannotation).filter_by(reference_id=self.dbentity_id)
+            pathwaysummary_ref = curator_session.query(PathwaysummaryReference).filter_by(reference_id=self.dbentity_id)
+            phenotype_annot = curator_session.query(Phenotypeannotation).filter_by(reference_id=self.dbentity_id)
+            physinteraction_annot = curator_session.query(Physinteractionannotation).filter_by(reference_id=self.dbentity_id)
+            posttranslation_annot = curator_session.query(Posttranslationannotation).filter_by(reference_id=self.dbentity_id)
+            proteindomain_annot = curator_session.query(Proteindomainannotation).filter_by(reference_id=self.dbentity_id)
+            proteinexpt_annot = curator_session.query(Proteinexptannotation).filter_by(reference_id=self.dbentity_id)
+            proteinseq_annot = curator_session.query(Proteinsequenceannotation).filter_by(reference_id=self.dbentity_id)
+            regulation_annot = curator_session.query(Regulationannotation).filter_by(reference_id=self.dbentity_id)
+            reserved_name = curator_session.query(Reservedname).filter_by(reference_id=self.dbentity_id)
+            strainsummary_ref = curator_session.query(StrainsummaryReference).filter_by(reference_id=self.dbentity_id)
+            reference_file = curator_session.query(ReferenceFile).filter_by(reference_id=self.dbentity_id)
+            return self.to_dict()
+        except Exception, e:
+            traceback.print_exc()
+            transaction.abort()
+            curator_session.rollback()
+            raise(e)
+        finally:
+            if curator_session:
+                curator_session.close()
 
     def update_tags(self, tags, username):
         curator_session = None
