@@ -674,6 +674,8 @@ CREATE TABLE nex.proteinabundanceannotation (
     reference_id bigint NOT NULL,
     original_reference_id bigint NOT NULL,
     data_value integer NOT NULL,
+    median_value integer NOT NULL,
+    med_abs_dev_value integer NOT NULL,
     data_unit varchar(20) NOT NULL,
     assay_id bigint NOT NULL,
     media_id bigint NOT NULL,
@@ -696,6 +698,8 @@ COMMENT ON COLUMN nex.proteinabundanceannotation.taxonomy_id IS 'FK to TAXONOMY.
 COMMENT ON COLUMN nex.proteinabundanceannotation.source_id IS 'FK to SOURCE.SOURCE_ID.';
 COMMENT ON COLUMN nex.proteinabundanceannotation.dbentity_id IS 'FK to LOCUSDBENTITY.DBENTITY_ID.';
 COMMENT ON COLUMN nex.proteinabundanceannotation.data_value IS 'Normalized protein abundance data value.';
+COMMENT ON COLUMN nex.proteinabundanceannotation.median_value IS 'Median protein abundance value.';
+COMMENT ON COLUMN nex.proteinabundanceannotation.med_abs_dev_value IS 'Median Absolute Deviation MAD value.';
 COMMENT ON COLUMN nex.proteinabundanceannotation.data_unit IS 'Units of the protein abundance data value (molecules/cell).';
 COMMENT ON COLUMN nex.proteinabundanceannotation.assay_id IS 'FK to ECO.ECO_ID.';
 COMMENT ON COLUMN nex.proteinabundanceannotation.media_id IS 'FK to EFO.EFO_ID.';
