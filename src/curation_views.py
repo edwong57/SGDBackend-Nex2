@@ -2,7 +2,7 @@ from oauth2client import client, crypt
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPNotFound, HTTPFound
 from pyramid.view import view_config
 from pyramid.session import check_csrf_token
-from sqlalchemy import create_engine, and_
+from sqlalchemy import create_engine, and_, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import scoped_session, sessionmaker
 from validate_email import validate_email
@@ -17,7 +17,7 @@ import transaction
 import json
 import re
 
-from .helpers import allowed_file, extract_id_request, secure_save_file, curator_or_none, extract_references, extract_keywords, get_or_create_filepath, extract_topic, extract_format, file_already_uploaded, link_references_to_file, link_keywords_to_file, FILE_EXTENSIONS, get_locus_by_id, get_go_by_id
+from .helpers import allowed_file, extract_id_request, secure_save_file, curator_or_none, extract_references, extract_keywords, get_or_create_filepath, extract_topic, extract_format, file_already_uploaded, link_references_to_file, link_keywords_to_file, FILE_EXTENSIONS, get_locus_by_id, get_go_by_id, set_string_format
 from .curation_helpers import ban_from_cache, process_pmid_list, get_curator_session, get_pusher_client, validate_orcid
 from .loading.promote_reference_triage import add_paper
 from .models import DBSession, Dbentity, Dbuser, CuratorActivity, Colleague, Colleaguetriage, LocusnoteReference, Referencedbentity, Reservedname, ReservednameTriage, Straindbentity, Literatureannotation, Referencetriage, Referencedeleted, Locusdbentity, CurationReference, Locussummary, validate_tags, convert_space_separated_pmids_to_list
@@ -557,9 +557,11 @@ def colleague_update(request):
     try:
         is_changed = False
         old_dict = colleague.to_simple_dict()
+        
         for x in old_dict.keys():
-            if old_dict[x] != data[x]:
-                is_changed = True
+            if data.get(x) is not None:
+                if old_dict[x] != data[x]:
+                    is_changed = True
         if is_changed:
             existing_triage = DBSession.query(Colleaguetriage).filter(Colleaguetriage.colleague_id == req_id).one_or_none()
             if existing_triage:
@@ -571,6 +573,7 @@ def colleague_update(request):
                     triage_type='Update',
                 )
                 DBSession.add(new_c_triage)
+                colleague.is_in_triage = True
             transaction.commit()
             return { 'colleague_id': req_id }
         else:
@@ -580,6 +583,57 @@ def colleague_update(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
+
+
+@view_config(route_name='add_new_colleague_triage', renderer='json', request_method='POST')
+def add_new_colleague_triage(request):
+
+    if not check_csrf_token(request, raises=False):
+        return HTTPBadRequest(body=json.dumps({'error': 'Bad CSRF Token'}))
+    params = request.json_body
+    required_fields = ['first_name', 'last_name', 'email', 'orcid']
+    for x in required_fields:
+        if not params[x]:
+            msg = x + ' is a required field.'
+            return HTTPBadRequest(body=json.dumps({'message': msg}), content_type='text/json')
+    is_email_valid = validate_email(params['email'], verify=False)
+    if not is_email_valid:
+        msg = params['email'] + ' is not a valid email.'
+        return HTTPBadRequest(body=json.dumps({'message': msg}), content_type='text/json')
+    is_orcid_valid = validate_orcid(params['orcid'])
+    if not is_orcid_valid:
+        msg = params['orcid'] + ' is not a valid orcid.'
+        return HTTPBadRequest(body=json.dumps({'message': msg}), content_type='text/json')
+    colleague_orcid_email_exists = DBSession.query(Colleague).filter(or_(and_(Colleague.orcid == params.get('orcid'), Colleague.email == params.get(
+        'email')), or_(Colleague.orcid == params.get('orcid'), Colleague.email == params.get('email')))).one_or_none()
+    if colleague_orcid_email_exists:
+        msg = 'You entered an ORCID or Email which is already being used by an SGD colleague. Try to find your entry or contact sgd-helpdesk@lists.stanford.edu if you think this is a mistake.'
+        return HTTPBadRequest(body=json.dumps({'message': msg}), content_type='text/json')
+    try:
+        
+        username = request.session['username']
+        full_name = params['first_name'] + ' ' + params['last_name']
+        # add a random number to be sure it's unique
+        format_name = set_string_format(full_name) + str(randint(1, 100))
+    
+        created_by = username  # if username else get_username_from_db_uri()
+    
+        new_c_triage = Colleaguetriage(
+            json=json.dumps(params),
+            triage_type='New',
+        )
+        DBSession.add(new_c_triage)
+        transaction.commit()
+        return {'colleague_id': 0}
+    except IntegrityError as e:
+        transaction.abort()
+        log.error(e)
+        return HTTPBadRequest(body=json.dumps({'message': 'Orcid or Email already exists, if error persist Please contact sgd-helpdesk@lists.stanford.edu'}), content_type='text/json')
+    except Exception as e:
+        transaction.abort()
+        log.error(e)
+        return HTTPBadRequest(body=json.dumps({'message': str(e)}), content_type='text/json')
+
 
 # not authenticated to allow the public submission
 @view_config(route_name='new_colleague', renderer='json', request_method='POST')
@@ -600,14 +654,15 @@ def new_colleague(request):
     if not is_orcid_valid:
         msg = params['orcid'] + ' is not a valid orcid.'
         return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-    colleague_orcid_exists = DBSession.query(Colleague).filter(Colleague.orcid == params.get('orcid')).one_or_none()
-    if colleague_orcid_exists:
-        msg = 'You entered an ORCID which is already being used by an SGD colleague. Try to find your entry or contact sgd-helpdesk@lists.stanford.edu if you think this is a mistake.'
+    colleague_orcid_email_exists = DBSession.query(Colleague).filter(and_(Colleague.orcid == params.get('orcid'), Colleague.email == params.get('email'))).one_or_none()
+    if colleague_orcid_email_exists:
+        msg = 'You entered an ORCID or Email which is already being used by an SGD colleague. Try to find your entry or contact sgd-helpdesk@lists.stanford.edu if you think this is a mistake.'
         return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
     try:
+        username = request.session['username']
         full_name = params['first_name'] + ' ' + params['last_name']
         format_name = params['first_name'] + '_' + params['last_name'] + str(randint(1,100))# add a random number to be sure it's unique
-        created_by = get_username_from_db_uri()
+        created_by = username #if username else get_username_from_db_uri()
         new_colleague = Colleague(
             format_name = format_name,
             display_name = full_name,
@@ -636,11 +691,14 @@ def new_colleague(request):
         DBSession.add(new_c_triage)
         transaction.commit()
         return { 'colleague_id': new_colleague_id }
+    except IntegrityError as e:
+        transaction.abort()
+        log.error(e)
+        return HTTPBadRequest(body=json.dumps({ 'message': 'Orcid or Email already exists, if error persist Please contact sgd-helpdesk@lists.stanford.edu' }), content_type='text/json')
     except Exception as e:
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
 @view_config(route_name='reserved_name_index', renderer='json')
 @authenticate
 def reserved_name_index(request):
@@ -827,9 +885,56 @@ def colleague_triage_promote(request):
         curator_session = get_curator_session(username)
         req_id = int(request.matchdict['id'])
         params = request.json_body
+        full_name = params['first_name'] + ' ' + params['last_name']
+        format_name = set_string_format(full_name) + str(randint(1, 100))
         c_triage = curator_session.query(Colleaguetriage).filter(Colleaguetriage.curation_id == req_id).one_or_none()
         if not c_triage:
             return HTTPNotFound()
+        orcid = params.get('orcid')
+        first_name = params.get('first_name')
+        last_name = params.get('last_name')
+        email = params.get('email')
+        is_beta_tester = params.get('willing_to_be_beta_tester')
+        display_email = params.get('display_email')
+        is_contact = params.get('receive_quarterly_newsletter')
+
+        if c_triage.colleague_id:
+            colleague = DBSession.query(Colleague).filter(
+                Colleague.colleague_id == c_triage.colleague_id).one_or_none()
+            if (colleague.first_name != first_name or colleague.last_name != last_name):
+                colleague.first_name = first_name
+                colleague.last_name = last_name
+                colleague.format_name = format_name
+                colleague.display_name = full_name
+                colleague.obj_url = '/colleague/' + format_name
+            colleague.orcid = orcid
+            colleague.email = email
+            colleague.display_email = display_email
+            colleague.is_contact = is_contact
+            colleague.is_beta_tester = is_beta_tester
+            colleague.is_in_triage = False
+            
+            # get_username_from_db_uri() if colleague.created_by == 'OTTO' else username
+        else:
+            new_colleague = Colleague(
+                format_name=format_name,
+                display_name=full_name,
+                obj_url='/colleague/' + format_name,
+                source_id=759,  # direct submission
+                orcid=orcid,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                is_contact=is_contact,
+                is_beta_tester=is_beta_tester,
+                display_email=display_email,
+                is_in_triage=False,
+                is_pi=False,
+                created_by=username
+            )
+            DBSession.add(new_colleague)
+            DBSession.flush()
+        '''
         colleague = curator_session.query(Colleague).filter(Colleague.colleague_id == c_triage.colleague_id).one_or_none()
         colleague.first_name = params.get('first_name')
         colleague.last_name = params.get('last_name')
@@ -839,9 +944,16 @@ def colleague_triage_promote(request):
         colleague.is_contact = params.get('receive_quarterly_newsletter')
         colleague.is_beta_tester = params.get('willing_to_be_beta_tester')
         colleague.is_in_triage = False
+        colleague.created_by = username #get_username_from_db_uri() if colleague.created_by == 'OTTO' else username
+        '''
+        
         curator_session.delete(c_triage)
         transaction.commit()
         return True
+    except IntegrityError as e:
+        transaction.abort()
+        log.error(e)
+        return HTTPBadRequest(body=json.dumps({'message': 'Error: Duplicate record detected, Please contact sgd-helpdesk@lists.stanford.edu if issue persists'}), content_type='text/json')
     except Exception as e:
         transaction.abort()
         log.error(e)
@@ -876,6 +988,7 @@ def colleague_triage_delete(request):
 
 
 def get_username_from_db_uri():
+    
     s = os.environ['NEX2_URI']
     start = 'postgresql://'
     end = '@'

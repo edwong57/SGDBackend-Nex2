@@ -973,8 +973,12 @@ if __name__ == "__main__":
         To run multi-processing add this: 
         with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             index_references()
+        
+        To cleanup index run:
+        clean()
+            This is mostly essential when mapping changes otherwise elasticsearch will run partial updates without deleting documents
     '''
-    cleanup()
+    
     setup()
     t1 = Thread(target=index_part_1)
     t2 = Thread(target=index_part_2)

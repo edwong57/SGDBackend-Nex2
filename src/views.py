@@ -58,6 +58,7 @@ def search_autocomplete(request):
 
 @view_config(route_name='search', renderer='json', request_method='GET')
 def search(request):
+    
     query = request.params.get('q', '')
     is_quick_flag = request.params.get('is_quick', False)
     query_temp_arr = query.strip().split(' ')
@@ -185,42 +186,46 @@ def search(request):
                                                json_response_fields,
                                                search_fields,
                                                sort_by)
-    search_results = ESearch.search(
-        index=ES_INDEX_NAME,
-        body=search_body,
-        size=limit,
-        from_=offset,
-        preference='p_'+query
-    )
+    try:
+        search_results = ESearch.search(
+            index=ES_INDEX_NAME,
+            body=search_body,
+            size=limit,
+            from_=offset,
+            preference='p_'+query
+        )
 
-    if search_results['hits']['total'] == 0:
-        return {
-            'total': 0,
-            'results': [],
-            'aggregations': []
-        }
+        if search_results['hits']['total'] == 0:
+            return {
+                'total': 0,
+                'results': [],
+                'aggregations': []
+            }
 
-    aggregation_body = build_es_aggregation_body_request(
-        es_query,
-        category,
-        category_filters
-    )
-
-    aggregation_results = ESearch.search(
-        index=ES_INDEX_NAME,
-        body=aggregation_body,
-        preference='p_'+query
-    )
-
-    return {
-        'total': search_results['hits']['total'],
-        'results': format_search_results(search_results, json_response_fields, query),
-        'aggregations': format_aggregation_results(
-            aggregation_results,
+        aggregation_body = build_es_aggregation_body_request(
+            es_query,
             category,
             category_filters
         )
-    }
+        aggregation_results = ESearch.search(
+            index=ES_INDEX_NAME,
+            body=aggregation_body,
+            preference='p_'+query
+        )
+
+        return {
+            'total': search_results['hits']['total'],
+            'results': format_search_results(search_results, json_response_fields, query),
+            'aggregations': format_aggregation_results(
+                aggregation_results,
+                category,
+                category_filters
+            )
+        }
+    except Exception as e:
+        log(e)
+        return {'total':0,'results':None,'aggregations': None, 'message':'Error occured: ' + str(e)}
+
 
 @view_config(route_name='genomesnapshot', renderer='json', request_method='GET')
 def genomesnapshot(request):

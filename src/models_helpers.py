@@ -75,7 +75,6 @@ class ModelsHelper(object):
                     colleague_obj[item.colleague_id]["loci"] = temp_loci
                 if temp_relation is not None:
                     colleague_obj[item.colleague_id]["relations"] = temp_relation
-
             return colleague_obj
 
     def list_to_dict_colleague(self, lst):
