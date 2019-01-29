@@ -107,3 +107,6 @@ index_*.png
 *.env
 src/Untitled*
 dev_variables*
+
+# docs
+*notes.md 
