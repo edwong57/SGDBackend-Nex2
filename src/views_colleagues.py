@@ -91,17 +91,20 @@ models_helper = ModelsHelper()
 #     else:
 #         return HTTPNotFound(body=json.dumps({'error': 'Colleague triage not found'}))
 
+
 @view_config(route_name='colleague_get', renderer='json', request_method='GET')
 def colleague_by_format_name(request):
     try:
         format_name = request.matchdict['format_name']
-        colleague = DBSession.query(Colleague).filter(Colleague.format_name == format_name).one_or_none()
+        colleague = DBSession.query(Colleague).filter(
+            Colleague.format_name == format_name).one_or_none()
         if colleague is not None:
             if colleague.is_in_triage:
-                return HTTPNotFound(body=json.dumps({'error': 'Colleague not found, pending review due to recent submission update. is in triage: ' + str(colleague.is_in_triage)}))
+                return HTTPNotFound(body=json.dumps({'error': 'Colleague not found, pending review due to recent submission update. is in triage: '}))
             result = colleague.to_simple_dict()
             return result
         else:
-            return HTTPNotFound(body=json.dumps({'error': 'Colleague not found'}))
+            return HTTPNotFound(body=json.dumps(
+                {'error': 'Colleague not found'}))
     except Exception as e:
             return HTTPNotFound(body=json.dumps({'error': str(e)}))
