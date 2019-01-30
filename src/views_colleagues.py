@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPNotFound, HTTPNoContent
 from pyramid.response import Response
 from pyramid.view import view_config
 
@@ -103,8 +103,10 @@ def colleague_by_format_name(request):
                 return HTTPNotFound(body=json.dumps({'error': 'Colleague not found, pending review due to recent submission update. is in triage: '}))
             result = colleague.to_simple_dict()
             return result
+        elif colleague is None:
+            return {}
         else:
             return HTTPNotFound(body=json.dumps(
-                {'error': 'Colleague not found'}))
+                {}))
     except Exception as e:
             return HTTPNotFound(body=json.dumps({'error': str(e)}))
