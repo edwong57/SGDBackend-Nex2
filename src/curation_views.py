@@ -311,9 +311,9 @@ def db_sign_in(request):
         session['username'] = curator.username
         log.info('User ' + curator.email + ' was successfuly authenticated.')
         return { 'username': session['username'] }
-    except:
+    except Exception as e:
         traceback.print_exc()
-        return HTTPForbidden(body=json.dumps({'error': 'Incorrect login details.'}))
+        return HTTPForbidden(body=json.dumps({'error': 'Incorrect login details.' + str(e)}))
     finally:
         if Temp_session:
             Temp_session.close()
