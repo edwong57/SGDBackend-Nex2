@@ -290,6 +290,7 @@ def db_sign_in(request):
     #    return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     try:
         #import pdb; pdb.set_trace()
+        tmpMsg = ''
         params = request.json_body
         username = params.get('username').lower()
         password = params.get('password')
@@ -310,10 +311,11 @@ def db_sign_in(request):
         session['email'] = curator.email
         session['username'] = curator.username
         log.info('User ' + curator.email + ' was successfuly authenticated.')
+        tmpMsg += str(curator.emai)
         return { 'username': session['username'] }
     except Exception as e:
         traceback.print_exc()
-        return HTTPForbidden(body=json.dumps({'error': 'Incorrect login details. ' + str(e)}))
+        return HTTPForbidden(body=json.dumps({'error': 'Incorrect login details. ' + '  ' + tmpMsg + '  '+ str(e)}))
     finally:
         if Temp_session:
             Temp_session.close()
