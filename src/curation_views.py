@@ -309,11 +309,12 @@ def db_sign_in(request):
         session = request.session
         session['email'] = curator.email
         session['username'] = curator.username
+        test_msg = 'User ' + curator.email + ' was successfuly authenticated.'
         log.info('User ' + curator.email + ' was successfuly authenticated.')
         return { 'username': session['username'] }
     except Exception as e:
         traceback.print_exc()
-        return HTTPForbidden(body=json.dumps({'error': 'Incorrect login details.' + str(e)}))
+        return HTTPForbidden(body=json.dumps({'error': 'Incorrect login details. ' + str(e) + test_msg}))
     finally:
         if Temp_session:
             Temp_session.close()
