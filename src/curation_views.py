@@ -1,5 +1,5 @@
 from oauth2client import client, crypt
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPNotFound, HTTPFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPNotFound, HTTPFound, HTTPInternalServerError
 from pyramid.view import view_config
 from pyramid.session import check_csrf_token
 from sqlalchemy import create_engine, and_, or_
@@ -286,9 +286,10 @@ def refresh_homepage_cache(request):
 @view_config(route_name='db_sign_in', request_method='POST', renderer='json')
 def db_sign_in(request):
     Temp_session = None
-    if not check_csrf_token(request, raises=False):
-        return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
+    #if not check_csrf_token(request, raises=False):
+    #    return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     try:
+        #import pdb; pdb.set_trace()
         params = request.json_body
         username = params.get('username').lower()
         password = params.get('password')
@@ -625,16 +626,21 @@ def add_new_colleague_triage(request):
         DBSession.add(new_c_triage)
         transaction.commit()
         return {'colleague_id': 0}
-    except IntegrityError as e:
+    except IntegrityError as IE:
         transaction.abort()
-        log.error(e)
+        log.error(IE)
         return HTTPBadRequest(body=json.dumps({'message': 'Orcid or Email already exists, if error persist Please contact sgd-helpdesk@lists.stanford.edu'}), content_type='text/json')
+    except HTTPInternalServerError as SE:
+        transaction.abort()
+        log.error(SE)
+        return HTTPBadRequest(body=json.dumps({'message': str(SE)}), content_type='text/json')
+
     except Exception as e:
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({'message': str(e)}), content_type='text/json')
 
-
+'''
 # not authenticated to allow the public submission
 @view_config(route_name='new_colleague', renderer='json', request_method='POST')
 def new_colleague(request):
@@ -699,6 +705,9 @@ def new_colleague(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
+'''
+
+
 @view_config(route_name='reserved_name_index', renderer='json')
 @authenticate
 def reserved_name_index(request):
