@@ -286,8 +286,8 @@ def refresh_homepage_cache(request):
 @view_config(route_name='db_sign_in', request_method='POST', renderer='json')
 def db_sign_in(request):
     Temp_session = None
-    if not check_csrf_token(request, raises=False):
-        return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
+    #if not check_csrf_token(request, raises=False):
+        #return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     try:
         params = request.json_body
         username = params.get('username').lower()
