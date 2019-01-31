@@ -1,3 +1,4 @@
+/*eslint-disable no-debugger */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import t from 'tcomb-form';
