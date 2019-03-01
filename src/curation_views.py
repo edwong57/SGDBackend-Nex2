@@ -311,7 +311,7 @@ def db_sign_in(request):
         session['email'] = curator.email
         session['username'] = curator.username
         log.info('User ' + curator.email + ' was successfuly authenticated.')
-        tmpMsg += str(curator.emai)
+        tmpMsg += str(curator.email)
         return { 'username': session['username'] }
     except Exception as e:
         traceback.print_exc()
