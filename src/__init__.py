@@ -123,6 +123,7 @@ def main(global_config, **settings):
     config.add_route('sign_in', '/signin')
     config.add_route('db_sign_in', '/db_sign_in')
     config.add_route('sign_out', '/signout')
+    config.add_route('author_response', '/authorResponse', request_method='POST')
     config.add_route('colleague_update', '/colleagues/{id}', request_method='PUT')
     config.add_route('new_colleague', '/colleagues', request_method='POST')
     config.add_route('colleague_triage_index', '/colleagues/triage', request_method='GET')
@@ -133,7 +134,7 @@ def main(global_config, **settings):
     config.add_route('colleague_with_subscription', '/colleagues_subscriptions', request_method='GET')
     config.add_route('get_newsletter_sourcecode', '/get_newsletter_sourcecode', request_method='POST')
     config.add_route('send_newsletter', '/send_newsletter', request_method='POST')
-
+    
     # config.add_route('colleague_triage_accept', '/colleagues/triage/{id}', request_method='POST')
     # config.add_route('colleague_triage_update', '/colleagues/triage/{id}', request_method='PUT')
     # config.add_route('colleague_triage_delete', '/colleagues/triage/{id}', request_method='DELETE')

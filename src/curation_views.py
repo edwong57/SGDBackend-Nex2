@@ -644,6 +644,67 @@ def new_colleague(request):
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
 
+
+# not authenticated to allow the public submission                                                                   
+@view_config(route_name='author_response', renderer='json', request_method='POST')
+def author_response(request):
+    if not check_csrf_token(request, raises=False):
+        return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
+    params = request.json_body
+    required_fields = ['first_name', 'last_name', 'email', 'orcid']
+    for x in required_fields:
+        if not params[x]:
+            msg = x + ' is a required field.'
+            return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+    is_email_valid = validate_email(params['email'], verify=False)
+    if not is_email_valid:
+        msg = params['email'] + ' is not a valid email.'
+        return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+    is_orcid_valid = validate_orcid(params['orcid'])
+    if not is_orcid_valid:
+        msg = params['orcid'] + ' is not a valid orcid.'
+        return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+    colleague_orcid_exists = DBSession.query(Colleague).filter(Colleague.orcid == params.get('orcid')).one_or_none()
+    if colleague_orcid_exists:
+        msg = 'You entered an ORCID which is already being used by an SGD colleague. Try to find your entry or contact sgd-helpdesk@lists.stanford.edu if you think this is a mistake.'
+        return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+    try:
+        full_name = params['first_name'] + ' ' + params['last_name']
+        format_name = params['first_name'] + '_' + params['last_name'] + str(randint(1,100))# add a random number to be sure it's unique
+        created_by = get_username_from_db_uri()
+        new_colleague = Colleague(
+            format_name = format_name,
+            display_name = full_name,
+            obj_url = '/colleague/' + format_name,
+            source_id = 759,# direct submission                                                                                      
+            orcid = params['orcid'],
+            first_name = params['first_name'],
+            last_name = params['last_name'],
+            email = params['email'],
+            is_contact = False,
+            is_beta_tester = False,
+            display_email = False,
+            is_in_triage = True,
+            is_pi = False,
+            created_by = created_by
+        )
+        DBSession.add(new_colleague)
+        DBSession.flush()
+        new_colleague_id = new_colleague.colleague_id
+        new_colleague = DBSession.query(Colleague).filter(Colleague.format_name == format_name).one_or_none()
+        new_c_triage = Colleaguetriage(
+            colleague_id = new_colleague_id,
+            json=json.dumps(params),
+            triage_type='New',
+        )
+        DBSession.add(new_c_triage)
+        transaction.commit()
+        return { 'colleague_id': new_colleague_id }
+    except Exception as e:
+        transaction.abort()
+        log.error(e)
+        return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
+
 @view_config(route_name='reserved_name_index', renderer='json')
 @authenticate
 def reserved_name_index(request):

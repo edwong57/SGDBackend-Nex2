@@ -36,7 +36,7 @@ import ColleaguesIndex from './containers/colleagues/index';
 import ColleaguesShow from './containers/colleagues/show';
 // import AuthorResponse from './containers/authorResponse/index';
 import NewColleague from './containers/colleagues/new';
-
+import AuthorResponse from './containers/authorResponse/new';
 
 export default (
   <Route>
@@ -77,6 +77,7 @@ export default (
       {/*<Route component={AuthorResponse} path='author_response' />*/}
       <Route component={NewColleague} path='new_colleague' />
       <Route component={NewGeneNameReservation} path='new_reservation' />
+      <Route component={AuthorResponse} path='author_response' />
     </Route>
     <Route component={NotFound} path='*' />
   </Route>
