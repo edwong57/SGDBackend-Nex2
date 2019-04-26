@@ -36,8 +36,7 @@ import ColleaguesIndex from './containers/colleagues/index';
 import ColleaguesShow from './containers/colleagues/show';
 // import AuthorResponse from './containers/authorResponse/index';
 import NewColleague from './containers/colleagues/new';
-// import AuthorResponse from './containers/authorResponse/new';
-import AuthorResponse from './containers/colleagues/new';
+import AuthorResponse from './containers/authorResponse/new';
 
 export default (
   <Route>
