@@ -30,18 +30,18 @@ class AuthorResponseForm extends Component {
       );
     };
     let formOptions = {
-	template: formLayout,
-	fields: {
-	    pmid: {
-		label: 'Pubmed ID for your paper * : '
-	    },
-	    citation: {
-		label: 'Citation for your paper: '
-	    },
-	    email: {
-		label: 'Your E-mail address * : '
-	    }
-	}
+         template: formLayout,
+         fields: {
+               pmid: {
+		    label: 'Pubmed ID for your paper * : '
+	       },
+	       citation: {
+		    label: 'Citation for your paper: '
+	       },
+	       email: {
+		    label: 'Your E-mail address * : '
+	       } 
+	 }
     };
     let _onSuccess = (data) => {
       if (this.props.onComplete) this.props.onComplete(data.colleague_id);
