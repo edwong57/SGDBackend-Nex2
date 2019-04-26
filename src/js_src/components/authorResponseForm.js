@@ -36,11 +36,8 @@ class AuthorResponseForm extends Component {
     let colleagueOptions = {
       template: formLayout,
       fields: {
-        colleague_id: {
-          type: 'hidden'
-        },
-        first_name: {
-          label: 'First Name *'
+        pmid: {
+          label: 'Pubmed ID for your paper: *'
         },
         last_name: {
           label: 'Last Name *'
