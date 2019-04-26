@@ -33,13 +33,13 @@ class AuthorResponseForm extends Component {
       template: formLayout,
       fields: {
         pmid: {
-	      label: 'Pubmed ID for your paper * : '
+           label: 'Pubmed ID for your paper * : '
         },
         citation: {
-              label: 'Citation for your paper: '
+           label: 'Citation for your paper: '
         },
         email: {
-              label: 'Your E-mail address * : '
+           label: 'Your E-mail address * : '
         }
       }
     };
