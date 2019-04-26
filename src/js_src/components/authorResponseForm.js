@@ -64,7 +64,7 @@ class AuthorResponseForm extends Component {
   }
 }
 
-ColleagueForm.propTypes = {
+AuthorResponseForm.propTypes = {
   defaultData: React.PropTypes.object,
   onComplete: React.PropTypes.func,
   requestMethod: React.PropTypes.string,
