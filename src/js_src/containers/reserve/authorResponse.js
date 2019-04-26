@@ -4,11 +4,11 @@ import { connect } from 'react-redux';
 // import { Async } from 'react-select';
 
 import AuthorResponseForm from '../../components/authorResponseForm';
-import fetchData from '../../lib/fetchData';
+// import fetchData from '../../lib/fetchData';
 import Loader from '../../components/loader';
 
 // const AUTOCOMPLETE_BASE = '/autocomplete_results?category=colleague&q=';
-const AUTHOR_RESPONSE_BASE = '/authorResponse';
+// const AUTHOR_RESPONSE_BASE = '/authorResponse';
 
 class AuthorResponse extends Component {
   constructor(props) {
