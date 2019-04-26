@@ -33,7 +33,7 @@ class AuthorResponseForm extends Component {
         </div>
       );
     };
-    let colleagueOptions = {
+    let authorOptions = {
       template: formLayout,
       fields: {
         pmid: {
@@ -55,7 +55,7 @@ class AuthorResponseForm extends Component {
     };
     let _requestMethod = this.props.requestMethod || 'PUT';
     let _submitText = this.props.submitText || 'Approve Changes';
-    return <FlexiForm defaultData={this.props.defaultData} tFormOptions={colleagueOptions} tFormSchema={colleagueSchema} onSuccess={_onSuccess} requestMethod={_requestMethod} submitText={_submitText} updateUrl={this.props.submitUrl} />;
+    return <FlexiForm defaultData={this.props.defaultData} tFormOptions={authorOptions} tFormSchema={colleagueSchema} onSuccess={_onSuccess} requestMethod={_requestMethod} submitText={_submitText} updateUrl={this.props.submitUrl} />;
   }
 }
 
