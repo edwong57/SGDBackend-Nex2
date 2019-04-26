@@ -25,7 +25,7 @@ class AuthorResponse extends Component {
 
   handleSelect(value) {
     if (Array.isArray(value)) {
-	this.setState({ selectorValue: null, pmid: null, citation: null });
+          this.setState({ selectorValue: null, pmid: null, citation: null });
     }
     this.setState({ selectorValue: value });
     // fetch data to update form
@@ -37,13 +37,13 @@ class AuthorResponse extends Component {
   }
 
   renderSelector() {
-    let getOptions = (input, callback) => {
-      if (input === '') {
-        callback(null, {
-          options: [],
-          complete: false
-        });
-      }
+      // let getOptions = (input, callback) => {
+      //   if (input === '') {
+      //      callback(null, {
+      //         options: [],
+      //         complete: false
+      //      });
+      //  }
 
       // let url = `${AUTOCOMPLETE_BASE}${input}`;
       // fetchData(url).then( data => {
@@ -60,7 +60,7 @@ class AuthorResponse extends Component {
       //    complete: false
       //  });
       // });
-    };
+      //};
 
     // WORK FROM HERE
 
@@ -69,9 +69,6 @@ class AuthorResponse extends Component {
         <p>Information about your recently published paper</p>
       <p>Please tell us about your paper and help us keep SGD up to date:</p>
         <div className='row'>
-          <div className='columns small-12 medium-6'>
-            {selectNode}
-          </div>
           <div className='columns small-12 medium-6'>
                SECTION HERE
           </div>
