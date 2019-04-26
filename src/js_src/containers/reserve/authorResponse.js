@@ -24,9 +24,9 @@ class AuthorResponse extends Component {
   }
 
   handleSelect(value) {
-      if (Array.isArray(value)) {
-            this.setState({ selectorValue: null, pmid: null, citation: null });
-      }
+    if (Array.isArray(value)) {
+          this.setState({ selectorValue: null, pmid: null, citation: null });
+    }
     this.setState({ selectorValue: value });
     // fetch data to update form
     let url = `${AUTHOR_RESPONSE_BASE}/${value.formatName}`;
