@@ -5,7 +5,7 @@ import FlexiForm from './forms/flexiForm';
 
 class AuthorResponseForm extends Component {
   render() {
-    let colleagueSchema = t.struct({
+    let authorSchema = t.struct({
       pmid: t.maybe(t.String),
       citation: t.maybe(t.String),
       email: t.maybe(t.String),
@@ -55,7 +55,7 @@ class AuthorResponseForm extends Component {
     };
     let _requestMethod = this.props.requestMethod || 'PUT';
     let _submitText = this.props.submitText || 'Approve Changes';
-    return <FlexiForm defaultData={this.props.defaultData} tFormOptions={authorOptions} tFormSchema={colleagueSchema} onSuccess={_onSuccess} requestMethod={_requestMethod} submitText={_submitText} updateUrl={this.props.submitUrl} />;
+    return <FlexiForm defaultData={this.props.defaultData} tFormOptions={authorOptions} tFormSchema={authorSchema} onSuccess={_onSuccess} requestMethod={_requestMethod} submitText={_submitText} updateUrl={this.props.submitUrl} />;
   }
 }
 
