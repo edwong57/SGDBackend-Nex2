@@ -5,11 +5,10 @@ import FlexiForm from './forms/flexiForm';
 
 class AuthorResponseForm extends Component {
   render() {
-    let authorResponseSchema = t.struct({
+    let colleagueSchema = t.struct({
       pmid: t.maybe(t.String),
       citation: t.maybe(t.String),
       email: t.maybe(t.String),
-      display_email: t.maybe(t.Boolean),
       has_function: t.maybe(t.Boolean),
       has_dataset: t.maybe(t.Boolean)
     });
@@ -18,37 +17,48 @@ class AuthorResponseForm extends Component {
         <div>
           <p>* indicates required field</p>
           <div className='row'>
-            <div className='column small-3'>{locals.inputs.pmid}</div>
-            <div className='column small-4'>{locals.inputs.citation}</div>
+            <div className='column small-3'>{locals.inputs.first_name}</div>
+            <div className='column small-4'>{locals.inputs.last_name}</div>
             <div className='column small-5'>{locals.inputs.email}</div>
           </div>
           <div className='row'>
-            <div className='column small-4'>{locals.inputs.has_function}</div>
-            <div className='column small-5'>{locals.inputs.has_dataset}</div>
+            <div className='column small-3'>{locals.inputs.display_email}</div>
+            <div className='column small-4'>{locals.inputs.receive_quarterly_newsletter}</div>
+            <div className='column small-5'>{locals.inputs.willing_to_be_beta_tester}</div>
+          </div>
+          <span><a href='https://orcid.org/register' target='_new'><i className='fa fa-question-circle' /> Register for an ORCID iD</a></span>
+          <div className='row'>
+            <div className='column small-3'>{locals.inputs.orcid}</div>
           </div>
         </div>
       );
     };
-    let formOptions = {
-         template: formLayout,
-         fields: {
-               pmid: {
-		    label: 'Pubmed ID for your paper * : '
-	       },
-	       citation: {
-		    label: 'Citation for your paper: '
-	       },
-	       email: {
-		    label: 'Your E-mail address * : '
-	       } 
-	 }
+    let colleagueOptions = {
+      template: formLayout,
+      fields: {
+        colleague_id: {
+          type: 'hidden'
+        },
+        first_name: {
+          label: 'First Name *'
+        },
+        last_name: {
+          label: 'Last Name *'
+        },
+        email: {
+          label: 'Email *'
+        },
+        orcid: {
+          label: 'ORCID iD *'
+        }
+      }
     };
     let _onSuccess = (data) => {
       if (this.props.onComplete) this.props.onComplete(data.colleague_id);
     };
     let _requestMethod = this.props.requestMethod || 'PUT';
     let _submitText = this.props.submitText || 'Approve Changes';
-    return <FlexiForm defaultData={this.props.defaultData} tFormOptions={formOptions} tFormSchema={authorResponseSchema} onSuccess={_onSuccess} requestMethod={_requestMethod} submitText={_submitText} updateUrl={this.props.submitUrl} />;
+    return <FlexiForm defaultData={this.props.defaultData} tFormOptions={colleagueOptions} tFormSchema={colleagueSchema} onSuccess={_onSuccess} requestMethod={_requestMethod} submitText={_submitText} updateUrl={this.props.submitUrl} />;
   }
 }
 
