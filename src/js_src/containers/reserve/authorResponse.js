@@ -7,7 +7,7 @@ import AuthorResponseForm from '../../components/authorResponseForm';
 import fetchData from '../../lib/fetchData';
 import Loader from '../../components/loader';
 
-# const AUTOCOMPLETE_BASE = '/autocomplete_results?category=colleague&q=';
+// const AUTOCOMPLETE_BASE = '/autocomplete_results?category=colleague&q=';
 const AUTHOR_RESPONSE_BASE = '/authorResponse';
 
 class AuthorResponse extends Component {
@@ -62,7 +62,7 @@ class AuthorResponse extends Component {
       // });
     };
 
-    ## WORK FROM HERE
+    // WORK FROM HERE
 
     return (
       <div style={{ marginBottom: '1rem' }}>
