@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 // import { push } from 'react-router-redux';
-import { Async } from 'react-select';
+// import { Async } from 'react-select';
 
 import AuthorResponseForm from '../../components/authorResponseForm';
 import fetchData from '../../lib/fetchData';
@@ -73,10 +73,7 @@ class AuthorResponse extends Component {
             {selectNode}
           </div>
           <div className='columns small-12 medium-6'>
-            <label>
-              <input checked={this.state.isNewColleague} onChange={this.handleCheckChange.bind(this)} type='checkbox' />
-              I am not yet an SGD colleague. Add my information to registry.
-            </label>
+               SECTION HERE
           </div>
         </div>
       </div>
@@ -85,15 +82,11 @@ class AuthorResponse extends Component {
 
   renderForm() {
     if (this.state.isPending) return <Loader />;
-    if (!this.state.selectorValue && !this.state.isNewColleague) return null;
+    if (!this.state.selectorValue) return null;
     let _requestMethod = 'POST';
-    let url = 'colleagues';
-    if (!this.state.isNewColleague) {
-      _requestMethod = 'PUT';
-      url = `colleagues/${this.state.colleagueId}`;
-    }
+    let url = 'authorResponse';
     let _submitText = this.props.submitText || 'Next';
-    return <ColleagueForm defaultData={this.state.formValue} onComplete={this.props.onComplete.bind(this)} requestMethod={_requestMethod} submitUrl={url} submitText={_submitText} />;
+    return <AuthorResponseForm defaultData={this.state.formValue} onComplete={this.props.onComplete.bind(this)} requestMethod={_requestMethod} submitUrl={url} submitText={_submitText} />;
   }
 
   render() {
@@ -106,7 +99,7 @@ class AuthorResponse extends Component {
   }
 }
 
-ColleagueUpdate.propTypes = {
+AuthorResponse.propTypes = {
   dispatch: React.PropTypes.func,
   onComplete: React.PropTypes.func,
   submitText: React.PropTypes.string
@@ -117,4 +110,4 @@ function mapStateToProps() {
   };
 }
 
-export default connect(mapStateToProps)(ColleagueUpdate);
+export default connect(mapStateToProps)(AuthorResponse);
