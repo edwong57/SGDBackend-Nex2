@@ -45,21 +45,21 @@ class AuthorResponse extends Component {
         });
       }
 
-      # let url = `${AUTOCOMPLETE_BASE}${input}`;
-      # fetchData(url).then( data => {
-      #  let results = data.results || [];
-      #  let _options = results.map( d => {
-      #    let institution =  d.institution ? `, ${d.institution}` : '';
-      #    return {
-      #      label: `${d.name}${institution}`,
-      #      formatName: d.format_name
-      #    };
-      #  });
-      #  callback(null, {
-      #    options: _options,
-      #    complete: false
-      #  });
-      # });
+      // let url = `${AUTOCOMPLETE_BASE}${input}`;
+      // fetchData(url).then( data => {
+      //  let results = data.results || [];
+      //  let _options = results.map( d => {
+      //    let institution =  d.institution ? `, ${d.institution}` : '';
+      //    return {
+      //      label: `${d.name}${institution}`,
+      //      formatName: d.format_name
+      //    };
+      //  });
+      //  callback(null, {
+      //    options: _options,
+      //    complete: false
+      //  });
+      // });
     };
 
     ## WORK FROM HERE
