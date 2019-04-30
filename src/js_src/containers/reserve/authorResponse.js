@@ -26,7 +26,7 @@ class AuthorResponse extends Component {
 
     return (
       <div style={{ marginBottom: '1rem' }}>
-        <center><h1>Information about your recently published paper</h1></center>
+        <center><h3>Information about your recently published paper</h3></center>
       <p>Please tell us about your paper and help us keep SGD up to date:</p>
         <div className='row'>
           <div className='columns small-12 medium-6'>
