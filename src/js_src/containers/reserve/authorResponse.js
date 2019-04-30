@@ -12,15 +12,23 @@ class AuthorResponse extends Component {
       pmid: null,
       citation: null,
       hasFunction: false,
+      hasDataset: false,
+      function: null,
+      dataset: null,
+      genes: null,
       selectorValue: null,
       formValue: null,
       isPending: false
     };
-  }
+  },
 
   handleHasFunctionChange() {
     this.setState({ hasFunction: !this.state.hasFunction });
-  }
+  },
+
+  handleHasFunctionChange() {
+    this.setState({ hasDataset: !this.state.hasDataset });
+  },
 
   renderSelector() {
 
@@ -36,6 +44,11 @@ class AuthorResponse extends Component {
                <p>Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)? 
                <input checked={this.state.hasFunction} onChange={this.handleHasFunctionChange.bind(this)} type='checkbox' /> Yes<br></br>
                If yes, please summarize briefly the novel results. <textarea ref='function' value={this.state.function} name='function' rows='5' cols='50'></textarea></p>
+               <p>If this paper focuses on specific genes/proteins, please identify them here (enter a list of gene names/systematic names): <textarea ref='genes' value={this.state.genes} name='genes' rows='1' cols='50'></textarea></p>
+               <p>Does this study include large-scale datasets that you would like to see incorporated into SGD? 
+               <input checked={this.state.hasDataset} onChange={this.handleHasDatasetChange.bind(this)} type='checkbox' /> Yes<br></br>
+               If yes, please describe briefly the type(s) of data. <textarea ref='dataset' value={this.state.dataset} name='dataset' rows='5' cols='50'></textarea></p> 
+
           </div>
         </div>
       </div>
