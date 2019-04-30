@@ -19,7 +19,7 @@ class AuthorResponse extends Component {
   }
 
   handleHasFunctionChange() {
-      this.setState({ hasFunction: !this.state.hasFunction });
+    this.setState({ hasFunction: !this.state.hasFunction });
   }
 
   renderSelector() {
