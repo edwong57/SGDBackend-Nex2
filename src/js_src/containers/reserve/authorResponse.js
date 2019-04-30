@@ -1,14 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-// import { push } from 'react-router-redux';
-// import { Async } from 'react-select';
 
 import AuthorResponseForm from '../../components/authorResponseForm';
-// import fetchData from '../../lib/fetchData';
 import Loader from '../../components/loader';
-
-// const AUTOCOMPLETE_BASE = '/autocomplete_results?category=colleague&q=';
-// const AUTHOR_RESPONSE_BASE = '/authorResponse';
 
 class AuthorResponse extends Component {
   constructor(props) {
@@ -17,47 +11,29 @@ class AuthorResponse extends Component {
       data: null,
       pmid: null,
       citation: null,
+      hasFunction: false,
       selectorValue: null,
       formValue: null,
       isPending: false
     };
   }
 
+  handleHasFunctionChange() {
+      this.setState({ hasFunction: !this.state.hasFunction });
+  }
+
   renderSelector() {
-      // let getOptions = (input, callback) => {
-      //   if (input === '') {
-      //      callback(null, {
-      //         options: [],
-      //         complete: false
-      //      });
-      //  }
-
-      // let url = `${AUTOCOMPLETE_BASE}${input}`;
-      // fetchData(url).then( data => {
-      //  let results = data.results || [];
-      //  let _options = results.map( d => {
-      //    let institution =  d.institution ? `, ${d.institution}` : '';
-      //    return {
-      //      label: `${d.name}${institution}`,
-      //      formatName: d.format_name
-      //    };
-      //  });
-      //  callback(null, {
-      //    options: _options,
-      //    complete: false
-      //  });
-      // });
-      //};
-
-    // WORK FROM HERE
 
     return (
       <div style={{ marginBottom: '1rem' }}>
-        <p>Information about your recently published paper</p>
+        <center><h1>Information about your recently published paper</h1></center>
       <p>Please tell us about your paper and help us keep SGD up to date:</p>
         <div className='row'>
           <div className='columns small-12 medium-6'>
-               SECTION HERE
+               
+               Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)? 
+               <input checked={this.state.hasFunction} onChange={this.handleHasFunctionChange.bind(this)} type='checkbox' />Yes
+
           </div>
         </div>
       </div>
