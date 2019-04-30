@@ -20,15 +20,15 @@ class AuthorResponse extends Component {
       formValue: null,
       isPending: false
     };
-  },
+  }
 
   handleHasFunctionChange() {
     this.setState({ hasFunction: !this.state.hasFunction });
-  },
+  }
 
   handleHasFunctionChange() {
     this.setState({ hasDataset: !this.state.hasDataset });
-  },
+  }
 
   renderSelector() {
 
