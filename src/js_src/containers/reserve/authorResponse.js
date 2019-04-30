@@ -26,13 +26,15 @@ class AuthorResponse extends Component {
 
     return (
       <div style={{ marginBottom: '1rem' }}>
-        <center><h3>Information about your recently published paper</h3></center>
-      <p>Please tell us about your paper and help us keep SGD up to date:</p>
+        <center><p>Information about your recently published paper</p></center>
+           <br></br>
+           <p>Please tell us about your paper and help us keep SGD up to date:</p>
         <div className='row'>
           <div className='large-12 columns'>
+               <p>Pubmed ID for your paper: <textarea ref='pmid' value={this.state.pmid}  name='pmid' rows='1' cols='50'></textarea> <font color='red'>(Required)</font></p>
                
                Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)? 
-               <input checked={this.state.hasFunction} onChange={this.handleHasFunctionChange.bind(this)} type='checkbox' />Yes
+               <input checked={this.state.hasFunction} onChange={this.handleHasFunctionChange.bind(this)} type='checkbox' /> Yes
 
           </div>
         </div>
