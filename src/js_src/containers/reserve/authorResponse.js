@@ -32,7 +32,7 @@ class AuthorResponse extends Component {
         <div className='row'>
           <div className='large-12 columns'>
                <p>Pubmed ID for your paper: <textarea ref='pmid' value={this.state.pmid}  name='pmid' rows='1' cols='50'></textarea> <font color='red'>(Required)</font></p>
-               
+      <p>Pubmed ID for your paper <font color='red'>(Required)</font>: <textfield ref='pmid' value={this.state.pmid}  name='pmid' size='50'></textfield> <font color='red'>(Required)</font></p>
                Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)? 
                <input checked={this.state.hasFunction} onChange={this.handleHasFunctionChange.bind(this)} type='checkbox' /> Yes
 
