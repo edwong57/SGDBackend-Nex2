@@ -26,7 +26,7 @@ class AuthorResponse extends Component {
     this.setState({ hasFunction: !this.state.hasFunction });
   }
 
-  handleHasFunctionChange() {
+  handleHasDatasetChange() {
     this.setState({ hasDataset: !this.state.hasDataset });
   }
 
