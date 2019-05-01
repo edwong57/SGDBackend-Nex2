@@ -48,7 +48,7 @@ class AuthorResponse extends Component {
                <p>Does this study include large-scale datasets that you would like to see incorporated into SGD? <input checked={this.state.hasDataset} onChange={this.handleHasDatasetChange.bind(this)} type='checkbox' /> Yes<br></br>
                If yes, please describe briefly the type(s) of data. <textarea ref='dataset' value={this.state.dataset} name='dataset' rows='3' cols='50'></textarea></p> 
                <p>Is there anything else that you would like us to know about this paper? <textarea ref='other' value={this.state.other} name='other' rows='3' cols='50'></textarea></p>
-               <p><input type="submit" value="Submit" className="button secondary"></input> <input type="reset" value="Reset" className="button secondary"></input></p>
+               <p><input type="submit" value="Submit" className="button secondary"></input></p>
           </div>
         </div>
       </div>
