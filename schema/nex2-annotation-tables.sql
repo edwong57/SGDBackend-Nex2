@@ -9,6 +9,40 @@ SET client_encoding TO 'UTF8';
 
 -- Annotation tables
 
+DROP TABLE IF EXISTS nex.functionalcomplementannotation CASCADE;
+CREATE TABLE nex.functionalcomplementannotation (
+	annotation_id bigint NOT NULL DEFAULT nextval('annotation_seq'),
+	dbentity_id bigint NOT NULL,
+	source_id bigint NOT NULL,
+	taxonomy_id bigint NOT NULL,
+	reference_id bigint,
+	dbxref_id varchar(40) NOT NULL,
+	ro_id bigint NOT NULL,
+	eco_id bigint NOT NULL,
+	obj_url varchar(500) NOT NULL,
+	direction varchar(50) NOT NULL,
+	curator_comment varchar(500) NOT NULL,
+	date_created timestamp NOT NULL DEFAULT LOCALTIMESTAMP,
+	created_by varchar(12) NOT NULL,
+	CONSTRAINT functionalcomplementannotation_pk PRIMARY KEY (annotation_id)
+) ;
+COMMENT ON TABLE nex.functionalcomplementannotation IS 'Curated Functional complement of a yeast gene in humans';
+COMMENT ON COLUMN nex.functionalcomplementannotation.dbentity_id IS 'FK to DBENTITY.DBENTITY_ID.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.obj_url IS 'URL of the object (relative for local links or complete for external links).';
+COMMENT ON COLUMN nex.functionalcomplementannotation.reference_id IS 'FK to REFERENCEBENTITY.DBENTITY_ID.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.taxonomy_id IS 'FK to TAXONOMY.TAXONOMY_ID.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.date_created IS 'Date the record was entered into the database.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.annotation_id IS 'Unique identifier (serial number).';
+COMMENT ON COLUMN nex.functionalcomplementannotation.source_id IS 'FK to SOURCE.SOURCE_ID.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.created_by IS 'Username of the person who entered the record into the database.';
+ALTER TABLE nex.functionalcomplementannotation ADD CONSTRAINT functionalcomplementannotation_uk UNIQUE (dbentity_id,taxonomy_id,dbxref_id,direction,eco_id,reference_id);
+CREATE INDEX functionalcomplementanno_tax_fk_index ON nex.functionalcomplementannotation (taxonomy_id);
+CREATE INDEX functionalcomplementanno_disease_fk_index ON nex.functionalcomplementannotation (disease_id);
+CREATE INDEX functionalcomplementanno_ref_fk_index ON nex.functionalcomplementannotation (reference_id);
+CREATE INDEX functionalcomplementanno_eco_fk_index ON nex.functionalcomplementannotation (eco_id);
+CREATE INDEX functionalcomplementanno_source_fk_index ON nex.functionalcomplementannotation (source_id);
+CREATE INDEX functionalcomplementanno_ro_fk_index ON nex.functionalcomplementannotation (ro_id);
+
 DROP TABLE IF EXISTS nex.bindingmotifannotation CASCADE;
 CREATE TABLE nex.bindingmotifannotation (
 	annotation_id bigint NOT NULL DEFAULT nextval('annotation_seq'),

@@ -574,6 +574,15 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON nex.filedbentity TO curator;
 GRANT SELECT ON nex.filedbentity TO PUBLIC;
 GRANT SELECT ON nex.filedbentity TO DBSELECT;
 
+
+-- Set privilege on TABLE DISEASEANNOTATION
+ALTER TAble functionalcomplementannotation OWNER TO nex;
+GRANT ALL ON nex.functionalcomplementannotation TO nex;
+REVOKE ALL ON nex.functionalcomplementannotation FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE,DELETE ON nex.functionalcomplementannotation TO curator;
+GRANT SELECT ON nex.functionalcomplementannotation TO PUBLIC;
+GRANT SELECT ON nex.functionalcomplementannotation TO DBSELECT;
+
 -- Set privilege on TABLE PATH
 ALTER TABLE nex.path OWNER TO nex;
 GRANT ALL ON nex.path TO nex;
