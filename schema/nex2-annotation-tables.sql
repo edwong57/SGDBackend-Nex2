@@ -15,7 +15,7 @@ CREATE TABLE nex.functionalcomplementannotation (
 	dbentity_id bigint NOT NULL,
 	source_id bigint NOT NULL,
 	taxonomy_id bigint NOT NULL,
-	reference_id bigint,
+	reference_id bigint NOT NULL,
 	dbxref_id varchar(40) NOT NULL,
 	ro_id bigint NOT NULL,
 	eco_id bigint NOT NULL,
