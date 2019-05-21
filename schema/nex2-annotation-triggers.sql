@@ -2820,7 +2820,7 @@ BEGIN
              OLD.taxonomy_id || '[:]' || OLD.reference_id || '[:]' ||
              OLD.eco_id || '[:]' || OLD.annotation_type || '[:]' ||
              OLD.regulator_type || '[:]' || OLD.regulation_type || '[:]' || 
-             coalesce(OLD.direction,'') || '[:]' || coalesce(OLD.happens_during,'') || '[:]' ||
+             coalesce(OLD.direction,'') || '[:]' || coalesce(OLD.happens_during,0) || '[:]' ||
              OLD.date_created || '[:]' || OLD.created_by;
 
           PERFORM nex.insertdeletelog('REGULATIONANNOTATION'::text, OLD.annotation_id, v_row, USER);

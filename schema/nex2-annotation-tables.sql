@@ -34,10 +34,15 @@ COMMENT ON COLUMN nex.functionalcomplementannotation.taxonomy_id IS 'FK to TAXON
 COMMENT ON COLUMN nex.functionalcomplementannotation.date_created IS 'Date the record was entered into the database.';
 COMMENT ON COLUMN nex.functionalcomplementannotation.annotation_id IS 'Unique identifier (serial number).';
 COMMENT ON COLUMN nex.functionalcomplementannotation.source_id IS 'FK to SOURCE.SOURCE_ID.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.eco_id IS 'FK to ECO.ECO_ID.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.ro_id IS 'FK to RO.RO_ID.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.dbxref_id IS 'Human gene HGNC ID that yeast gene complements.';
 COMMENT ON COLUMN nex.functionalcomplementannotation.created_by IS 'Username of the person who entered the record into the database.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.curator_comment IS 'Additional comments recorded by curators.';
+COMMENT ON COLUMN nex.functionalcomplementannotation.direction IS 'Direction of complementation.';
 ALTER TABLE nex.functionalcomplementannotation ADD CONSTRAINT functionalcomplementannotation_uk UNIQUE (dbentity_id,taxonomy_id,dbxref_id,direction,eco_id,reference_id);
+ALTER TABLE nex.functionalcomplementannotation ADD CONSTRAINT functionalcomplementanno_direction CHECK (DIRECTION IN ('yeast complements other', 'other complements yeast'));
 CREATE INDEX functionalcomplementanno_tax_fk_index ON nex.functionalcomplementannotation (taxonomy_id);
-CREATE INDEX functionalcomplementanno_disease_fk_index ON nex.functionalcomplementannotation (disease_id);
 CREATE INDEX functionalcomplementanno_ref_fk_index ON nex.functionalcomplementannotation (reference_id);
 CREATE INDEX functionalcomplementanno_eco_fk_index ON nex.functionalcomplementannotation (eco_id);
 CREATE INDEX functionalcomplementanno_source_fk_index ON nex.functionalcomplementannotation (source_id);
