@@ -5,7 +5,7 @@ import logging
 
 import pdb
 
-VOLUME_PATH = '~/genomes'
+VOLUME_PATH = '/genomes'
 
 
 def get_volume_files(path):
