@@ -217,12 +217,8 @@ def check_uploaded_files():
         if file_exists:
             temp.append(item)
     data = pd.DataFrame.from_dict(temp)
-    #with open('./scripts/loading/data/output_dataframe.xlsx','w+') as open_file:
     data.to_excel('./scripts/loading/data/files_uploaded_.xlsx')
     
-
-
-
 
 if __name__ == '__main__':
     print "--------------start uploading data files --------------"
@@ -232,11 +228,10 @@ if __name__ == '__main__':
     upload_file_obj_db_s3()
     # record time taken
     with open(pathStr, 'a+') as res_file:
-        time_taken = "time taken to run upload script: " + ("<---> %s seconds <--->" %
-                    (time.time() - start_time))
+        time_taken = "time taken to run upload script: " + ("<---> %s seconds <--->" % (time.time() - start_time))
         now = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
         res_file.write(time_taken + "timestamp: " + now + "\r\n")
         logging.info(time_taken)
         print "<---> script-run time taken: " + time_taken
 
-    check_uploaded_files()
+    #check_uploaded_files()
