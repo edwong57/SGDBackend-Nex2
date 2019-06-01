@@ -13,7 +13,6 @@ import transaction
 import traceback
 import pandas as pd
 from operator import itemgetter
-import pdb
 
 from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection
 
@@ -198,7 +197,6 @@ def upload_file_obj_db_s3():
                                 existing_file_meta_data.upload_file_to_s3(
                                     remote_file, item['display_name'])
                             DBSession.flush()
-                            pdb.set_trace
 
     except Exception as e:
         logging.error(e)

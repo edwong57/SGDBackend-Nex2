@@ -14,7 +14,6 @@ import transaction
 import traceback
 import pandas as pd
 from operator import itemgetter
-import pdb
 
 from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection
 
@@ -166,7 +165,6 @@ def create_and_upload_file(obj, row_num, sftp_client):
         db_session.close()
 
 def format_csv_date_string(date_string, flag=False):
-    import pdb ; 
     is_match = re.match('^\d{0,2}\/\d{0,2}\/\d{2}', date_string)
     if is_match is not None:
         temp = is_match.group(0).split('/')
@@ -392,7 +390,6 @@ def upload_file_obj_db_s3():
                                 existing_file_meta_data.upload_file_to_s3(
                                 remote_file, item['display_name'])
                             db_session.flush()
-                            pdb.set_trace
                     
     except Exception as e:
         

@@ -3,7 +3,6 @@ import os
 from glob import glob
 import logging
 
-import pdb
 
 VOLUME_PATH = '/genomes'
 
