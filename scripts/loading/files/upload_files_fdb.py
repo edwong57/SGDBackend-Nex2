@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 import getpass
 from src.helpers import upload_file
-from src.models import DBSession, Edam, Filedbentity, FileKeyword, FilePath, Keyword, Path, Referencedbentity, ReferenceFile, Source
+from src.models import DBSession, Base, Edam, Filedbentity, FileKeyword, FilePath, Keyword, Path, Referencedbentity, ReferenceFile, Source
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, scoped_session
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -49,6 +49,10 @@ def file_upload_to_obj():
             raw_status = 'Archived'
         #for key, value in item.iteritems():
         #    print(key)
+        pdb.set_trace()
+        spell_flag = False
+        if item.get('filedbentity.is_in_spell') > 0:
+            spell_flag = True
         obj = {
             'path': item.get('EBS path'),
             'display_name': item.get('dbentity.display_name'),
@@ -60,7 +64,7 @@ def file_upload_to_obj():
             'file_extension': item.get('filedbentity.file_extension'),
             'file_date': raw_date,
             'is_public': (item.get('filedbentity.is_public') == '1'),
-            'is_in_spell': item.get('filedbentity.is_in_spell'),
+            'is_in_spell': (item.get('filedbentity.is_in_spell') == '1'),
             'is_in_browser': (item.get('filedbentity.is_in_browser') == '1'),
             'readme_name': item.get('readme name'),
             'description': item.get('filedbentity.description'),
