@@ -14,6 +14,7 @@ import traceback
 import pandas as pd
 from operator import itemgetter
 import time
+import pandas as pd
 
 from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection
 
@@ -158,7 +159,7 @@ def upload_file_obj_db_s3():
                     except TypeError:
                         logging.error(
                             'invalid EDAM id or source in row ' +
-                            str(row_num) + ' val in ' + item['data_edam_id'] +
+                            ' val in ' + item['data_edam_id'] +
                             ', ' + item['format_edam_id'] +
                             ', ' + item['topic_edam_id'])
 
@@ -204,6 +205,25 @@ def upload_file_obj_db_s3():
         logging.error(e)
         print(e)
 
+def check_uploaded_files():
+    """ check if all files mad it to the database """
+
+    file_content_list = file_upload_to_obj()
+    temp = []
+
+    for item in file_content_list:
+        file_exists = DBSession.query(Filedbentity).filter(
+            Filedbentity.display_name == item['display_name']).one_or_none()
+        if file_exists:
+            temp.append(item)
+    data = pd.DataFrame.from_dict(temp)
+    #with open('./scripts/loading/data/output_dataframe.xlsx','w+') as open_file:
+    data.to_excel('./scripts/loading/data/files_uploaded_.xlsx')
+    
+
+
+
+
 if __name__ == '__main__':
     print "--------------start uploading data files --------------"
     pathStr = "./scripts/loading/data/log_time_upload.txt"
@@ -218,3 +238,5 @@ if __name__ == '__main__':
         res_file.write(time_taken + "timestamp: " + now + "\r\n")
         logging.info(time_taken)
         print "<---> script-run time taken: " + time_taken
+
+    check_uploaded_files()

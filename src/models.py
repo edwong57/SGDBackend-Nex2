@@ -2586,6 +2586,9 @@ class Filedbentity(Dbentity):
 
     def upload_file_to_s3(self, file, filename):
         # get s3_url and upload
+        if "sra" in filename.lower():
+            import pdb; pdb.set_trace()
+
         s3_path = self.sgdid + '/' + filename
         conn = boto.connect_s3(S3_ACCESS_KEY, S3_SECRET_KEY)
         bucket = conn.get_bucket(S3_BUCKET)
