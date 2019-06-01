@@ -204,7 +204,7 @@ def upload_file_obj_db_s3():
     except Exception as e:
         logging.error(e)
         print(e)
-
+'''
 def check_uploaded_files():
     """ check if all files mad it to the database """
 
@@ -217,7 +217,7 @@ def check_uploaded_files():
         if file_exists:
             temp.append(item)
     data = pd.DataFrame.from_dict(temp)
-    data.to_excel('./scripts/loading/data/files_uploaded_.xlsx')
+    data.to_excel('./scripts/loading/data/files_uploaded_.xlsx')'''
     
 
 if __name__ == '__main__':
