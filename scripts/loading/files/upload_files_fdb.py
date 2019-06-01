@@ -36,7 +36,7 @@ def file_upload_to_obj():
     sorted_content = sorted(file_content, key=itemgetter(
         'filedbentity.file_extension'))
     for item in file_content:
-
+        pdb.set_trace()
         raw_date = item.get('filedbentity.file_date')
         if raw_date:
             temp_date = raw_date.strftime('%Y-%m-%d')
@@ -49,7 +49,7 @@ def file_upload_to_obj():
             raw_status = 'Archived'
         #for key, value in item.iteritems():
         #    print(key)
-        pdb.set_trace()
+        
         spell_flag = False
         if item.get('filedbentity.is_in_spell') > 0:
             spell_flag = True
