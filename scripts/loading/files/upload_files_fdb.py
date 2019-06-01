@@ -121,11 +121,12 @@ def upload_file_obj_db_s3():
             for item in sorted_content:
                 if item['readme_name']:
                     readme = DBSession.query(Filedbentity).filter(
-                        Filedbentity.display_name == obj['readme_name']).one_or_none()
+                        Filedbentity.display_name == item['readme_name']).one_or_none()
 
                     if readme is None:
+                        print('unable to find README ' + item['readme_name'])
                         logging.warning(
-                            'unable to find README ' + obj['readme_name'])
+                            'unable to find README ' + item['readme_name'])
                     else:
                         readme_file_id = readme.dbentity_id
 
