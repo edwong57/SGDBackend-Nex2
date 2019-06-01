@@ -36,7 +36,6 @@ def file_upload_to_obj():
     sorted_content = sorted(file_content, key=itemgetter(
         'filedbentity.file_extension'))
     for item in file_content:
-        pdb.set_trace()
         raw_date = item.get('filedbentity.file_date')
         if raw_date:
             temp_date = raw_date.strftime('%Y-%m-%d')
@@ -89,7 +88,6 @@ def upload_file_helper(CREATED_BY, remote_file, obj):
     """
 
     try:
-        pdb.set_trace()
         upload_file(CREATED_BY, remote_file,
                     filename=obj['display_name'],
                     file_extension=obj['file_extension'],
@@ -162,7 +160,6 @@ def upload_file_obj_db_s3():
                             str(row_num) + ' val in ' + item['data_edam_id'] +
                             ', ' + item['format_edam_id'] +
                             ', ' + item['topic_edam_id'])
-                    pdb.set_trace()
 
                     if temp_file_path:
                         with open(temp_file_path, 'r') as remote_file:
@@ -204,7 +201,6 @@ def upload_file_obj_db_s3():
                             pdb.set_trace
 
     except Exception as e:
-        pdb.set_trace()
         logging.error(e)
         print(e)
 

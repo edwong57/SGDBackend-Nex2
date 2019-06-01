@@ -166,7 +166,7 @@ def create_and_upload_file(obj, row_num, sftp_client):
         db_session.close()
 
 def format_csv_date_string(date_string, flag=False):
-    import pdb ; pdb.set_trace()
+    import pdb ; 
     is_match = re.match('^\d{0,2}\/\d{0,2}\/\d{2}', date_string)
     if is_match is not None:
         temp = is_match.group(0).split('/')
@@ -308,7 +308,6 @@ def upload_file_obj_db_s3():
     db_session = scoped_session(session_factory)
     readme_file_id = None
     file_content_list = file_upload_to_obj()
-    pdb.set_trace()
     try:
         if file_content_list:
             sorted_content = sorted(
@@ -355,7 +354,6 @@ def upload_file_obj_db_s3():
                             str(row_num) + ' val in ' + item['data_edam_id'] +
                             ', ' + item['format_edam_id'] +
                             ', ' + item['topic_edam_id'])
-                    pdb.set_trace()
                     
                     if temp_file_path:
                         with open(temp_file_path, 'r') as remote_file:
@@ -397,7 +395,7 @@ def upload_file_obj_db_s3():
                             pdb.set_trace
                     
     except Exception as e:
-        pdb.set_trace()
+        
         logging.error(e)
         print(e)
         
@@ -405,7 +403,7 @@ def upload_file_obj_db_s3():
 def upload_file_helper(CREATED_BY, remote_file, obj):
     """ upload file to s3 and update db with s3_url """
     try:
-        pdb.set_trace()
+        
         upload_file(CREATED_BY, remote_file,
             filename=obj['display_name'],
             file_extension=obj['file_extension'],

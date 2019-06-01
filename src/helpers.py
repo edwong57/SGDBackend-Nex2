@@ -22,6 +22,8 @@ from src.curation_helpers import ban_from_cache, get_curator_session
 import logging
 log = logging.getLogger(__name__)
 
+import pdb
+
 FILE_EXTENSIONS = [
     'bed', 'bedgraph', 'bw', 'cdt', 'chain', 'cod', 'csv', 'cusp', 'doc',
     'docx', 'fsa', 'gb', 'gcg', 'gff', 'gif', 'gz', 'html', 'jpg', 'pcl', 'pdf',
@@ -262,6 +264,7 @@ def binary_search(value, f, lower, upper, e, max_iter=None):
 
 # creates Filedbentity, uploads to s3, and updates Filedbentity row with s3_url
 def upload_file(username, file, **kwargs):
+    pdb.set_trace()
     filename = kwargs.get('filename')
     data_id = kwargs.get('data_id')
     topic_id = kwargs.get('topic_id')
