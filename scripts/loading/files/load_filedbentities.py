@@ -338,10 +338,16 @@ def upload_file_obj_db_s3():
                     try:
                         data_id = db_session.query(Edam.edam_id).filter(
                             Edam.edamid == item['data_edam_id']).one_or_none()[0]
+                        
                         format_id = db_session.query(Edam.edam_id).filter(
                             Edam.edamid == item['format_edam_id']).one_or_none()[0]
                         topic_id = db_session.query(Edam.edam_id).filter(
                             Edam.edamid == item['topic_edam_id']).one_or_none()[0]
+                        item["data_id"] = data_id
+                        item["format_id"] = format_id
+                        item["topic_id"] = topic_id
+                        item["source_id"] = source_id
+                        item["readme_file_id"] = readme_file_id
 
                     except TypeError:
                         logging.error(
@@ -405,16 +411,16 @@ def upload_file_helper(CREATED_BY, remote_file, obj):
             file_extension=obj['file_extension'],
             description=obj['description'],
             display_name=obj['display_name'],
-            data_id=data_id,
-            format_id=format_id,
+            data_id=obj['data_id'],
+            format_id=obj['format_id"],
             status=obj['status'],
-            topic_id=topic_id,
+            topic_id=obj['topic_id'],
             is_public=obj['is_public'],
             is_in_spell=obj['is_in_spell'],
             is_in_browser=obj['is_in_browser'],
             file_date=obj['file_date'],
-            readme_file_id=readme_file_id,
-            source_id=source_id
+            readme_file_id=obj['readme_file_id'],
+            source_id=obj['source_id']
             )
     except Exception as e:
         logging.error(e)
