@@ -73,7 +73,6 @@ dev_aws_variables*
 #temp files
 # logs
 backup
-data
 *.log-*
 zz_*
 tmo_*
