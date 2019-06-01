@@ -13,6 +13,7 @@ import transaction
 import traceback
 import pandas as pd
 from operator import itemgetter
+import time
 
 from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection
 
@@ -203,4 +204,16 @@ def upload_file_obj_db_s3():
         print(e)
 
 if __name__ == '__main__':
+    print "--------------start uploading data files --------------"
+    pathStr = "./scripts/loading/data/log_time_upload.txt"
+    start_time = time.time()
+    # run sscipt
     upload_file_obj_db_s3()
+    # record time taken
+    with open(pathStr, 'a+') as res_file:
+        time_taken = "time taken to run upload script: " + ("<---> %s seconds <--->" %
+                    (time.time() - start_time))
+        now = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+        res_file.write(time_taken + "timestamp: " + now + "\r\n")
+        logging.info(time_taken)
+        print "<---> script-run time taken: " + time_taken
