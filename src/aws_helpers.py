@@ -67,7 +67,7 @@ def get_file_path_helper(lst, name):
         for item in lst:
             temp_1 = item.split('/')[-1]
             if temp_1.lower() == name.lower():
-                return temp_1
+                return item
     return None
 
 def get_file_from_path_collection(key, name):
