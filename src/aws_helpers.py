@@ -50,6 +50,7 @@ def get_sra_files():
     """ gets all files wih .sra extension """
 
     file_paths = get_all_file_paths_by_extension('sra')
+    return file_paths
 
 
 def get_readme_files():
