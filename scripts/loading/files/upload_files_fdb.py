@@ -204,8 +204,8 @@ def upload_file_obj_db_s3():
     except Exception as e:
         logging.error(e)
         print(e)
-'''
-def check_uploaded_files():
+
+'''def check_uploaded_files():
     """ check if all files mad it to the database """
 
     file_content_list = file_upload_to_obj()

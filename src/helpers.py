@@ -310,7 +310,7 @@ def upload_file(username, file, **kwargs):
             description=description,
             readme_file_id=readme_file_id,
             subclass='FILE',
-            created_by=username,
+            created_by=username.upper(),
             file_size=file_size)
         DBSession.add(fdb)
         DBSession.flush()
