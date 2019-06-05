@@ -1123,7 +1123,7 @@ class Colleague(Base):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'orcid': self.orcid,
-            'email': self.email,
+            'email': self.email if self.display_email else None,
             'display_email': self.display_email,
             'receive_quarterly_newsletter': self.is_contact,
             'willing_to_be_beta_tester': self.is_beta_tester,
