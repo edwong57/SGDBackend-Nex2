@@ -16,12 +16,13 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import re
-from .models import DBSession, Dbuser, Go, Referencedbentity, Keyword, Locusdbentity, FilePath, Edam, Filedbentity, FileKeyword, ReferenceFile, Disease, CuratorActivity
+from .models import DBSession, Dbentity, Dbuser, Go, Referencedbentity, Keyword, Locusdbentity, FilePath, Edam, Filedbentity, FileKeyword, ReferenceFile, Disease, CuratorActivity
 from src.curation_helpers import ban_from_cache, get_curator_session
-
+from src.aws_helpers import update_s3_readmefile
 import logging
 log = logging.getLogger(__name__)
 
+S3_BUCKET = os.environ['S3_BUCKET']
 
 FILE_EXTENSIONS = [
     'bed', 'bedgraph', 'bw', 'cdt', 'chain', 'cod', 'csv', 'cusp', 'doc',
@@ -282,6 +283,7 @@ def upload_file(username, file, **kwargs):
     status = kwargs.get('status', 'Active')
     description = kwargs.get('description', None)
     readme_file_id = kwargs.get('readme_file_id', None)
+    full_file_path = kwargs.get('full_file_path', None)
     # get file size
     file.seek(0, os.SEEK_END)
     file_size = file.tell()
@@ -319,7 +321,7 @@ def upload_file(username, file, **kwargs):
         DBSession.flush()
         fdb = DBSession.query(Filedbentity).filter(
             Filedbentity.dbentity_id == did).one_or_none()
-        fdb.upload_file_to_s3(file, filename)
+        fdb.upload_file_to_s3(file, filename, full_file_path)
     except Exception as e:
         DBSession.rollback()
         DBSession.remove()
@@ -652,9 +654,41 @@ def summary_file_is_valid(file_upload):
 
 def unicode_to_string(unicode_value):
     try:
-        returnValue = unicode_value.encode('ascii','ignore')
+        returnValue = unicode_value.encode('ascii', 'ignore')
         return returnValue
     except UnicodeEncodeError as err:
         return None
-
     
+
+def update_readme_files_with_urls(readme_name):
+    """ Update parent readme files with list of s3 urls
+
+    Notes:
+        The parent readme file should contain all the s3 urls of files
+        under the parent folder
+        create a dictionary with parent_readme name as key and value as list of files
+    """ 
+
+    try:
+        temp = []
+        readme_file = DBSession.query(Dbentity).filter(
+            Dbentity.display_name == readme_name).one_or_none()
+        file_list = DBSession.query(Filedbentity).filter(
+            Filedbentity.readme_file_id == readme_file.dbentity_id).all()
+        if file_list:
+            for item in file_list:
+                s3_url = item.s3_url
+                if s3_url:
+                    temp.append(s3_url)
+        if temp:
+            updated_readme = update_s3_readmefile(temp, readme_file.dbentity_id, readme_file.sgdid, readme_file.display_name, S3_BUCKET)
+            if updated_readme:
+                readme_dbentity_file = DBSession.query(
+                    Filedbentity).filter(Filedbentity.dbentity_id==readme_file.dbentity_id).one_or_none()
+                readme_dbentity_file.md5sum = updated_readme['md5sum']
+                readme_dbentity_file.file_size = updated_readme['file_size']
+                readme_dbentity_file.s3_url = updated_readme['s3_url']
+                transaction.commit()
+    except Exception as e:
+        logging.error(e)
+        transaction.abort()

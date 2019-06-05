@@ -4,7 +4,7 @@ import logging
 import re
 from datetime import datetime
 import getpass
-from src.helpers import upload_file
+from src.helpers import upload_file, update_readme_files_with_urls
 from src.models import DBSession, Base, Edam, Filedbentity, FileKeyword, FilePath, Keyword, Path, Referencedbentity, ReferenceFile, Source
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -16,7 +16,7 @@ from operator import itemgetter
 import time
 import pandas as pd
 
-from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection
+from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection, multi_part_upload_s3
 
 engine = create_engine(os.environ["NEX2_URI"], pool_recycle=3600)
 DBSession.configure(bind=engine)
@@ -27,6 +27,10 @@ CREATED_BY = os.environ.get('CREATED_BY')
 SGD_SOURCE_ID = 834
 INPUT_FILE_NAME = os.environ.get('INPUT_FILE_NAME')
 LOCAL_FILE_DIRECTORY = os.environ.get('LOCAL_FILE_DIRECTORY')
+
+S3_BUCKET = os.environ['S3_BUCKET']
+S3_ACCESS_KEY = os.environ['S3_ACCESS_KEY']
+S3_SECRET_KEY = os.environ['S3_SECRET_KEY']
 
 
 def file_upload_to_obj():
@@ -53,6 +57,8 @@ def file_upload_to_obj():
         spell_flag = False
         if item.get('filedbentity.is_in_spell') > 0:
             spell_flag = True
+        f_path = item.get('EBS path') + '/' + item.get('path.path') + \
+            '/' + item.get('dbentity.display_name')
         obj = {
             'path': item.get('EBS path'),
             'display_name': item.get('dbentity.display_name'),
@@ -69,7 +75,8 @@ def file_upload_to_obj():
             'readme_name': item.get('readme name'),
             'description': item.get('filedbentity.description'),
             'pmids': item.get('pmids (|)'),
-            'keywords': item.get('keywords (|)')
+            'keywords': item.get('keywords (|)'),
+            'full_file_path': f_path
         }
         temp.append(obj)
 
@@ -77,7 +84,7 @@ def file_upload_to_obj():
         return temp
     return None
 
-def upload_file_helper(CREATED_BY, remote_file, obj):
+def upload_file_helper(CREATED_BY, remote_file, obj, full_file_path):
     """ upload file to s3 and update db with s3_url
     
     Paramaters
@@ -103,7 +110,8 @@ def upload_file_helper(CREATED_BY, remote_file, obj):
                     is_in_browser=obj['is_in_browser'],
                     file_date=obj['file_date'],
                     readme_file_id=obj['readme_file_id'],
-                    source_id=obj['source_id']
+                    source_id=obj['source_id'],
+                    full_file_path=full_file_path
                     )
     except Exception as e:
         logging.error(e)
@@ -165,7 +173,8 @@ def upload_file_obj_db_s3():
 
                     if temp_file_path:
                         with open(temp_file_path, 'r') as remote_file:
-                            upload_file_helper(CREATED_BY, remote_file, item)
+                            upload_file_helper(
+                                CREATED_BY, remote_file, item, temp_file_path)
 
                     DBSession.flush()
                 else:
@@ -198,12 +207,106 @@ def upload_file_obj_db_s3():
                             # only upload s3 file if not defined
                             if existing_file_meta_data.s3_url is None:
                                 existing_file_meta_data.upload_file_to_s3(
-                                    remote_file, item['display_name'])
+                                    remote_file, item['display_name'], temp_file_path)
                             DBSession.flush()
+                
+                add_path_entries(item['display_name'],
+                                 item['new_path'], SGD_SOURCE_ID, CREATED_BY)
+                add_pmids(item['display_name'], item['pmids'],
+                          SGD_SOURCE_ID, CREATED_BY)
+                add_keywords(item['display_name'],
+                             item['keywords'], SGD_SOURCE_ID, CREATED_BY)
+                
+                logging.info('finished processing file: ' +
+                             item['display_name'])
+                print('finished processing file: ' + item['display_name'])
 
     except Exception as e:
         logging.error(e)
         print(e)
+
+
+def add_path_entries(file_name, file_path, src_id, uname):
+    """ add paths to file_path table """
+
+    try:
+        existing = DBSession.query(Filedbentity).filter(
+            Filedbentity.display_name == file_name).one_or_none()
+        if not existing:
+            logging.error('error with ' + file_name)
+            logging.debug('error with ' + file_name)
+        path = DBSession.query(Path).filter_by(file_path).one_or_none()
+        
+        if path is None:
+            logging.warning('Could not find path ')
+        
+        existing_filepath = DBSession.query(FilePath).filter(and_(
+            FilePath.file_id == existing.dbentity_id, FilePath.path_id == path.path_id)).one_or_none()
+        
+        if not existing_filepath:
+            new_filepath = FilePath(file_id=existing.dbentity_id, path_id=path.path_id,
+                                    source_id=src_id, created_by=uname)
+            DBSession.add(new_filepath)
+            transaction.commit()
+            DBSession.flush()
+
+    except Exception as e:
+        logging.error(e)
+
+
+def add_pmids(file_name, file_pmids, src_id, uname):
+    """ add pmids """
+
+    try:
+        if len(file_pmids) > 0:
+            existing = DBSession.query(Filedbentity).filter(
+                Filedbentity.display_name==file_name).one_or_none()
+            pmid_list = file_pmids.split('|')
+            for pmid in pmid_list:
+                pmid = int(pmid.strip())
+                existing_ref_file = DBSession.query(ReferenceFile).filter(
+                    ReferenceFile.file_id == existing.dbentity_id).one_or_none()
+                ref = DBSession.query(Referencedbentity).filter(
+                    Referencedbentity.pmid == pmid).one_or_none()
+                if ref and not existing_ref_file:
+                    new_ref_file = ReferenceFile(
+                        created_by=uname, file_id=existing.dbentity_id, reference_id=ref.dbentity_id, source_id=src_id)
+                    DBSession.add(new_ref_file)
+                transaction.commit()
+                DBSession.flush()
+    
+    except Exception as e:
+        logging.error(e)
+
+
+def add_keywords(name, keywords, src_id, uname):
+    """ add keywords """
+
+    try:
+        if len(keywords) > 0:
+            existing = db_session.query(Filedbentity).filter(
+                Filedbentity.display_name==name).one_or_none()
+            keywords = keywords.split('|')
+
+            for word in keywords:
+                word = word.strip()
+                keyword = db_session.query(Keyword).filter(
+                    Keyword.display_name == word).one_or_none()
+                existing_file_keyword = db_session.query(FileKeyword).filter(and_(
+                    FileKeyword.file_id == existing.dbentity_id, FileKeyword.keyword_id == keyword.keyword_id)).one_or_none()
+                if not existing_file_keyword:
+                    new_file_keyword = FileKeyword(
+                        created_by=uname, file_id=existing.dbentity_id, keyword_id=keyword.keyword_id, source_id=src_id)
+                    db_session.add(new_file_keyword)
+                transaction.commit()
+                db_session.flush()
+
+
+
+    except Exception as e:
+        logging.error(e)
+
+
 
 '''def check_uploaded_files():
     """ check if all files mad it to the database """
@@ -221,7 +324,16 @@ def upload_file_obj_db_s3():
     
 
 if __name__ == '__main__':
-    print "--------------start uploading data files --------------"
+    name = 'TEST01/output_dataframe.xlsx'
+    #name = 'S000247402/YJM1383_Duke_2015_SRR800821.sra'
+
+    #pathStr = "./scripts/loading/data/YJM1383_Duke_2015_SRR800821.sra"
+    pathStr = "./scripts/loading/data/output_dataframe.xlsx"
+
+    # log_time_upload
+    
+    multi_part_upload_s3(pathStr, S3_BUCKET, name)
+    '''print "--------------start uploading data files --------------"
     pathStr = "./scripts/loading/data/log_time_upload.txt"
     start_time = time.time()
     # run sscipt
@@ -232,6 +344,6 @@ if __name__ == '__main__':
         now = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
         res_file.write(time_taken + "timestamp: " + now + "\r\n")
         logging.info(time_taken)
-        print "<---> script-run time taken: " + time_taken
+        print "<---> script-run time taken: " + time_taken'''
 
     #check_uploaded_files()
