@@ -2602,7 +2602,6 @@ class Filedbentity(Dbentity):
         """
         try:
             # get s3_url and upload
-            import pdb; pdb.set_trace()
             s3_path = self.sgdid + '/' + filename
             if file_path:
                 multi_part_upload_s3(file_path, S3_BUCKET, s3_path, True)

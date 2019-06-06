@@ -167,7 +167,6 @@ def multi_part_upload_s3(file_path, bucket_name, s3_key_name=None, use_rr=True, 
     file_size_MB = os.path.getsize(file_path) / 1e6
     
     if file_size_MB < 60:
-        pdb.set_trace()
         standard_s3_file_transfer(
             s3_bucket, s3_key_name, file_path, file_size_MB, use_rr)
     
@@ -181,7 +180,6 @@ def multi_part_upload_s3(file_path, bucket_name, s3_key_name=None, use_rr=True, 
 
 
 def upload_cb(complete, total):
-    pdb.set_trace()
     logging.info("Uploaded")
     print("uploaded:" + str(total))
 
@@ -200,7 +198,6 @@ def multipart_s3_file_transfer(bucket, s3_key_name, tarball, mb_size, use_rr=Tru
     """ file transfer above 5GB to s3 """
 
     cores = multiprocessing.cpu_count()
-    pdb.set_trace()
 
     def split_file(in_file, mb_size, split_num=5):
         prefix = os.path.join(os.path.dirname(in_file), '%sS3PART' % (os.path.basename(s3_key_name)))
