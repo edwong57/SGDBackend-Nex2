@@ -197,7 +197,7 @@ def standard_s3_file_transfer(bucket, s3_key_name, transfer_file, file_size_MB, 
 def multipart_s3_file_transfer(bucket, s3_key_name, tarball, mb_size, use_rr=True):
     """ file transfer above 5GB to s3 """
     cores = multiprocessing.cpu_count()
-
+    import pdb; pdb.set_trace()
     def split_file(in_file, mb_size, split_num=5):
         prefix = os.path.join(os.path.dirname(in_file), '%sS3PART' % (os.path.basename(s3_key_name)))
         split_size = int(min(mb_size / (split_num * 2.0), 250))
