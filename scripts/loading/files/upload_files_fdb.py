@@ -288,7 +288,6 @@ def add_keywords(name, keywords, src_id, uname):
         if len(keywords) > 0:
             existing = DBSession.query(Filedbentity).filter(
                 Filedbentity.display_name==name).one_or_none()
-            keywords = keywords.split('|')
 
             for word in keywords:
                 word = word.strip()
