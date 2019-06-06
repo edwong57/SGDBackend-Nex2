@@ -15,6 +15,7 @@ import pandas as pd
 from operator import itemgetter
 import time
 import pandas as pd
+import pdb 
 
 from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection, multi_part_upload_s3
 
@@ -74,7 +75,7 @@ def file_upload_to_obj():
             'is_in_browser': (item.get('filedbentity.is_in_browser') == '1'),
             'readme_name': item.get('readme name'),
             'description': item.get('filedbentity.description'),
-            'pmids': item.get('pmids (|)'),
+            'pmids': str(item.get('pmids (|)','')),
             'keywords': item.get('keywords (|)'),
             'full_file_path': f_path,
             'new_path': f_path
@@ -240,16 +241,16 @@ def add_path_entries(file_name, file_path, src_id, uname):
         
         if path is None:
             logging.warning('Could not find path ')
+        else:
+            existing_filepath = DBSession.query(FilePath).filter(and_(
+                FilePath.file_id == existing.dbentity_id, FilePath.path_id == path.path_id)).one_or_none()
         
-        existing_filepath = DBSession.query(FilePath).filter(and_(
-            filePath.file_id == existing.dbentity_id, filePath.path_id == path.path_id)).one_or_none()
-        
-        if not existing_filepath:
-            new_filepath = FilePath(file_id=existing.dbentity_id, path_id=path.path_id,
-                                    source_id=src_id, created_by=uname)
-            DBSession.add(new_filepath)
-            transaction.commit()
-            DBSession.flush()
+            if not existing_filepath:
+                new_filepath = FilePath(file_id=existing.dbentity_id, path_id=path.path_id,
+                                        source_id=src_id, created_by=uname)
+                DBSession.add(new_filepath)
+                transaction.commit()
+                DBSession.flush()
 
     except Exception as e:
         logging.error(e)
