@@ -210,7 +210,7 @@ def upload_file_obj_db_s3():
                             if existing_file_meta_data.s3_url is None:
                                 existing_file_meta_data.upload_file_to_s3(
                                     remote_file, item['display_name'], temp_file_path)
-                            DBSession.flush()
+                    
                 pdb.set_trace()
                 add_path_entries(item['display_name'],
                                  item['new_path'], SGD_SOURCE_ID, CREATED_BY)
@@ -219,6 +219,8 @@ def upload_file_obj_db_s3():
                 add_keywords(item['display_name'],
                              item['keywords'], SGD_SOURCE_ID, CREATED_BY)
                 
+                transaction.commit()
+                DBSession.flush()
                 logging.info('finished processing file: ' +
                              item['display_name'])
                 print('finished processing file: ' + item['display_name'])
@@ -249,8 +251,6 @@ def add_path_entries(file_name, file_path, src_id, uname):
                 new_filepath = FilePath(file_id=existing.dbentity_id, path_id=path.path_id,
                                         source_id=src_id, created_by=uname)
                 DBSession.add(new_filepath)
-                transaction.commit()
-                DBSession.flush()
 
     except Exception as e:
         logging.error(e)
@@ -274,8 +274,6 @@ def add_pmids(file_name, file_pmids, src_id, uname):
                     new_ref_file = ReferenceFile(
                         created_by=uname, file_id=existing.dbentity_id, reference_id=ref.dbentity_id, source_id=src_id)
                     DBSession.add(new_ref_file)
-                transaction.commit()
-                DBSession.flush()
     
     except Exception as e:
         logging.error(e)
@@ -299,8 +297,6 @@ def add_keywords(name, keywords, src_id, uname):
                     new_file_keyword = FileKeyword(
                         created_by=uname, file_id=existing.dbentity_id, keyword_id=keyword.keyword_id, source_id=src_id)
                     DBSession.add(new_file_keyword)
-                transaction.commit()
-                DBSession.flush()
 
     except Exception as e:
         logging.error(e)
