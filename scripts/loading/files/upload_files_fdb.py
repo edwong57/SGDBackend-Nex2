@@ -236,7 +236,7 @@ def add_path_entries(file_name, file_path, src_id, uname):
         if not existing:
             logging.error('error with ' + file_name)
             logging.debug('error with ' + file_name)
-        path = DBSession.query(Path).filter_by(file_path).one_or_none()
+        path = DBSession.query(Path).filter_by(path=file_path).one_or_none()
         
         if path is None:
             logging.warning('Could not find path ')
@@ -285,22 +285,22 @@ def add_keywords(name, keywords, src_id, uname):
 
     try:
         if len(keywords) > 0:
-            existing = db_session.query(Filedbentity).filter(
+            existing = DBSession.query(Filedbentity).filter(
                 Filedbentity.display_name==name).one_or_none()
             keywords = keywords.split('|')
 
             for word in keywords:
                 word = word.strip()
-                keyword = db_session.query(Keyword).filter(
+                keyword = DBSession.query(Keyword).filter(
                     Keyword.display_name == word).one_or_none()
-                existing_file_keyword = db_session.query(FileKeyword).filter(and_(
+                existing_file_keyword = DBSession.query(FileKeyword).filter(and_(
                     FileKeyword.file_id == existing.dbentity_id, FileKeyword.keyword_id == keyword.keyword_id)).one_or_none()
                 if not existing_file_keyword:
                     new_file_keyword = FileKeyword(
                         created_by=uname, file_id=existing.dbentity_id, keyword_id=keyword.keyword_id, source_id=src_id)
-                    db_session.add(new_file_keyword)
+                    DBSession.add(new_file_keyword)
                 transaction.commit()
-                db_session.flush()
+                DBSession.flush()
 
 
 
