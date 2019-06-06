@@ -210,7 +210,7 @@ def upload_file_obj_db_s3():
                                 existing_file_meta_data.upload_file_to_s3(
                                     remote_file, item['display_name'], temp_file_path)
                             DBSession.flush()
-                
+                pdb.set_trace()
                 add_path_entries(item['display_name'],
                                  item['new_path'], SGD_SOURCE_ID, CREATED_BY)
                 add_pmids(item['display_name'], item['pmids'],
@@ -242,7 +242,7 @@ def add_path_entries(file_name, file_path, src_id, uname):
             logging.warning('Could not find path ')
         
         existing_filepath = DBSession.query(FilePath).filter(and_(
-            FilePath.file_id == existing.dbentity_id, FilePath.path_id == path.path_id)).one_or_none()
+            filePath.file_id == existing.dbentity_id, filePath.path_id == path.path_id)).one_or_none()
         
         if not existing_filepath:
             new_filepath = FilePath(file_id=existing.dbentity_id, path_id=path.path_id,
