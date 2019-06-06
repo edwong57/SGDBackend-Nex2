@@ -263,7 +263,7 @@ def add_pmids(file_name, file_pmids, src_id, uname):
         if len(file_pmids) > 0:
             existing = DBSession.query(Filedbentity).filter(
                 Filedbentity.display_name==file_name).one_or_none()
-            pmid_list = file_pmids.split('|')
+            pmid_list = file_pmids
             for pmid in pmid_list:
                 pmid = int(pmid.strip())
                 existing_ref_file = DBSession.query(ReferenceFile).filter(
