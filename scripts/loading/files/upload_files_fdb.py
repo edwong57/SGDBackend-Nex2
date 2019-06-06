@@ -75,8 +75,8 @@ def file_upload_to_obj():
             'is_in_browser': (item.get('filedbentity.is_in_browser') == '1'),
             'readme_name': item.get('readme name'),
             'description': item.get('filedbentity.description'),
-            'pmids': str(item.get('pmids (|)','')),
-            'keywords': item.get('keywords (|)'),
+            'pmids': str(item.get('pmids (|)', '')).split('|'),
+            'keywords': str(item.get('keywords (|)', '')).split('|'),
             'full_file_path': f_path,
             'new_path': f_path
         }
@@ -303,11 +303,8 @@ def add_keywords(name, keywords, src_id, uname):
                 transaction.commit()
                 DBSession.flush()
 
-
-
     except Exception as e:
         logging.error(e)
-
 
 
 '''def check_uploaded_files():
