@@ -166,7 +166,7 @@ def multi_part_upload_s3(file_path, bucket_name, s3_key_name=None, use_rr=True, 
     # get file size
     file_size_MB = os.path.getsize(file_path) / 1e6
     
-    if file_size_MB > 60:
+    if file_size_MB < 60:
         standard_s3_file_transfer(
             s3_bucket, s3_key_name, file_path, file_size_MB, use_rr)
     
@@ -187,7 +187,6 @@ def upload_cb(complete, total):
 
 def standard_s3_file_transfer(bucket, s3_key_name, transfer_file, file_size_MB, use_rr):
     """ file transer under 5GB to s3 """
-    pdb.set_trace()
     new_s3_file = bucket.new_key(s3_key_name)
     new_s3_file.set_contents_from_filename(
         file, reduced_redundancy=use_rr, cb=upload_cb, num_cb=10)
