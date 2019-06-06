@@ -324,16 +324,16 @@ def add_keywords(name, keywords, src_id, uname):
     
 
 if __name__ == '__main__':
-    name = 'TEST01/output_dataframe.xlsx'
+    #name = 'TEST01/output_dataframe.xlsx'
     #name = 'S000247402/YJM1383_Duke_2015_SRR800821.sra'
 
     #pathStr = "./scripts/loading/data/YJM1383_Duke_2015_SRR800821.sra"
-    pathStr = "./scripts/loading/data/output_dataframe.xlsx"
+    #pathStr = "./scripts/loading/data/output_dataframe.xlsx"
 
     # log_time_upload
     
-    multi_part_upload_s3(pathStr, S3_BUCKET, name)
-    '''print "--------------start uploading data files --------------"
+    #multi_part_upload_s3(pathStr, S3_BUCKET, name)
+    print "--------------start uploading data files --------------"
     pathStr = "./scripts/loading/data/log_time_upload.txt"
     start_time = time.time()
     # run sscipt
@@ -344,6 +344,6 @@ if __name__ == '__main__':
         now = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
         res_file.write(time_taken + "timestamp: " + now + "\r\n")
         logging.info(time_taken)
-        print "<---> script-run time taken: " + time_taken'''
+        print "<---> script-run time taken: " + time_taken
 
     #check_uploaded_files()
