@@ -2640,7 +2640,8 @@ class Filedbentity(Dbentity):
                 transaction.commit()
         
         except Exception as e:
-            logger.debug(e)
+            logging.debug(e)
+            print(e)
 
     def get_path(self):
         path_res = DBSession.query(FilePath, Path).filter(

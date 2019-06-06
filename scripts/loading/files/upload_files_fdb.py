@@ -76,7 +76,8 @@ def file_upload_to_obj():
             'description': item.get('filedbentity.description'),
             'pmids': item.get('pmids (|)'),
             'keywords': item.get('keywords (|)'),
-            'full_file_path': f_path
+            'full_file_path': f_path,
+            'new_path': f_path
         }
         temp.append(obj)
 

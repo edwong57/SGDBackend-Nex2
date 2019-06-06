@@ -188,9 +188,10 @@ def upload_cb(complete, total):
 
 def standard_s3_file_transfer(bucket, s3_key_name, transfer_file, file_size_MB, use_rr):
     """ file transer under 5GB to s3 """
+
     new_s3_file = bucket.new_key(s3_key_name)
     new_s3_file.set_contents_from_filename(
-        file, reduced_redundancy=use_rr, cb=upload_cb, num_cb=10)
+        transfer_file, reduced_redundancy=use_rr, cb=upload_cb, num_cb=10)
     
     return new_s3_file
 
