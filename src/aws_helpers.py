@@ -12,6 +12,7 @@ from multiprocessing.pool import IMapIterator
 from optparse import OptionParser
 import subprocess
 import contextlib
+from multiprocessing.pool import ThreadPool
 
 
 VOLUME_PATH = '/genomes'
@@ -265,3 +266,64 @@ def multimap(cores=None):
     pool = multiprocessing.Pool(cores)
     yield pool.imap
     pool.terminate()
+
+
+def simple_s3_upload(file_path, file_key_name, aws_s3_key=None, aws_s3_secret=None):
+    """ upload file of any size
+
+    Parameters
+    ----------
+    s3: str
+    s3_bucket: str
+    file_path: str
+    file_key_name: str
+
+    Returns
+    -------
+    obj
+
+    """
+    
+    cores = multiprocessing.cpu_count()
+    conn = boto.connect_s3(S3_ACCESS_KEY, S3_SECRET_KEY)
+    bucket = conn.get_bucket(S3_BUCKET)
+    #bucket_name = s3.get_bucket(s3_bucket)
+    #key_name = bucket_name.new_key(file_key_name)
+    mb_size = os.path.getsize(file_path) / 1e6
+    mp = bucket.initiate_multipart_upload(file_key_name, reduced_redundancy=True)
+
+    
+    
+    def split_file(in_file, mb_size, split_num=5):
+        prefix = os.path.join(os.path.dirname(in_file),
+                              "%sS3PART" % (os.path.basename(file_key_name)))
+        split_size = int(min(mb_size / (split_num * 2.0), 250))
+        if not os.path.exists("%saa" % prefix):
+            cl = ["split", "-b%sm" % split_size, in_file, prefix]
+            subprocess.check_call(cl)
+
+        return sorted(glob("%s*" % prefix))
+    
+    with multimap(cores) as pmap:
+        for _ in pmap(transfer_part,
+                      ((mp.id, mp.key_name, mp.bucket_name, i, part)
+                       for (i, part) in
+                       enumerate(split_file(file_path, mb_size, cores))
+                       )
+                      ):
+
+            pass
+
+    return mp.complete_upload()
+
+
+
+
+
+
+
+
+
+
+
+

@@ -16,12 +16,13 @@ from itertools import groupby
 import boto
 from boto.s3.key import Key
 import hashlib
+import pdb
 
 
 from src.curation_helpers import ban_from_cache, get_author_etc, link_gene_names, get_curator_session, clear_list_empty_values
 from scripts.loading.util import link_gene_complex_names
 
-from src.aws_helpers import multi_part_upload_s3
+from src.aws_helpers import simple_s3_upload
 
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -2596,7 +2597,7 @@ class Filedbentity(Dbentity):
         
         Notes
         ------
-        S3 only supports %Gb files for uploading directly
+        S3 only supports 5Gb files for uploading directly
 
         To upload bigger files, use multi-part upload
         """
@@ -2605,7 +2606,7 @@ class Filedbentity(Dbentity):
             s3_path = self.sgdid + '/' + filename
             if file_path:
                 print('key -----> ' + s3_path + ' <-----')
-                multi_part_upload_s3(file_path, S3_BUCKET, s3_path, True)
+                simple_s3_upload(file_path, s3_path)
             else:
                 conn = boto.connect_s3(S3_ACCESS_KEY, S3_SECRET_KEY)
                 bucket = conn.get_bucket(S3_BUCKET)
@@ -2638,7 +2639,7 @@ class Filedbentity(Dbentity):
                 self.file_size = file_size
                 self.s3_url = file_s3.generate_url(expires_in=0, query_auth=False)
                 transaction.commit()
-        
+        pdb.set_trace()
         except Exception as e:
             logging.debug(e)
             print(e)

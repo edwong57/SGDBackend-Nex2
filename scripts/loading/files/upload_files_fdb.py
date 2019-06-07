@@ -17,7 +17,7 @@ import time
 import pandas as pd
 import pdb 
 
-from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection, multi_part_upload_s3
+from src.aws_helpers import get_zip_files, get_sra_files, get_readme_files, get_file_from_path_collection, multi_part_upload_s3, simple_s3_upload
 
 engine = create_engine(os.environ["NEX2_URI"], pool_recycle=3600)
 DBSession.configure(bind=engine)
@@ -325,7 +325,8 @@ if __name__ == '__main__':
 
     # log_time_upload
     
-    #multi_part_upload_s3(pathStr, S3_BUCKET, name)
+    #simple_s3_upload(pathStr, name)
+    
     print "--------------start uploading data files --------------"
     pathStr = "./scripts/loading/data/log_time_upload.txt"
     start_time = time.time()
