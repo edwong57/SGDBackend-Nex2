@@ -2606,7 +2606,8 @@ class Filedbentity(Dbentity):
             s3_path = self.sgdid + '/' + filename
             if file_path:
                 print('key -----> ' + s3_path + ' <-----')
-                simple_s3_upload(file_path, s3_path)
+                simple_s3_upload(file_path, s3_path, True)
+
             else:
                 conn = boto.connect_s3(S3_ACCESS_KEY, S3_SECRET_KEY)
                 bucket = conn.get_bucket(S3_BUCKET)
@@ -2639,7 +2640,6 @@ class Filedbentity(Dbentity):
                 self.file_size = file_size
                 self.s3_url = file_s3.generate_url(expires_in=0, query_auth=False)
                 transaction.commit()
-        pdb.set_trace()
         except Exception as e:
             logging.debug(e)
             print(e)

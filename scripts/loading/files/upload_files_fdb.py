@@ -325,7 +325,7 @@ if __name__ == '__main__':
 
     # log_time_upload
     
-    #simple_s3_upload(pathStr, name)
+    #simple_s3_upload(pathStr, name, True)
     
     print "--------------start uploading data files --------------"
     pathStr = "./scripts/loading/data/log_time_upload.txt"

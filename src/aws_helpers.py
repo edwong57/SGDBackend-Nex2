@@ -268,7 +268,7 @@ def multimap(cores=None):
     pool.terminate()
 
 
-def simple_s3_upload(file_path, file_key_name, aws_s3_key=None, aws_s3_secret=None):
+def simple_s3_upload(file_path, file_key_name, make_public=True, aws_s3_key=None, aws_s3_secret=None):
     """ upload file of any size
 
     Parameters
@@ -314,7 +314,10 @@ def simple_s3_upload(file_path, file_key_name, aws_s3_key=None, aws_s3_secret=No
 
             pass
 
-    return mp.complete_upload()
+    mp.complete_upload()
+    s3_key = bucket.get_key(file_key_name)
+    if make_public:
+        s3_key.set_acl("public-read")
 
 
 
