@@ -182,7 +182,7 @@ def multi_part_upload_s3(file_path, bucket_name, s3_key_name=None, use_rr=True, 
 
 def upload_cb(complete, total):
     logging.info("Uploaded")
-    print("uploaded:" + str(total))
+    #print("uploaded:" + str(total))
 
 
 def standard_s3_file_transfer(bucket, s3_key_name, transfer_file, file_size_MB, use_rr):
@@ -290,43 +290,35 @@ def simple_s3_upload(file_path, file_key_name, make_public=True, aws_s3_key=None
     #bucket_name = s3.get_bucket(s3_bucket)
     #key_name = bucket_name.new_key(file_key_name)
     mb_size = os.path.getsize(file_path) / 1e6
-    mp = bucket.initiate_multipart_upload(file_key_name, reduced_redundancy=True)
 
+    if mb_size > 60:
+        standard_s3_file_transfer(
+            bucket, file_key_name, file_path, mb_size, True)
+
+    else:
+        mp = bucket.initiate_multipart_upload(file_key_name, reduced_redundancy=True)
+
+        def split_file(in_file, mb_size, split_num=5):
+            prefix = os.path.join(os.path.dirname(in_file),
+                                "%sS3PART" % (os.path.basename(file_key_name)))
+            split_size = int(min(mb_size / (split_num * 2.0), 250))
+            if not os.path.exists("%saa" % prefix):
+                cl = ["split", "-b%sm" % split_size, in_file, prefix]
+                subprocess.check_call(cl)
+
+            return sorted(glob("%s*" % prefix))
     
-    
-    def split_file(in_file, mb_size, split_num=5):
-        prefix = os.path.join(os.path.dirname(in_file),
-                              "%sS3PART" % (os.path.basename(file_key_name)))
-        split_size = int(min(mb_size / (split_num * 2.0), 250))
-        if not os.path.exists("%saa" % prefix):
-            cl = ["split", "-b%sm" % split_size, in_file, prefix]
-            subprocess.check_call(cl)
+        with multimap(cores) as pmap:
+            for _ in pmap(transfer_part,
+                          ((mp.id, mp.key_name, mp.bucket_name, i, part)
+                           for (i, part) in
+                           enumerate(split_file(file_path, mb_size, cores))
+                           )
+                          ):
 
-        return sorted(glob("%s*" % prefix))
-    
-    with multimap(cores) as pmap:
-        for _ in pmap(transfer_part,
-                      ((mp.id, mp.key_name, mp.bucket_name, i, part)
-                       for (i, part) in
-                       enumerate(split_file(file_path, mb_size, cores))
-                       )
-                      ):
+                pass
 
-            pass
-
-    mp.complete_upload()
+        mp.complete_upload()
     s3_key = bucket.get_key(file_key_name)
     if make_public:
         s3_key.set_acl("public-read")
-
-
-
-
-
-
-
-
-
-
-
-
