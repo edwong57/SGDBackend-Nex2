@@ -294,7 +294,7 @@ def simple_s3_upload(file_path, file_key_name, make_public=True, aws_s3_key=None
     #key_name = bucket_name.new_key(file_key_name)
     mb_size = os.path.getsize(file_path) / 1e6
 
-    if mb_size < 7000:
+    if mb_size < 8000:
         standard_s3_file_transfer(
             bucket, file_key_name, file_path, mb_size, True)
 
