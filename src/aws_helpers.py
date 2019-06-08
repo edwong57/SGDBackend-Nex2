@@ -182,6 +182,9 @@ def multi_part_upload_s3(file_path, bucket_name, s3_key_name=None, use_rr=True, 
 
 def upload_cb(complete, total):
     logging.info("Uploaded")
+    new_s3_file = bucket.get_key(s3_key_name)
+    new_s3_file.set_acl("public-read")
+    #return new_s3_file
     #print("uploaded:" + str(total))
 
 
@@ -189,16 +192,16 @@ def standard_s3_file_transfer(bucket, s3_key_name, transfer_file, file_size_MB, 
     """ file transer under 5GB to s3 """
 
     new_s3_file = bucket.new_key(s3_key_name)
+    if transfer_file.endswith('.README'):
+        new_s3_file.content_type = 'text/plain'
     new_s3_file.set_contents_from_filename(
         transfer_file, reduced_redundancy=use_rr, cb=upload_cb, num_cb=10)
-    
-    return new_s3_file
+    new_s3_file.set_acl("public-read")
 
 
 def multipart_s3_file_transfer(bucket, s3_key_name, tarball, mb_size, use_rr=True):
     """ file transfer above 5GB to s3 """
     cores = multiprocessing.cpu_count()
-    import pdb; pdb.set_trace()
     def split_file(in_file, mb_size, split_num=5):
         prefix = os.path.join(os.path.dirname(in_file), '%sS3PART' % (os.path.basename(s3_key_name)))
         split_size = int(min(mb_size / (split_num * 2.0), 250))

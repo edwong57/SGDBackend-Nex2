@@ -217,12 +217,13 @@ def upload_file_obj_db_s3():
                           SGD_SOURCE_ID, CREATED_BY)
                 add_keywords(item['display_name'],
                              item['keywords'], SGD_SOURCE_ID, CREATED_BY)
+                if item['display_name'].endswith('.README'):
+                    update_readme_files_with_urls(item['display_name'])
                 
                 transaction.commit()
                 DBSession.flush()
                 logging.info('finished processing file: ' +
                              item['display_name'])
-                print('finished processing file: ' + item['display_name'])
 
     except Exception as e:
         logging.error(e)
