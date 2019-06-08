@@ -167,7 +167,7 @@ def multi_part_upload_s3(file_path, bucket_name, s3_key_name=None, use_rr=True, 
     # get file size
     file_size_MB = os.path.getsize(file_path) / 1e6
     
-    if file_size_MB < 60:
+    if file_size_MB < 7000:
         standard_s3_file_transfer(
             s3_bucket, s3_key_name, file_path, file_size_MB, use_rr)
     
