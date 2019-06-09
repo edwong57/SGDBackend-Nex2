@@ -70,10 +70,10 @@ def file_upload_to_obj():
             'format_edam_id': item.get('format edam_id').upper().replace('FORMAT', 'EDAM').strip(),
             'file_extension': item.get('filedbentity.file_extension'),
             'file_date': raw_date,
-            'is_public': (item.get('filedbentity.is_public') == '1'),
-            'is_in_spell': (item.get('filedbentity.is_in_spell') == '1'),
-            'is_in_browser': (item.get('filedbentity.is_in_browser') == '1'),
-            'readme_name': item.get('readme name'),
+            'is_public': (str(item.get('filedbentity.is_public')) == '1'),
+            'is_in_spell': (str(item.get('filedbentity.is_in_spell')) == '1'),
+            'is_in_browser': (str(item.get('filedbentity.is_in_browser')) == '1'),
+            'readme_name': item.get('readme name', None),
             'description': item.get('filedbentity.description'),
             'pmids': str(item.get('pmids (|)', '')).split('|'),
             'keywords': str(item.get('keywords (|)', '')).split('|'),
@@ -301,8 +301,8 @@ def add_keywords(name, keywords, src_id, uname):
     except Exception as e:
         logging.error(e)
 
-
-'''def check_uploaded_files():
+'''
+def check_uploaded_files():
     """ check if all files mad it to the database """
 
     file_content_list = file_upload_to_obj()
@@ -332,6 +332,7 @@ if __name__ == '__main__':
     pathStr = "./scripts/loading/data/log_time_upload.txt"
     start_time = time.time()
     # run sscipt
+    
     upload_file_obj_db_s3()
     # record time taken
     with open(pathStr, 'a+') as res_file:
@@ -339,6 +340,7 @@ if __name__ == '__main__':
         now = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
         res_file.write(time_taken + "timestamp: " + now + "\r\n")
         logging.info(time_taken)
-        print "<---> script-run time taken: " + time_taken
+        print "<---> script-run time taken: " + time_taken 
 
-    #check_uploaded_files()
+    # check_uploaded_files()
+    # file_upload_to_obj()
