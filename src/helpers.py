@@ -660,7 +660,7 @@ def unicode_to_string(unicode_value):
         return None
     
 
-def update_readme_files_with_urls(readme_name):
+def update_readme_files_with_urls(readme_name, update_all=False):
     """ Update parent readme files with list of s3 urls
 
     Notes:
@@ -670,25 +670,48 @@ def update_readme_files_with_urls(readme_name):
     """ 
 
     try:
-        temp = []
-        readme_file = DBSession.query(Dbentity).filter(
-            Dbentity.display_name == readme_name).one_or_none()
-        file_list = DBSession.query(Filedbentity).filter(
-            Filedbentity.readme_file_id == readme_file.dbentity_id).all()
-        if file_list:
-            for item in file_list:
-                s3_url = item.s3_url
-                if s3_url:
-                    temp.append(s3_url)
-        if temp:
-            updated_readme = update_s3_readmefile(temp, readme_file.dbentity_id, readme_file.sgdid, readme_file.display_name, S3_BUCKET)
-            if updated_readme:
-                readme_dbentity_file = DBSession.query(
-                    Filedbentity).filter(Filedbentity.dbentity_id==readme_file.dbentity_id).one_or_none()
-                readme_dbentity_file.md5sum = updated_readme['md5sum']
-                readme_dbentity_file.file_size = updated_readme['file_size']
-                readme_dbentity_file.s3_url = updated_readme['s3_url']
-                transaction.commit()
+        if not update_all:
+            temp = []
+
+            if readme_name:
+                readme_file = DBSession.query(Dbentity).filter(
+                    Dbentity.display_name == readme_name).one_or_none()
+                
+                if readme_file:
+                    update_urls_helper(readme_file)   
+                    transaction.commit()
+        else:
+            all_files = DBSession.query(Dbentity).all()
+
+            for _file in all_files:
+                if _file.display_name.endswith('.README'):
+                    update_urls_helper(_file)
+            
+            transaction.commit()
+
     except Exception as e:
         logging.error(e)
         transaction.abort()
+
+
+def update_urls_helper(readme_file):
+    """ Update files with s3_urls helper"""
+
+    temp = []
+    file_list = DBSession.query(Filedbentity).filter(
+        Filedbentity.readme_file_id == readme_file.dbentity_id).all()
+    if file_list:
+        for item in file_list:
+            s3_url = item.s3_url
+            if s3_url:
+                temp.append(s3_url)
+    if temp:
+        updated_readme = update_s3_readmefile(
+            temp, readme_file.dbentity_id, readme_file.sgdid, readme_file.display_name, S3_BUCKET)
+        if updated_readme:
+            readme_dbentity_file = DBSession.query(
+                Filedbentity).filter(Filedbentity.dbentity_id == readme_file.dbentity_id).one_or_none()
+            readme_dbentity_file.md5sum = updated_readme['md5sum']
+            readme_dbentity_file.file_size = updated_readme['file_size']
+            readme_dbentity_file.s3_url = updated_readme['s3_url']
+    
