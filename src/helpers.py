@@ -18,7 +18,7 @@ from email.mime.multipart import MIMEMultipart
 import re
 from .models import DBSession, Dbentity, Dbuser, Go, Referencedbentity, Keyword, Locusdbentity, FilePath, Edam, Filedbentity, FileKeyword, ReferenceFile, Disease, CuratorActivity
 from src.curation_helpers import ban_from_cache, get_curator_session
-from src.aws_helpers import update_s3_readmefile
+from src.aws_helpers import update_s3_readmefile, get_s3_url
 import logging
 log = logging.getLogger(__name__)
 
@@ -668,7 +668,6 @@ def update_readme_files_with_urls(readme_name, update_all=False):
         under the parent folder
         create a dictionary with parent_readme name as key and value as list of files
     """ 
-
     try:
         if not update_all:
             temp = []
@@ -694,6 +693,8 @@ def update_readme_files_with_urls(readme_name, update_all=False):
         transaction.abort()
 
 
+
+
 def update_urls_helper(readme_file):
     """ Update files with s3_urls helper"""
 
@@ -704,6 +705,9 @@ def update_urls_helper(readme_file):
         for item in file_list:
             s3_url = item.s3_url
             if s3_url:
+                temp.append(s3_url)
+            else:
+                s3_url = get_s3_url(item.display_name, item.sgdid)
                 temp.append(s3_url)
     if temp:
         updated_readme = update_s3_readmefile(

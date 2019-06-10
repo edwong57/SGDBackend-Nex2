@@ -137,7 +137,7 @@ def update_s3_readmefile(s3_urls, dbentity_id, sgdid, readme_name, s3_bucket):
             obj["dbentity_id"] = dbentity_id
             obj["file_size"] = updated_file.tell()
         
-        if os.apth.exists(s3_file_path):
+        if os.path.exists(s3_file_path):
             os.remove(s3_file_path)
         else:
             logging.error('file: ' + s3_file_path + ' not found')
@@ -325,3 +325,14 @@ def simple_s3_upload(file_path, file_key_name, make_public=True, aws_s3_key=None
     s3_key = bucket.get_key(file_key_name)
     if make_public:
         s3_key.set_acl("public-read")
+
+
+def get_s3_url(name, sgdid):
+    """ Get s3 url using reame file display_name """
+
+    conn = boto.connect_s3(S3_ACCESS_KEY, S3_SECRET_KEY)
+    bucket = conn.get_bucket(S3_BUCKET)
+    file_key = sgdid + "/" + name
+    file_s3 = bucket.get_key(file_key)
+    url = file_s3.generate_url(expires_in=0, query_auth=False)
+    return url
