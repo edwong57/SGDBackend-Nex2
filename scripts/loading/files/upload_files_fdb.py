@@ -208,9 +208,8 @@ def upload_file_obj_db_s3():
                             existing_file_meta_data = DBSession.query(Filedbentity).filter(
                                 Filedbentity.display_name == item['display_name']).one_or_none()
                             # only upload s3 file if not defined
-                            if existing_file_meta_data.s3_url is None:
-                                existing_file_meta_data.upload_file_to_s3(
-                                    remote_file, item['display_name'], temp_file_path)
+                            existing_file_meta_data.upload_file_to_s3(
+                                remote_file, item['display_name'], temp_file_path)
                     
                 add_path_entries(item['display_name'],
                                  item['new_path'], SGD_SOURCE_ID, CREATED_BY)
@@ -319,21 +318,9 @@ def check_uploaded_files():
     
 
 if __name__ == '__main__':
-    #name = 'TEST01/output_dataframe.xlsx'
-    #name = 'S000247402/YJM1383_Duke_2015_SRR800821.sra'
-
-    #pathStr = "./scripts/loading/data/YJM1383_Duke_2015_SRR800821.sra"
-    #pathStr = "./scripts/loading/data/output_dataframe.xlsx"
-
-    # log_time_upload
-    
-    #simple_s3_upload(pathStr, name, True)
-    
     print "--------------start uploading data files --------------"
     pathStr = "./scripts/loading/data/log_time_upload.txt"
     start_time = time.time()
-    # run sscipt
-    
     upload_file_obj_db_s3()
     # record time taken
     with open(pathStr, 'a+') as res_file:
@@ -342,4 +329,3 @@ if __name__ == '__main__':
         res_file.write(time_taken + "timestamp: " + now + "\r\n")
         logging.info(time_taken)
         print "<---> script-run time taken: " + time_taken 
-    # check_uploaded_files()

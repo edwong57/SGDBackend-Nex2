@@ -2604,8 +2604,24 @@ class Filedbentity(Dbentity):
         try:
             # get s3_url and upload
             s3_path = self.sgdid + '/' + filename
+            conn = boto.connect_s3(S3_ACCESS_KEY, S3_SECRET_KEY)
+            bucket = conn.get_bucket(S3_BUCKET)
+            k = Key(bucket)
+            k.key = s3_path
             if file_path:
                 new_s3_file =simple_s3_upload(file_path, s3_path, True)
+                file_s3 = bucket.get_key(k.key)
+                etag_md5_s3 = file_s3.etag.strip('"').strip("'")
+                file.seek(0)
+                self.md5sum = etag_md5_s3
+                # get file size
+                file.seek(0, os.SEEK_END)
+                file_size = file.tell()
+                file.seek(0)
+                self.file_size = file_size
+                self.s3_url = file_s3.generate_url(
+                    expires_in=0, query_auth=False)
+                transaction.commit()
                 
             else:
                 conn = boto.connect_s3(S3_ACCESS_KEY, S3_SECRET_KEY)
