@@ -186,7 +186,7 @@ def upload_file_obj_db_s3():
                     existing_file_meta_data.is_public = item['is_public']
                     existing_file_meta_data.is_in_spell = item['is_in_spell']
                     existing_file_meta_data.is_in_browser = item['is_in_browser']
-                    existing_file_meta_data.readme_file_id = item["readme_file_id"]
+                    existing_file_meta_data.readme_file_id = readme_file_id
                     existing_file_meta_data.source_id = source_id
 
                     if temp_file_path:
