@@ -302,9 +302,6 @@ def add_keywords(name, keywords, src_id, uname):
     except Exception as e:
         logging.error(e)
 
-
-
-
 '''
 def check_uploaded_files():
     """ check if all files mad it to the database """
@@ -331,7 +328,7 @@ if __name__ == '__main__':
     # log_time_upload
     
     #simple_s3_upload(pathStr, name, True)
-    '''
+    
     print "--------------start uploading data files --------------"
     pathStr = "./scripts/loading/data/log_time_upload.txt"
     start_time = time.time()
@@ -344,7 +341,5 @@ if __name__ == '__main__':
         now = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
         res_file.write(time_taken + "timestamp: " + now + "\r\n")
         logging.info(time_taken)
-        print "<---> script-run time taken: " + time_taken''' 
-    update_readme_files_with_urls('YJM1078_Duke_2015_chr_seq_SRR800854.README')
+        print "<---> script-run time taken: " + time_taken 
     # check_uploaded_files()
-    # file_upload_to_obj()
