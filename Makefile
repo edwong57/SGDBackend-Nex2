@@ -48,10 +48,10 @@ prod-deploy:
 	npm run build && source prod_variables.sh && cap prod deploy
 
 run-prod:
-	pserve production.ini --daemon --pid-file=/var/run/pyramid/backend.pid
+	pserve production.ini --start --pid-file=/var/run/pyramid/backend.pid
 
 stop-prod:
-	-pserve production.ini --stop-daemon --pid-file=/var/run/pyramid/backend.pid
+	-pserve production.ini --stop --pid-file=/var/run/pyramid/backend.pid
 
 lint:
 	eslint src/client/js/
