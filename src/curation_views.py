@@ -1876,13 +1876,13 @@ def regulation_insert_update(request):
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Updated failed, record already exists'
+                returnValue = 'Updated failed (Integrity Error): ' + str(e.orig.pgerror)
             except DataError as e:
                 transaction.abort()
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Update failed, issue in data'
+                returnValue = 'Update failed (Data Error): ' + str(e.orig.pgerror)
             except InternalError as e:
                 transaction.abort()
                 if curator_session:
@@ -1897,7 +1897,7 @@ def regulation_insert_update(request):
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Updated failed, ' + str(e.message)
+                returnValue = 'Updated failed, ' + str(e)
             finally:
                 if curator_session:
                     curator_session.close()
@@ -1927,19 +1927,19 @@ def regulation_insert_update(request):
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Insert failed, record already exists'
+                returnValue = 'Insert failed, (Integrity error): ' + str(e.orig.pgerror)
             except DataError as e:
                 transaction.abort()
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Insert failed, issue in data'
+                returnValue = 'Insert failed, (Data error):' + str(e.orig.pgerror)
             except Exception as e:
                 transaction.abort()
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Insert failed' + ' ' + str(e.message)
+                returnValue = 'Insert failed: ' + str(e)
             finally:
                 if curator_session:
                     curator_session.close()
@@ -1950,7 +1950,7 @@ def regulation_insert_update(request):
         return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
 
     except Exception as e:
-        return HTTPBadRequest(body=json.dumps({'error': e.message}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
 
 
 @view_config(route_name='regulations_by_filters',renderer='json',request_method='POST')
