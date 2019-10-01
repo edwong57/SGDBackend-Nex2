@@ -8347,7 +8347,7 @@ class Proteindomain(Base):
 
         genes = ",".join([f[0] for f in format_names])
 
-        return genes
+        return os.environ['BATTER_URI']
 
         data = urllib.parse.urlencode({
             "genes": genes,
