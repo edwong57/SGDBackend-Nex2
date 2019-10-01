@@ -8347,8 +8347,6 @@ class Proteindomain(Base):
 
         genes = ",".join([f[0] for f in format_names])
 
-        return os.environ['BATTER_URI']
-
         data = urllib.parse.urlencode({
             "genes": genes,
             "aspect": "P"
@@ -8360,6 +8358,12 @@ class Proteindomain(Base):
             response_json = json.loads(res.read())
         except:
             return []
+
+
+        return response_json
+
+
+
 
         obj = []
         for row in response_json:
