@@ -992,8 +992,7 @@ def domain_locus_details(request):
 
     proteindomain = DBSession.query(Proteindomain).filter_by(proteindomain_id=id).one_or_none()
     if proteindomain:
-        # return proteindomain.locus_details()
-        return proteindomain.enrichment()
+        return proteindomain.locus_details()
     else:
         return HTTPNotFound()
 
