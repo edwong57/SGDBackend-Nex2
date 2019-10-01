@@ -8341,19 +8341,16 @@ class Proteindomain(Base):
 
     def enrichment(self):
         
-        # dbentity_ids = DBSession.query(Proteindomainannotation.dbentity_id).distinct(Proteindomainannotation.dbentity_id).filter_by(proteindomain_id=self.proteindomain_id).all()
-
-        dbentity_ids = DBSession.query(Proteindomainannotation.dbentity_id).filter_by(proteindomain_id=self.proteindomain_id).all() 
-
-        return dbentity_ids
-
+        dbentity_ids = DBSession.query(Proteindomainannotation.dbentity_id).distinct(Proteindomainannotation.dbentity_id).filter_by(proteindomain_id=self.proteindomain_id).all()
 
         format_names = DBSession.query(Dbentity.format_name).filter(Dbentity.dbentity_id.in_(dbentity_ids)).all()
 
-        data = {
-            "genes": ",".join([f[0] for f in format_names]),
+        genes = ",".join([f[0] for f in format_names])
+
+        data = urllib.parse.urlencode({
+            "genes": genes,
             "aspect": "P"
-        }
+        })
 
         try:
             req = Request(url=os.environ['BATTER_URI'], data=data)
