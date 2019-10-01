@@ -2776,9 +2776,9 @@ class Locusdbentity(Dbentity):
         })
 
         try:
-            req = Request(url=os.environ['BATTER_URI'], data=data)
+            req = Request(url=os.environ['BATTER_URI'], data=data.encode('utf-8'))
             res = urlopen(req)
-            response_json = json.loads(res.read())
+            response_json = json.loads(res.read().decode('utf-8'))
         except:
             return []
 
@@ -8352,16 +8352,10 @@ class Proteindomain(Base):
             "aspect": "P"
         })
 
-        url = os.environ['BATTER_URI'] + "?genes=" + genes
-
-        return url
-
-
         try:
-            # req = Request(url=os.environ['BATTER_URI'], data=data)
-            req = Request(url)
+            req = Request(url=os.environ['BATTER_URI'], data=data.encode('utf-8'))
             res = urlopen(req)
-            response_json = json.loads(res.read())
+            response_json = json.loads(res.read().decode('utf-8'))
         except:
             return []
 
