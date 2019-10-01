@@ -992,15 +992,14 @@ def domain_locus_details(request):
 
     proteindomain = DBSession.query(Proteindomain).filter_by(proteindomain_id=id).one_or_none()
     if proteindomain:
-        return proteindomain.locus_details()
+        # return proteindomain.locus_details()
+        return proteindomain.enrichment()
     else:
         return HTTPNotFound()
 
 @view_config(route_name='domain_enrichment', renderer='json', request_method='GET')
 def domain_enrichment(request):
     id = extract_id_request(request, 'proteindomain')
-
-return { "id": id }
 
     proteindomain = DBSession.query(Proteindomain).filter_by(proteindomain_id=id).one_or_none()
     if proteindomain:
