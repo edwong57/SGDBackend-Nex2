@@ -8352,8 +8352,10 @@ class Proteindomain(Base):
             "aspect": "P"
         })
 
+        url = os.environ['BATTER_URI'] + "?genes=" + genes
         try:
-            req = Request(url=os.environ['BATTER_URI'], data=data)
+            # req = Request(url=os.environ['BATTER_URI'], data=data)
+            req = Request(url)
             res = urlopen(req)
             response_json = json.loads(res.read())
         except:
