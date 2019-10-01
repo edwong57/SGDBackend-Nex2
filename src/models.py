@@ -8341,10 +8341,13 @@ class Proteindomain(Base):
 
     def enrichment(self):
         
-        return self.proteindomain_id
+        # dbentity_ids = DBSession.query(Proteindomainannotation.dbentity_id).distinct(Proteindomainannotation.dbentity_id).filter_by(proteindomain_id=self.proteindomain_id).all()
+
+        dbentity_ids = DBSession.query(Proteindomainannotation.dbentity_id).filter_by(proteindomain_id=self.proteindomain_id).all() 
+
+        return dbentity_ids
 
 
-        dbentity_ids = DBSession.query(Proteindomainannotation.dbentity_id).distinct(Proteindomainannotation.dbentity_id).filter_by(proteindomain_id=self.proteindomain_id).all()
         format_names = DBSession.query(Dbentity.format_name).filter(Dbentity.dbentity_id.in_(dbentity_ids)).all()
 
         data = {
