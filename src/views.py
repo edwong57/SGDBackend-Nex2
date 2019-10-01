@@ -1000,9 +1000,10 @@ def domain_locus_details(request):
 def domain_enrichment(request):
     id = extract_id_request(request, 'proteindomain')
 
-    return {"id": id}
-
     proteindomain = DBSession.query(Proteindomain).filter_by(proteindomain_id=id).one_or_none()
+    
+    return {"domain": proteindomain.display_name }
+
     if proteindomain:
         return proteindomain.enrichment()
     else:
