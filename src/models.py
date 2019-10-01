@@ -8357,15 +8357,11 @@ class Proteindomain(Base):
             # req = Request(url=os.environ['BATTER_URI'], data=data)
             req = Request(url)
             res = urlopen(req)
+            return res.read()
+
             response_json = json.loads(res.read())
         except:
-            return ["ERROR"]
-
-
-        return response_json
-
-
-
+            return []
 
         obj = []
         for row in response_json:
