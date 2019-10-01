@@ -8357,7 +8357,7 @@ class Proteindomain(Base):
             res = urlopen(req)
             response_json = json.loads(res.read())
         except:
-            return []
+            return ["ERROR"]
 
 
         return response_json
