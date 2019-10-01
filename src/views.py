@@ -1003,8 +1003,7 @@ def domain_enrichment(request):
     proteindomain = DBSession.query(Proteindomain).filter_by(proteindomain_id=id).one_or_none()
     
     if proteindomain:
-        return proteindomain.locus_details()
-        # return proteindomain.enrichment()
+        return proteindomain.enrichment()
     else:
         return HTTPNotFound()
 
