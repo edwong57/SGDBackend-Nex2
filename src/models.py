@@ -13,7 +13,6 @@ import re
 import traceback
 import transaction
 import logging
-import logging.handlers
 
 from datetime import datetime, timedelta
 from itertools import groupby
@@ -29,14 +28,7 @@ from scripts.loading.util import link_gene_complex_names
 
 from src.aws_helpers import simple_s3_upload, get_checksum, calculate_checksum_s3_file
 
-handler = logging.handlers.WatchedFileHandler(os.environ.get("APP_LOG_FILE", './app.log'))
-formatter = logging.Formatter(logging.BASIC_FORMAT)
-
-handler.setFormatter(formatter)
-root = logging.getLogger()
-root.setLevel(os.environ.get("LOGLEVEL", "INFO"))
-root.addHandler(handler)
-
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 ESearch = Elasticsearch(os.environ['ES_URI'], retry_on_timeout=True)
 
@@ -1257,35 +1249,17 @@ class CuratorActivity(Base):
     created_by = Column(String(12), nullable=False)
 
     def to_dict(self):
-        href = self.obj_url
-        time_created = self.date_created.strftime("%Y-%m-%d")
-        if self.dbentity_id != 1 or self.dbentity_id == None:
-            if self.activity_category == 'download':
-                href = re.sub(r'\?.+', '', href).strip()
-            return {
-                'category': self.activity_category,
-                'created_by': self.created_by,
-                'href': href,
-                'date_created': self.date_created.strftime("%Y-%m-%d"),
-                'time_created': datetime.strptime(json.loads(self.json)["modified_date"], '%Y-%m-%d %H:%M:%S.%f').isoformat(),
-                'name': self.display_name,
-                'type': self.message,
-                'is_curator_activity': True,
-                'data': json.loads(self.json)
-            }
-        else:
-            return {
-                'category': self.activity_category,
-                'created_by': self.created_by,
-                'href': href,
-                'date_created': self.date_created.strftime("%Y-%m-%d"),
-                'time_created': time_created,
-                'name': self.display_name,
-                'type': self.message,
-                'is_curator_activity': True,
-                'data': json.loads(self.json)
-            }
-
+        return {
+            'category': self.activity_category,
+            'created_by': self.created_by,
+            'href': self.obj_url,
+            'date_created': self.date_created.strftime("%Y-%m-%d"),
+            'time_created': self.date_created.isoformat(),
+            'name': self.display_name,
+            'type': self.message,
+            'is_curator_activity': True,
+            'data': json.loads(self.json)
+        }
 
 class ColleagueKeyword(Base):
     __tablename__ = 'colleague_keyword'
@@ -2595,13 +2569,6 @@ class Filedbentity(Dbentity):
         'Edam', primaryjoin='Filedbentity.topic_id == Edam.edam_id')
 
     def to_dict(self):
-        mod_s3_url = ''
-        readme_s3 = None
-        if self.s3_url:
-            mod_s3_url = re.sub(r'\?.+', '', self.s3_url).strip()
-        
-        if self.readme_file:
-            readme_s3 = re.sub(r'\?.+', '', self.readme_file.s3_url).strip()
 
         obj = {
             "id":
@@ -2624,25 +2591,22 @@ class Filedbentity(Dbentity):
                 self.file_extension if self.file_extension else '',
             "topic":
                 self.topic.to_dict() if self.topic else '',
-            "s3_url": mod_s3_url,
-            "description": self.description if self.description else '',
+            "s3_url":
+                self.s3_url if self.s3_url else '',
+            "description":
+                self.description if self.description else '',
             "year": self.year,
             "display_name": self.display_name,
             "status": self.dbentity_status,
-            "readme_file_url": readme_s3
+            "readme_file_url": self.readme_file.s3_url if self.readme_file else None
         }
         return obj
 
 
     def to_simple_dict(self):
-        readme_s3 = None
-        s3_url = ''
-        
-        if self.s3_url:
-            s3_url = re.sub(r'\?.+', '', self.s3_url).strip()
-        if self.readme_file:
-            readme_s3 = re.sub(r'\?.+', '', self.readme_file.s3_url).strip()
-
+        readme_file_url = ''
+        if self.readme_file_id:
+            readme_file_url = self.readme_file.s3_url
         obj = {
             "id":
                 self.dbentity_id,
@@ -2658,12 +2622,14 @@ class Filedbentity(Dbentity):
                 str(self.is_public),
             "file_extension":
                 self.file_extension if self.file_extension else '',
-            "s3_url": s3_url,
-            "description": self.description if self.description else '',
+            "s3_url":
+                self.s3_url if self.s3_url else '',
+            "description":
+                self.description if self.description else '',
             "year": self.year,
             "display_name": self.display_name,
             "status": self.dbentity_status,
-            "readme_file_url": readme_s3
+            "readme_file_url": self.readme_file.s3_url if self.readme_file else None
         }
         return obj
 
@@ -2676,7 +2642,6 @@ class Filedbentity(Dbentity):
 
         To upload bigger files, use multi-part upload
         """
-
         try:
             # get s3_url and upload
             s3_path = self.sgdid + '/' + filename
@@ -2689,15 +2654,14 @@ class Filedbentity(Dbentity):
                 file_s3 = bucket.get_key(k.key)
                 etag_md5_s3 = file_s3.etag.strip('"').strip("'")
                 file.seek(0)
-                mod_s3_url = file_s3.generate_url(
-                    expires_in=0, query_auth=False)                
                 self.md5sum = etag_md5_s3
                 # get file size
                 file.seek(0, os.SEEK_END)
                 file_size = file.tell()
                 file.seek(0)
                 self.file_size = file_size
-                self.s3_url = re.sub(r'\?.+', '', mod_s3_url).strip()
+                self.s3_url = file_s3.generate_url(
+                    expires_in=0, query_auth=False)
                 transaction.commit()
 
             else:
@@ -2708,7 +2672,7 @@ class Filedbentity(Dbentity):
                 # make content-type 'text/plain' if it's a README
                 if self.readme_file_id is None:
                     k.content_type = 'text/plain'
-                file_bytes = io.BytesIO(file.read())
+                file_bytes = io.BytesIO(file.read1())
                 k.set_contents_from_file(file_bytes, rewind=True)
                 k.make_public()
                 file_s3 = bucket.get_key(k.key)
@@ -2722,7 +2686,7 @@ class Filedbentity(Dbentity):
 
                 local_md5sum = hash_md5.hexdigest()
                 file.seek(0)
-
+                
                 if self.md5sum != local_md5sum:
                     self.md5sum = local_md5sum
                     # get file size
@@ -2733,11 +2697,10 @@ class Filedbentity(Dbentity):
                     mod_s3_url = file_s3.generate_url(
                         expires_in=0, query_auth=False)
                     self.s3_url = re.sub(r'\?.+', '', mod_s3_url).strip()
-                    logging.info("Added file to s3")
                     return True
                 return False
         except Exception as e:
-            logging.error(e, exc_info=True)
+            logging.debug(e)
             
 
     def get_path(self):
