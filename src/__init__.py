@@ -197,6 +197,10 @@ def main(global_config, **settings):
     config.add_route('regulations_by_filters','/get_regulations',request_method='POST')
     config.add_route('regulation_delete','/regulation/{id}', request_method='DELETE')
     config.add_route('regulation_file','/regulation_file',request_method='POST')
+
+    config.add_route('disease_by_gene', '/disease/{id}', request_method='GET')
+    config.add_route('disease_update', '/disease', request_method='POST')
+    config.add_route('disease_delete','/disease/{id}',request_method='DELETE')
    
     config.add_route('healthcheck', '/healthcheck')
 
