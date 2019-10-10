@@ -34,6 +34,8 @@ landmark_file = "scripts/dumping/curation/data/landmark_gene.txt"
 chromosomes = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX',
                'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'Mito']
 
+semicolon = "%3B"
+
 def dump_data():
  
     nex_session = get_session()
@@ -109,7 +111,7 @@ def dump_data():
         if chr == 'Mito':
             chr = 'mt'
 
-        fw.write("chr" + chr + "\tSGD\tchromosome\t1\t" + str(length) + "\t.\t.\t.\tID=chr" + chr + ";dbxref=NCBI:" + accession_id + ";Name=chr" + chr + "\n")
+        fw.write("chr" + chr + "\tSGD\tchromosome\t1\t" + str(length) + "\t.\t.\t.\tID=chr" + chr + semicolon + "dbxref=NCBI:" + accession_id + semicolon +  "Name=chr" + chr + "\n")
 
         # get features for each contig_id
         # print features in the order of chromosome and coord
@@ -169,27 +171,27 @@ def dump_data():
                 else:
                     end_index = utrEnd
                     
-            fw.write("chr" + chr + "\tSGD\t" + type + "\t" + str(start_index) + "\t" + str(end_index) + "\t.\t" + strand + "\t.\tID=" + systematic_name + ";Name=" + systematic_name)
+            fw.write("chr" + chr + "\tSGD\t" + type + "\t" + str(start_index) + "\t" + str(end_index) + "\t.\t" + strand + "\t.\tID=" + systematic_name + semicolon + "Name=" + systematic_name)
 
             if gene_name:
-                fw.write(";gene=" + gene_name)
+                fw.write(semicolon + "gene=" + gene_name)
             if alias_list:
-                fw.write(";Alias=" + alias_list)
+                fw.write(semicolon + "Alias=" + alias_list)
             if x.dbentity_id in locus_id_to_goids:
                 goids = sorted(locus_id_to_goids[x.dbentity_id])
                 goid_list = ",".join(goids)
-                fw.write(";Ontology_term=" + goid_list)
+                fw.write(semicolon + "Ontology_term=" + goid_list)
             if description:
-                fw.write(";Note=" + do_escape(description))
+                fw.write(semicolon + "Note=" + do_escape(description))
             if headline:
-                fw.write(";display=" + do_escape(headline))
+                fw.write(semicolon + "display=" + do_escape(headline))
 
-            fw.write(";dbxref=" + sgdid)
+            fw.write(semicolon + "dbxref=" + sgdid)
 
             if qualifier:
-                fw.write(";orf_classification=" + qualifier)
+                fw.write(semicolon + "orf_classification=" + qualifier)
 
-            fw.write(";curie=" + sgdid + "\n")
+            fw.write(semicolon + "curie=" + sgdid + "\n")
 
             if x.annotation_id not in annotation_id_to_subfeatures or type in ['pseudogene']:
                 continue
@@ -220,15 +222,15 @@ def dump_data():
 
                 if type == 'gene':
                     parent = systematic_name + "_mRNA" 
-                    fw.write("chr" + chr + "\tSGD\t" + display_name + "\t" + str(contig_start_index) + "\t" + str(contig_end_index) + "\t.\t" + x.strand + "\t" + str(phase) + "\tParent=" + parent + ";Name=" + name)
+                    fw.write("chr" + chr + "\tSGD\t" + display_name + "\t" + str(contig_start_index) + "\t" + str(contig_end_index) + "\t.\t" + x.strand + "\t" + str(phase) + "\tParent=" + parent + semicolon + "Name=" + name)
                     if qualifier:
-                        fw.write(";orf_classification=" + qualifier)
+                        fw.write(semicolon + "orf_classification=" + qualifier)
                     fw.write("\n")
                 else:
-                    fw.write("chr" + chr + "\tSGD\t" + display_name + "\t" + str(contig_start_index) + "\t" + str(contig_end_index) + "\t.\t" + strand + "\t" + str(phase) + "\tID=" + name + ";Name=" + name + ";dbxref=" + sgdid + ";curie=" + sgdid + "\n");
+                    fw.write("chr" + chr + "\tSGD\t" + display_name + "\t" + str(contig_start_index) + "\t" + str(contig_end_index) + "\t.\t" + strand + "\t" + str(phase) + "\tID=" + name + semicolon + "Name=" + name + semicolon + "dbxref=" + sgdid + semicolon + "curie=" + sgdid + "\n")
     
             if type == 'gene':
-                fw.write("chr" + chr + "\tSGD\tmRNA\t" + str(start_index) + "\t" + str(end_index) + "\t.\t" + x.strand + "\t.\tID=" + systematic_name + "_mRNA;Name=" + systematic_name + "_mRNA;Parent=" + systematic_name + "\n")
+                fw.write("chr" + chr + "\tSGD\tmRNA\t" + str(start_index) + "\t" + str(end_index) + "\t.\t" + x.strand + "\t.\tID=" + systematic_name + "_mRNA" + semicolon + "Name=" + systematic_name + "_mRNA" + semicolon + "Parent=" + systematic_name + "\n")
 
     # output 17 chr sequences at the end 
     
