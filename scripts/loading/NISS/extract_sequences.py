@@ -8,6 +8,7 @@ __author__ = 'sweng66'
 data_file = "scripts/loading/NISS/data/NISSpilotSet102119.txt"
 genomic_seq_file = "scripts/loading/NISS/data/NISSpilotSet102119_genomic.fsa"
 kb_seq_file = "scripts/loading/NISS/data/NISSpilotSet102119_1KB.fsa"
+locus_file = "scripts/loading/NISS/data/niss_genes.txt"
    
 def extract_data():
     
@@ -19,6 +20,8 @@ def extract_data():
     f = open(data_file)
     fw = open(genomic_seq_file, "w")
     fw2 = open(kb_seq_file , "w")
+    fw3 = open(locus_file, "w")
+
     for line in f:
         
         pieces = line.strip().split("\t")
@@ -32,6 +35,8 @@ def extract_data():
         name = pieces[2]
         dbentity_id = name_to_dbentity_id[name]
         genBankID = pieces[3].replace("GenBank: ", "")
+
+        fw3.write(name + "\t" + genBankID  + "\n")
 
         i = 0
         for data in pieces[4:]:
@@ -57,6 +62,7 @@ def extract_data():
     f.close()
     fw.close()
     fw2.close()
+    fw3.close()
 
 def get_sequences_from_contig(nex_session, name, contig, start, end, strand):
     
