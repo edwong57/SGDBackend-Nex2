@@ -215,7 +215,7 @@ def insert_dnasubsequence(nex_session, fw, source_id, defline, seq, taxid_to_tax
     download_filename = ">" + name + " " + gene + " CDS:" + str(start) + ".." + str(end)
 
     relative_start = 1
-    relative_end = end - start + 1
+    relative_end = end-start+1
 
 
     
@@ -228,7 +228,7 @@ def insert_dnasubsequence(nex_session, fw, source_id, defline, seq, taxid_to_tax
                        display_name = 'CDS',
                        so_id = so_id,
                        relative_start_index = relative_start,
-                       relative_end_index = relative_start,
+                       relative_end_index = relative_end,
                        contig_start_index = start,
                        contig_end_index = end,
                        file_header = file_header,
