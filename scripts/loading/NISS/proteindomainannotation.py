@@ -3,6 +3,7 @@ import os
 import sys
 from src.models import Source, Locusdbentity, Taxonomy, Proteindomain, Proteindomainannotation
 from scripts.loading.database_session import get_session
+from scripts.loading.util import get_strain_taxid_mapping
 
 __author__ = 'sweng66'
 
@@ -10,8 +11,6 @@ CREATED_BY = os.environ['DEFAULT_USER']
 
 domain_file = 'scripts/loading/NISS/data/NISSpilotSet102119_protein_iprscan.tsv'
 log_file = 'scripts/loading/NISS/logs/proteindomainannotation.log'
-
-taxid = "TAX:4932"
 
 def load_domain_annotations():
 
@@ -28,12 +27,11 @@ def load_domain_annotations():
 def read_data_and_update_database(nex_session, fw):
 
     ipr = nex_session.query(Source).filter_by(format_name='InterPro').one_or_none()
-    taxon = nex_session.query(Taxonomy).filter_by(taxid=taxid).one_or_none() 
+    taxon_to_taxonomy_id = dict([(x.taxid, x.taxonomy_id) for x in nex_session.query(Taxonomy).all()])
     name_to_dbentity_id = dict([(x.systematic_name, x.dbentity_id) for x in nex_session.query(Locusdbentity).all()])
     format_name_to_id =  dict([(x.format_name, x.proteindomain_id) for x in nex_session.query(Proteindomain).all()])
     
     source_id = ipr.source_id
-    taxonomy_id = taxon.taxonomy_id
 
     key_to_annotation = {}
     for x in nex_session.query(Proteindomainannotation).all():
@@ -42,11 +40,23 @@ def read_data_and_update_database(nex_session, fw):
 
     f = open(domain_file)
 
+    strain_to_taxon_mapping = get_strain_taxid_mapping()
+
     i = 0
     found = {}
     for line in f:
         items = line.strip().split("\t")
-        name = items[0].split('_')[0]
+        IDs = items[0].split('_')
+        name = IDs[0]
+        strain = IDs[2]
+        taxon = strain_to_taxon_mapping.get(strain)
+        if taxon is None:
+            print ("The strain = " + strain + " is not in the mapping module.")
+            continue
+        taxonomy_id = taxon_to_taxonomy_id.get(taxon)
+        if taxonomy_id is None:
+            print ("The taxid = " + taxon + " is not in the database.")
+            continue
         dbentity_id = name_to_dbentity_id.get(name)
         if dbentity_id is None:
             print("The systematic_name ", name, " is not in the LOCUSDBENTITY table.")

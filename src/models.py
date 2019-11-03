@@ -2951,7 +2951,8 @@ class Locusdbentity(Dbentity):
 
 
     def protein_domain_details(self):
-        annotations = DBSession.query(Proteindomainannotation).filter_by(dbentity_id=self.dbentity_id).all()
+        main_strain = self.get_main_strain()
+        annotations = DBSession.query(Proteindomainannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=TAXON_ID).all()
 
         return [a.to_dict(locus=self) for a in annotations]
 
@@ -4045,6 +4046,18 @@ class Locusdbentity(Dbentity):
             "edges": edges
         }
 
+    def get_main_strain(self):
+        main_strain_list = ["S288C", "W303", "Sigma1278b", "SK1", "SEY6210", "X2180-1A", "CEN.PK", "D273-10B", "JK9-3d", "FL100", "Y55", "RM11-1a"]
+        main_strain = None
+        for strain in main_strain_list:
+            x = DBSession.query(Straindbentity).filter_by(display_name=strain, subclass='STRAIN').one_or_none()
+            y = DBSession.query(Dnasequenceannotation).filter_by(taxonomy_id=x.taxonomy_id, dbentity_id=self.dbentity_id, dna_type='GENOMIC').one_or_none()
+            if y is not None:
+                main_strain = strain
+                TAXON_ID = x.taxonomy_id
+                break
+        return main_strain
+
     def phenotype_graph(self):
         main_gene_phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(dbentity_id=self.dbentity_id).all()
         main_gene_phenotype_ids = [a.phenotype_id for a in main_gene_phenotype_annotations]
@@ -4236,19 +4249,7 @@ class Locusdbentity(Dbentity):
             "ecnumbers": []
         }
 
-        ## main strain name  
-                                                                                        
-        main_strain_list = ["S288C", "W303", "Sigma1278b", "SK1", "SEY6210", "X2180-1A", "CEN.PK", "D273-10B", "JK9-3d", "FL100", "Y55", "RM11-1a"]
-        main_strain = None
-        for strain in main_strain_list:
-            x = DBSession.query(Straindbentity).filter_by(display_name=strain, subclass='STRAIN').one_or_none()
-            y = DBSession.query(Dnasequenceannotation).filter_by(taxonomy_id=x.taxonomy_id, dbentity_id=self.dbentity_id, dna_type='GENOMIC').one_or_none()
-            if y is not None:
-                main_strain = strain
-                TAXON_ID = x.taxonomy_id
-                break
-        obj['main_strain'] = main_strain
-
+        obj['main_strain'] = self.get_main_strain()
 
         if self.genetic_position:
             obj["genetic_position"] = self.genetic_position
