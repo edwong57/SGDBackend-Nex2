@@ -2804,6 +2804,8 @@ class Locusdbentity(Dbentity):
     has_protein = Column(Boolean, nullable=False)
     has_sequence_section = Column(Boolean, nullable=False)
     not_in_s288c = Column(Boolean, nullable=False)
+    main_taxonomy_id = self.get_main_strain('taxonomy_id')
+    main_strain = self.get_main_strain()
 
     @classmethod
     def get_s288c_genes(Locusdbentity):
@@ -2951,8 +2953,7 @@ class Locusdbentity(Dbentity):
 
 
     def protein_domain_details(self):
-        main_strain = self.get_main_strain()
-        annotations = DBSession.query(Proteindomainannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=TAXON_ID).all()
+        annotations = DBSession.query(Proteindomainannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=self.main_taxonomy_id).all()
 
         return [a.to_dict(locus=self) for a in annotations]
 
@@ -4046,7 +4047,7 @@ class Locusdbentity(Dbentity):
             "edges": edges
         }
 
-    def get_main_strain(self):
+    def get_main_strain(self, type=None):
         main_strain_list = ["S288C", "W303", "Sigma1278b", "SK1", "SEY6210", "X2180-1A", "CEN.PK", "D273-10B", "JK9-3d", "FL100", "Y55", "RM11-1a"]
         main_strain = None
         for strain in main_strain_list:
@@ -4056,8 +4057,11 @@ class Locusdbentity(Dbentity):
                 main_strain = strain
                 TAXON_ID = x.taxonomy_id
                 break
-        return main_strain
-
+        if type == 'taxonomy_id':
+            return TAXON_ID
+        else:
+            return main_strain
+        
     def phenotype_graph(self):
         main_gene_phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(dbentity_id=self.dbentity_id).all()
         main_gene_phenotype_ids = [a.phenotype_id for a in main_gene_phenotype_annotations]
