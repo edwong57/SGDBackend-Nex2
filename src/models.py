@@ -2804,8 +2804,6 @@ class Locusdbentity(Dbentity):
     has_protein = Column(Boolean, nullable=False)
     has_sequence_section = Column(Boolean, nullable=False)
     not_in_s288c = Column(Boolean, nullable=False)
-    main_taxonomy_id = self.get_main_strain('taxonomy_id')
-    main_strain = self.get_main_strain()
 
     @classmethod
     def get_s288c_genes(Locusdbentity):
@@ -2953,6 +2951,7 @@ class Locusdbentity(Dbentity):
 
 
     def protein_domain_details(self):
+        taxonomy_id = self.get_main_strain('taxonomy_id')
         annotations = DBSession.query(Proteindomainannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=self.main_taxonomy_id).all()
 
         return [a.to_dict(locus=self) for a in annotations]
