@@ -4508,7 +4508,7 @@ class Locusdbentity(Dbentity):
 
         # protein = DBSession.query(Proteinsequenceannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=274901).one_or_none()
 
-        taxonomy_id = self.get_main_strain('taxonomy')
+        taxonomy_id = self.get_main_strain('taxonomy_id')
         protein = DBSession.query(Proteinsequenceannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=taxonomy_id).one_or_none() 
         if protein:
             protein_sequence = DBSession.query(ProteinsequenceDetail).filter_by(annotation_id=protein.annotation_id).one_or_none()
