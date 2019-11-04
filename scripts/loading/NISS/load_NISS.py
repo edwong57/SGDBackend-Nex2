@@ -24,11 +24,14 @@ def load_data():
     taxid_to_taxonomy_id = dict([(x.taxid, x.taxonomy_id) for x in nex_session.query(Taxonomy).all()]) 
     sgd = nex_session.query(Source).filter_by(display_name='SGD').one_or_none() 
     genBank = nex_session.query(Source).filter_by(display_name='GenBank/EMBL/DDBJ').one_or_none()
+    uniprot = nex_session.query(Source).filter_by(display_name='UniProtKB').one_or_none()
+
     so_to_so_id = dict([(x.display_name, x.so_id) for x in nex_session.query(So).all()])
     name_to_locus_id = dict([(x.systematic_name, x.dbentity_id) for x in nex_session.query(Locusdbentity).all()])
 
     source_id = sgd.source_id
     genBank_src_id = genBank.source_id
+    uniprot_src_id = uniprot.source_id
 
     strain_taxid_mapping = get_strain_taxid_mapping()
 
@@ -116,13 +119,18 @@ def load_data():
     ## locus_alias + locusdbentity
     f = open(gene_file)
     for line in f:
-        [name, genBankID] = line.strip().split("\t")
+        if line.startswith('systematic_name'):
+            continue
+        [name, genBankID, uniprotID] = line.strip().split("\t")
         locus_id = name_to_locus_id.get(name)
         if locus_id is None:
             print (name + " is not in the database.")
             continue
         nex_session.query(Locusdbentity).filter_by(dbentity_id=locus_id).update({'has_sequence': '1', 'has_protein': '1', 'has_sequence_section': '1'})
-        insert_locus_alias(nex_session, fw, locus_id, genBankID, genBank_src_id)
+        insert_locus_alias(nex_session, fw, locus_id, genBankID, genBank_src_id, 
+                           'DNA accession ID', 'https://www.ncbi.nlm.nih.gov/nuccore/'+genBankID)
+        insert_locus_alias(nex_session, fw, locus_id, uniprotID, uniprot_src_id, 
+                           'UniProtKB ID', 'http://www.uniprot.org/uniprot/'+uniprotID)
 
     f.close()
     fw.close()
@@ -177,23 +185,23 @@ def parse_defline(nex_session, defline, taxid_to_taxonomy_id, name_to_locus_id, 
     return [name, gene, strain, contig, locus_id, taxonomy_id, contig_id, start, end, strand]
 
 
-def insert_locus_alias(nex_session, fw, locus_id, genBankID, source_id):
+def insert_locus_alias(nex_session, fw, locus_id, display_name, source_id, alias_type, obj_url):
 
-    print ("LOCUS_ALIAS: ", locus_id, genBankID, source_id)
+    print ("LOCUS_ALIAS: ", locus_id, display_name, source_id, alias_type, obj_url)
 
-    x = LocusAlias(display_name = genBankID,
-                   obj_url = 'https://www.ncbi.nlm.nih.gov/nuccore/' + genBankID,
+    x = LocusAlias(display_name = display_name,
+                   obj_url = obj_url,
                    source_id = source_id,
                    locus_id = locus_id,
                    has_external_id_section = '1',
-                   alias_type = 'DNA accession ID',
+                   alias_type = alias_type,
                    created_by = CREATED_BY)
 
     nex_session.add(x)
     nex_session.flush()
     nex_session.refresh(x)
 
-    fw.write("insert new locus_alias: " + genBankID+ "\n")
+    fw.write("insert new locus_alias: " + display_name + "\n")
 
 def insert_dnasubsequence(nex_session, fw, source_id, defline, seq, taxid_to_taxonomy_id, name_to_locus_id, strain_taxid_mapping, so_to_so_id):
 
