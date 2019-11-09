@@ -720,6 +720,8 @@ def update_conditions(curator_session, CREATED_BY, annotation_id, group_id, cond
     newRow = {}
     i = 0
     for name in names:
+        if name == '':
+            continue
         unit = units
         if cond_class != 'experiment':
             unit = units[i]
