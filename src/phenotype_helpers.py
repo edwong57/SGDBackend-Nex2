@@ -720,14 +720,16 @@ def update_conditions(curator_session, CREATED_BY, annotation_id, group_id, cond
     newRow = {}
     i = 0
     for name in names:
-        key = (name, values[i], units[i])
+        unit = units
+        if cond_class != 'experiment':
+            unit = units[i]
+        key = (name, values[i], unit)
         i = i + 1
         newRow[key] = 1
 
     conds = curator_session.query(PhenotypeannotationCond).filter_by(annotation_id=annotation_id, 
                                                                      group_id=group_id, 
                                                                      condition_class=cond_class).all()
-    
     update_count = 0
     oldRow = {}
     for cond in conds:
