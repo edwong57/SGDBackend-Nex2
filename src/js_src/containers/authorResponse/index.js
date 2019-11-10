@@ -87,7 +87,7 @@ class AuthorResponse extends Component {
           <input name='dataset_desc' value={this.props.authorResponse.dataset_desc} onChange={this.handleChange} type='text' />
           <p>Is there anything else that you would like us to know about this paper? </p>
           <input name='other_desc' value={this.props.authorResponse.other_desc} onChange={this.handleChange} type='text' />
-          <button type='submit' className="button expanded" >Submit</button> <button type='reset' onClick={this.onReset} className="button expanded" >Reset</button>
+          <button type='submit'>Submit</button> <button type='reset' >Reset</button>
         </div>
       </form>
     );
