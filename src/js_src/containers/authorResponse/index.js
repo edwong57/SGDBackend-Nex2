@@ -1,42 +1,24 @@
 import React, { Component } from 'react';
 
-class AuthorResponse extends Component {
+import ColleagueUpdate from '../reserve/colleagueUpdate';
+
+class NewColleague extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isComplete: false
+    };
+  }
+  handleColleagueCompletion() {
+    this.setState({ isComplete: true });
+  }
+
   render() {
-    return (
-      <div>
-        <h1>Information About Your Recently Published Paper</h1>
-        <div className='row'>
-          <div className='columns small-6'>
-            <label>Your email (required)</label>
-            <input type='text' />
-          </div>
-          <div className='columns small-6'>
-            <label>Pubmed ID of your paper (required)</label>
-            <input type='text' />
-          </div>
-        </div>
-        <label>Citation</label>
-        <input type='text' />
-        <p>
-          Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)? If yes, please summarize briefly the novel results.
-        </p>
-        <input type='text' />
-        <p>
-          If this paper focuses on specific genes/proteins, please identify them here (enter a list of gene names/systematic names).
-        </p>
-        <input type='text' />
-        <p>
-          Does this study include large-scale datasets that you would like to see incorporated into SGD? If yes, please describe briefly the type(s) of data.
-        </p>
-        <input type='text' />
-        <p>
-          Is there anything else that you would like us to know about this paper? 
-        </p>
-        <input type='text' />
-        <a className='button' href='#'>Submit</a>
-      </div>
-    );
+    if (this.state.isComplete) {
+      return <h2 style={{ marginTop: '3rem' }}>Thanks for your update! SGD curators will review.</h2>;
+    }
+    return <ColleagueUpdate onComplete={this.handleColleagueCompletion.bind(this)} submitText={'Submit update'} />;
   }
 }
 
-export default AuthorResponse;
+export default NewColleague;
