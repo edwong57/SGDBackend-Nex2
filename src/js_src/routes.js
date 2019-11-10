@@ -51,7 +51,7 @@ export default (
     <Switch>
       <Route render={(props) => <PublicLayout {...props}><NewColleague/></PublicLayout>} path='/new_colleague' />
       <Route render={(props) => <PublicLayout {...props}><NewGeneNameReservation /></PublicLayout>} path='/new_reservation' />
-      <Route render={(props) => <PublicLayout {...props}><AuthorResponse /></PublicLayout>} path='/fast_tracking' />
+      <Route render={(props) => <PublicLayout {...props}><AuthorResponse /></PublicLayout>} path='/author_response' />
       <Route render={() => <Layout>
         <Switch>
           <Route component={requireAuthentication(TriageIndex)} path='/triage' />
