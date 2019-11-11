@@ -13,7 +13,7 @@ class AuthorResponse extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onReset = this.onReset.bind(this);
-    // this.state = {};                                                            \
+    // this.state = {};                                                          
   }
  
   onSubmit(e) {
