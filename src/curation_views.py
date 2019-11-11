@@ -45,7 +45,7 @@ from .tsv_parser import parse_tsv_annotations
 from .models_helpers import ModelsHelper
 from .phenotype_helpers import add_phenotype_annotations, update_phenotype_annotations,\
       delete_phenotype_annotations, get_list_of_phenotypes, get_one_phenotype
-
+from .author_response_helpers import insert_author_response
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
@@ -1856,6 +1856,11 @@ def phenotype_delete(request):
 
     return delete_phenotype_annotations(request)
 
+@view_config(route_name='add_author_response',renderer='json',request_method='POST')
+@authenticate
+def add_author_response(request):
+
+    return insert_author_response(request)
 
 @view_config(route_name='regulation_insert_update', renderer='json', request_method='POST')
 @authenticate
