@@ -20,6 +20,7 @@ class AuthorResponse extends Component {
     e.preventDefault();
     let formData = new FormData();
     for(let key in this.props.authorResponse){
+      alert('key='+key+', value='+this.props.authorResponse[key]);
       formData.append(key,this.props.authorResponse[key]);
     }
 
