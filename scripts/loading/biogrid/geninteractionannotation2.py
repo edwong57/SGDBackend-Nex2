@@ -133,9 +133,9 @@ def load_data(infile, logfile):
 
                     key = (dbentity1_id, dbentity2_id, bait_hit, biogrid_experimental_system, annotation_type, reference_id)
 
-                    # if i <= 573000:
-                    #    key_existed[key] = 1
-                    #    continue  
+                    if i <= 382500:
+                        key_existed[key] = 1
+                        continue  
                     # else:
                     #    print(key)
 

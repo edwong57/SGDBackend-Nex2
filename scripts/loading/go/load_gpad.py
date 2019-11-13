@@ -12,7 +12,8 @@ from src.models import Go, Taxonomy, Source, Goannotation, Gosupportingevidence,
 from scripts.loading.database_session import get_session
 from src.helpers import upload_file
 from scripts.loading.util import get_relation_to_ro_id, read_gpi_file, \
-                                read_gpad_file, get_go_extension_link
+                                 read_gpad_file, read_noctua_gpad_file, \
+                                 get_go_extension_link
 
 __author__ = 'sweng66'
 
@@ -27,7 +28,7 @@ log.setLevel(logging.INFO)
 
 CREATED_BY = os.environ['DEFAULT_USER']
 
-def load_go_annotations(gpad_file, gpi_file, annotation_type, log_file):
+def load_go_annotations(gpad_file, noctua_gpad_file, gpi_file, annotation_type, log_file):
 
     nex_session = get_session()
 
@@ -89,7 +90,28 @@ def load_go_annotations(gpad_file, gpi_file, annotation_type, log_file):
     	   	          uniprot_to_sgdid_list, yes_goextension, yes_gosupport, 
 			  new_pmids, dbentity_id_with_new_pmid, 
                           dbentity_id_with_uniprot, bad_ref)
-    
+
+    noctua_data = []
+    if annotation_type == 'manually curated':
+        log.info(str(datetime.now()))
+        log.info("Reading noctua GPAD file...")
+
+        fw.write(str(datetime.now()) + "\n")
+        fw.write("reading noctua gpad file...\n")
+
+        sgdid_to_date_assigned = {}
+        for uniprot in uniprot_to_date_assigned:
+            date_assigned = uniprot_to_date_assigned[uniprot]
+            sgdid_list = uniprot_to_sgdid_list.get(uniprot, [])
+            for sgdid in sgdid_list:
+                sgdid_to_date_assigned[sgdid] = date_assigned
+
+        noctua_data = read_noctua_gpad_file(noctua_gpad_file, nex_session, 
+                                            sgdid_to_date_assigned,
+                                            yes_goextension, yes_gosupport,
+                                            new_pmids, dbentity_id_with_new_pmid, 
+                                            bad_ref)
+
     nex_session.close()
 
     log.info(str(datetime.now()))
@@ -98,8 +120,8 @@ def load_go_annotations(gpad_file, gpi_file, annotation_type, log_file):
     # load the new data into the database
     fw.write(str(datetime.now()) + "\n")
     fw.write("loading the new data into the database...\n")
-    [hasGoodAnnot, annotation_update_log] = load_new_data(data, source_to_id, annotation_type,
-                                                          key_to_annotation, 
+    [hasGoodAnnot, annotation_update_log] = load_new_data(data, noctua_data, source_to_id, 
+                                                          annotation_type, key_to_annotation, 
                                                           annotation_id_to_extensions, 
                                                           annotation_id_to_support_evidences, 
                                                           taxonomy_id, go_id_to_aspect, fw)
@@ -138,7 +160,7 @@ def load_go_annotations(gpad_file, gpi_file, annotation_type, log_file):
     log.info("Done!\n\n")
 
 
-def load_new_data(data, source_to_id, annotation_type, key_to_annotation, annotation_id_to_extensions, annotation_id_to_support_evidences, taxonomy_id, go_id_to_aspect, fw):
+def load_new_data(data, noctua_data, source_to_id, annotation_type, key_to_annotation, annotation_id_to_extensions, annotation_id_to_support_evidences, taxonomy_id, go_id_to_aspect, fw):
 
     annotation_update_log = {}
     for count_name in ['annotation_updated', 'annotation_added', 'annotation_deleted',
@@ -162,7 +184,7 @@ def load_new_data(data, source_to_id, annotation_type, key_to_annotation, annota
     key_to_annotation_id = {}
     annotation_id_to_extension = {}
     annotation_id_to_support = {}
-    for x in data:
+    for x in data + noctua_data:
         if x['annotation_type'] not in allowed_types:
             continue
         source_id = source_to_id.get(x['source'])
@@ -658,6 +680,7 @@ if __name__ == "__main__":
         
     # ftp://ftp.ebi.ac.uk/pub/contrib/goa/gp_association.559292_sgd.gz
     # ftp://ftp.ebi.ac.uk/pub/contrib/goa/gp_information.559292_sgd.gz
+    # http://current.geneontology.org/products/annotations/noctua_sgd.gpad.gz
 
     url_path = 'ftp://ftp.ebi.ac.uk/pub/contrib/goa/'
     gpad_file = 'gp_association.559292_sgd.gz'
@@ -665,6 +688,11 @@ if __name__ == "__main__":
     urllib.request.urlretrieve(url_path + gpad_file, gpad_file)
     urllib.request.urlcleanup()
     urllib.request.urlretrieve(url_path + gpi_file, gpi_file)
+
+    noctua_path = 'http://current.geneontology.org/products/annotations/'
+    noctua_gpad_file = 'noctua_sgd.gpad.gz'
+    urllib.request.urlcleanup()
+    urllib.request.urlretrieve(noctua_path + noctua_gpad_file, noctua_gpad_file)
 
     gpadFileInfo = os.stat(gpad_file)
     gpiFileInfo = os.stat(gpi_file)
@@ -688,7 +716,7 @@ if __name__ == "__main__":
     
     log_file = "scripts/loading/go/logs/GPAD_loading_" + annotation_type.replace(" ", "-") + ".log"
 
-    load_go_annotations(gpad_file, gpi_file, annotation_type, log_file)
+    load_go_annotations(gpad_file, noctua_gpad_file, gpi_file, annotation_type, log_file)
 
 
     
