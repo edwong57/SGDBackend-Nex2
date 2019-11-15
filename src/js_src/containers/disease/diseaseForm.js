@@ -6,15 +6,16 @@ import {setRegulation} from '../../actions/regulationActions';
 import DataList from '../../components/dataList';
 import Loader from '../../components/loader';
 import PropTypes from 'prop-types';
-const GET_ECO = '/eco/regulations';
-const GET_GO = '/go/regulations';
+const GET_ECO = '/eco';
+const GET_DO = '/do';
+const GET_RO = '/ro';
 const REGULATIONS = '/regulation';
 const GET_STRAINS = '/get_strains';
 const GET_REGULATIONS = 'get_regulations';
 
-const REGULATION_TYPE =  ['','transcription','protein activity','protein stability','RNA activity','RNA stability'];
-const DIRECTION = [null,'positive','negative'];
-const REGULATOR_TYPE =['','chromatin modifier','transcription factor','protein modifier','RNA-binding protein','RNA modifier'];
+//const REGULATION_TYPE =  ['','transcription','protein activity','protein stability','RNA activity','RNA stability'];
+const DIRECTION = [null,'computational', 'high throughput', 'manually curated'];
+//const REGULATOR_TYPE =['','chromatin modifier','transcription factor','protein modifier','RNA-binding protein','RNA modifier'];
 const SKIP = 5;
 const TIMEOUT = 120000;
 
@@ -35,7 +36,8 @@ class DiseaseForm extends Component {
 
     this.state = {
       list_of_eco:[],
-      list_of_go: [],
+      list_of_do: [],
+      list_of_ro: [],
       list_of_taxonomy:[],
       isUpdate:false,
       pageIndex:0,
@@ -45,7 +47,8 @@ class DiseaseForm extends Component {
     };
 
     this.getEco();
-    this.getGo();
+    this.getDo();
+    this.getRo();
     this.getTaxonomy();
   }
 
@@ -57,10 +60,18 @@ class DiseaseForm extends Component {
     .catch((err) => this.props.dispatch(setError(err.message)));
   }
 
-  getGo() {
-    fetchData(GET_GO, { type: 'GET' })
+  getDo() {
+    fetchData(GET_DO, { type: 'GET' })
       .then((data) => {
-        this.setState({ list_of_go: data.success });
+        this.setState({ list_of_do: data.success });
+      })
+      .catch((err) => this.props.dispatch(setError(err.message)));
+  }
+
+  getRo() {
+    fetchData(GET_RO, { type: 'GET' })
+      .then((data) => {
+        this.setState({ list_of_ro: data.success });
       })
       .catch((err) => this.props.dispatch(setError(err.message)));
   }
@@ -253,8 +264,8 @@ class DiseaseForm extends Component {
 
   render() {
     
-    var regulation_types = REGULATION_TYPE.map((item) => <option key={item}>{item}</option>);
-    var regulator_types = REGULATOR_TYPE.map((item) => <option key={item}>{item}</option>);
+    //var regulation_types = REGULATION_TYPE.map((item) => <option key={item}>{item}</option>);
+    //var regulator_types = REGULATOR_TYPE.map((item) => <option key={item}>{item}</option>);
     var directions = DIRECTION.map((item) => <option key={item}>{item}</option>);
 
     return (
@@ -352,15 +363,14 @@ class DiseaseForm extends Component {
                 </div>
               </div>
               <div className='row'>
-                {(this.state.list_of_go.length > 0) &&
-                  <DataList options={this.state.list_of_go} id='go_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.regulation.happens_during} />
+                {(this.state.list_of_do.length > 0) &&
+                  <DataList options={this.state.list_of_do} id='go_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.regulation.happens_during} />
                 }
               </div>
             </div>
           </div>
 
-          {/* Regulator type */}
-          <div className='row'>
+        <div className='row'>
             <div className='columns medium-12'>
               <div className='row'>
                 <div className='columns medium-12'>
@@ -369,28 +379,24 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <select onChange={this.handleChange} name='regulator_type' value={this.props.regulation.regulator_type} >
-                    {regulator_types}
-                  </select>
+                  <input type='text' name='regulator_id' onChange={this.handleChange} value={this.props.regulation.regulator_id} />
                 </div>
               </div>
             </div>
-          </div>
+        </div>
 
-          {/* Regulation type */}
-          <div className='row'>
+
+         <div className='row'>
             <div className='columns medium-12'>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <label> Association type </label>
+                  <label> Association Type </label>
                 </div>
               </div>
               <div className='row'>
-                <div className='columns medium-12'>
-                  <select onChange={this.handleChange} name='regulation_type' value={this.props.regulation.regulation_type} >
-                    {regulation_types}
-                  </select>
-                </div>
+                {(this.state.list_of_ro.length > 0) &&
+                  <DataList options={this.state.list_of_ro} id='ro_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.regulation.happens_during} />
+                }
               </div>
             </div>
           </div>
