@@ -39,6 +39,7 @@ import ColleaguesShow from './containers/colleagues/show';
 // import AuthorResponse from './containers/authorResponse/index';
 import NewColleague from './containers/colleagues/new';
 import Regulation from './containers/regulation/index';
+import Disease from './containers/disease/index'
 import FileCurate from './containers/fileCurate';
 import FileCurateUpdate from './containers/fileCurate/updateFile.js';
 import NewPhenotype from './containers/phenotype/new';
@@ -67,12 +68,10 @@ export default (
           <Route component={requireAuthentication(NewReference)} path='/curate/reference/new' />
           <Route component={requireAuthentication(CurateLit)} path='/curate/reference/:id' />
           <Route component={requireAuthentication(Regulation)} path='/regulation' />
-	  <Route component={requireAuthentication(NewPhenotype)} path='/new_phenotype' />
-	  <Route component={requireAuthentication(SearchPhenotype)} path='/search_phenotype' />  
+	        <Route component={requireAuthentication(SearchPhenotype)} path='/search_phenotype' />  
           <Route component={requireAuthentication(EditPhenotype)} path='/edit_phenotype/:id' />   
-          <Route component={requireAuthentication(LocusLayout)} path='/curate/locus/:id' />
+          <Route component={requireAuthentication(Disease)} path='/disease' />
           <Route component={requireAuthentication(FileCurate)} path='/file_curate' />
-          <Route component={requireAuthentication(FileCurateUpdate)} path='/file_curate_update' />
           <Route component={requireAuthentication(GeneNameReservationIndex)} path='/reservations' exact />
           <Route component={requireAuthentication(GeneNameReservation)} path='/reservations/:id' exact />
           <Route component={requireAuthentication(GeneNameReservationEdit)} path='/reservations/:id/edit' exact />

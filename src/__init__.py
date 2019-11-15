@@ -210,6 +210,12 @@ def main(global_config, **settings):
     config.add_route('phenotype_add','/phenotype_add', request_method='POST')
     config.add_route('phenotype_update','/phenotype_update', request_method='POST')
     config.add_route('phenotype_delete','/phenotype_delete', request_method='POST')
+
+    config.add_route('disease_insert_update','/disease', request_method='POST')
+    #config.add_route('get_all_eco_for_regulations','/eco/regulations', request_method='GET')
+    config.add_route('diseases_by_filters','/get_diseases',request_method='POST')
+    config.add_route('disease_delete','/disease/{id}', request_method='DELETE')
+    config.add_route('disease_file','/disease_file',request_method='POST')
    
     config.add_route('healthcheck', '/healthcheck')
 
