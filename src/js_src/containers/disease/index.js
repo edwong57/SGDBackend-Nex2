@@ -17,7 +17,7 @@ class Disease extends Component {
             <FileUpload />
           </div>
           <div className='columns small-12 medium-12 large-5 end'>
-            <h1>Add/Update diseaseannot</h1>
+            <h1>Add/Update disease</h1>
             <DiseaseForm />
           </div>
         </div>

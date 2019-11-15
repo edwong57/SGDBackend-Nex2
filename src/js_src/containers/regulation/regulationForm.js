@@ -6,7 +6,7 @@ import {setRegulation} from '../../actions/regulationActions';
 import DataList from '../../components/dataList';
 import Loader from '../../components/loader';
 import PropTypes from 'prop-types';
-const GET_ECO = '/eco/regulations';
+const GET_ECO = '/eco';
 const GET_GO = '/go/regulations';
 const REGULATIONS = '/regulation';
 const GET_STRAINS = '/get_strains';

@@ -1728,13 +1728,26 @@ def get_all_go_for_regulations(request):
     return HTTPOk(body=json.dumps({'success': obj}), content_type='text/json')
 
 
-@view_config(route_name='get_all_eco_for_regulations', renderer='json', request_method='GET')
+@view_config(route_name='get_all_eco', renderer='json', request_method='GET')
 @authenticate
-def get_all_eco_for_regulations(request):
+def get_all_eco(request):
     eco_in_db = models_helper.get_all_eco()
     obj = [{'eco_id':e.eco_id, 'format_name': e.format_name,'display_name':e.display_name} for e in eco_in_db]
     return HTTPOk(body=json.dumps({'success':obj}),content_type='text/json')
 
+@view_config(route_name='get_all_do', renderer='json', request_method='GET')
+@authenticate
+def get_all_do(request):
+    do_in_db = models_helper.get_all_do()
+    obj = [{'do_id':d.disease_id, 'format_name': d.format_name,'display_name':d.display_name} for d in do_in_db]
+    return HTTPOk(body=json.dumps({'success':obj}),content_type='text/json')
+
+@view_config(route_name='get_all_ro', renderer='json', request_method='GET')
+@authenticate
+def get_all_ro(request):
+    ro_in_db = models_helper.get_all_ro()
+    obj = [{'ro_id':r.ro_id, 'format_name': r.format_name,'display_name':r.display_name} for r in ro_in_db]
+    return HTTPOk(body=json.dumps({'success':obj}),content_type='text/json')
 
 @view_config(route_name='regulation_insert_update', renderer='json', request_method='POST')
 @authenticate
