@@ -2942,13 +2942,13 @@ def disease_delete(request):
                 curator_session.delete(disease_in_db)
                 transaction.commit()
                 isSuccess = True
-                returnValue = 'Regulation successfully deleted.'
+                returnValue = 'Diseaseannot successfully deleted.'
             except Exception as e:
                 transaction.abort()
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Error occurred deleting regulation: ' + str(e.message)
+                returnValue = 'Error occurred deleting diseaseannot: ' + str(e.message)
             finally:
                 if curator_session:
                     curator_session.close()
@@ -2958,7 +2958,7 @@ def disease_delete(request):
 
             return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
 
-        return HTTPBadRequest(body=json.dumps({'error': 'regulation not found in database.'}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'error': 'diseaseannot not found in database.'}), content_type='text/json')
 
     except Exception as e:
         return HTTPBadRequest(body=json.dumps({'error': str(e.message)}), content_type='text/json')
@@ -2975,15 +2975,14 @@ def disease_file(request):
         list_of_sheets = xl.sheet_names
 
         COLUMNS = {
-            'target': 'Target Gene',
-            'regulator_gene':'Regulator Gene',
+            'gene': 'Gene',
             'reference': 'Reference',
             'taxonomy': 'Taxonomy',
-            'eco':'Eco',
-            'regulator_type': 'Regulator type',
-            'regulation_type':'Regulation type',
+            'eco': 'Eco',
+            'disease ID': 'Disease ID',
+            'association_type': 'Association type',
             'direction':'Direction',
-            'happens_during':'Happens during',
+            'with_ortholog':'With Ortholog',
             'annotation_type':'Annotation type'
         }
 
@@ -2991,20 +2990,20 @@ def disease_file(request):
         SEPARATOR = '|'
         HIGH_THROUGHPUT = 'high-throughput'
 
-        list_of_regulations = []
-        list_of_regulations_errors = []
+        list_of_diseases = []
+        list_of_diseases_errors = []
         df = pd.read_excel(io=file, sheet_name="Sheet1")
 
         null_columns = df.columns[df.isnull().any()]
         for col in null_columns:
-            if COLUMNS['direction'] != col and COLUMNS['happens_during'] !=col:
+            if COLUMNS['with_ortholog'] != col and COLUMNS['evidence code'] !=col:
                 rows = df[df[col].isnull()].index.tolist()
                 rows = ','.join([str(r+2) for r in rows])
-                list_of_regulations_errors.append('No values in column ' + col + ' rows ' + rows)
+                list_of_diseases_errors.append('No values in column ' + col + ' rows ' + rows)
         
-        if list_of_regulations_errors:
-            err = [e + '\n' for e in list_of_regulations_errors]
-            return HTTPBadRequest(body=json.dumps({"error": list_of_regulations_errors}), content_type='text/json')
+        if list_of_diseases_errors:
+            err = [e + '\n' for e in list_of_diseases_errors]
+            return HTTPBadRequest(body=json.dumps({"error": list_of_diseases_errors}), content_type='text/json')
 
 
         sgd_id_to_dbentity_id, systematic_name_to_dbentity_id = models_helper.get_dbentity_by_subclass(['LOCUS', 'REFERENCE'])
