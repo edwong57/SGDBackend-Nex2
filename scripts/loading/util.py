@@ -351,10 +351,10 @@ def read_noctua_gpad_file(filename, nex_session, sgdid_to_date_assigned, get_ext
  
         ## go_qualifier
         go_qualifier = field[2]
-        if go_qualifier in ['part_of', 'acts_upstream_of_or_within']:
-            go_qualifier = 'part of'
         if go_qualifier == 'involved_in':
             go_qualifier = 'involved in'
+        if go_qualifier == 'colocalizes with':
+            go_qualifier == 'colocalizes_with'
         if 'NOT' in go_qualifier:
             go_qualifier = 'NOT'
         
@@ -411,28 +411,32 @@ def read_noctua_gpad_file(filename, nex_session, sgdid_to_date_assigned, get_ext
         if date_assigned is None:
             date_assigned = date_created
         annotation_type = 'manually curated'
-        
-        entry = { 'source': source,
-                  'dbentity_id': locus_id,
-                  'reference_id': reference_id,
-                  'go_id': go_id,
-                  'eco_id': eco_id,
-                  'annotation_type': annotation_type,
-                  'go_qualifier': go_qualifier,
-                  'date_assigned': date_assigned,
-                  'date_created': date_created,
-                  'created_by': created_by }
 
-        if get_extension == 1 and field[10] != '':
-            entry['goextension'] = field[10]
-        if get_support == 1 and field[6] != '':
-            entry['gosupport'] = field[6]
-        data.append(entry)
+        key = (locus_id, go_id, reference_id, eco_id, field[6], field[10])
+
+        if key not in foundAnnotation:
+                 
+            entry = { 'source': source,
+                      'dbentity_id': locus_id,
+                      'reference_id': reference_id,
+                      'go_id': go_id,
+                      'eco_id': eco_id,
+                      'annotation_type': annotation_type,
+                      'go_qualifier': go_qualifier,
+                      'date_assigned': date_assigned,
+                      'date_created': date_created,
+                      'created_by': created_by }
+
+            if get_extension == 1 and field[10] != '':
+                entry['goextension'] = field[10]
+            if get_support == 1 and field[6] != '':
+                entry['gosupport'] = field[6]
+            data.append(entry)
         
     return data
 
 
-def read_gpad_file(filename, nex_session, uniprot_to_date_assigned, uniprot_to_sgdid_list, get_extension=None, get_support=None, new_pmids=None, dbentity_with_new_pmid=None, dbentity_with_uniprot=None, bad_ref=None):
+def read_gpad_file(filename, nex_session, uniprot_to_date_assigned, uniprot_to_sgdid_list, get_extension=None, get_support=None, new_pmids=None, dbentity_with_new_pmid=None, dbentity_with_uniprot=None, bad_ref=None, foundAnnotation):
 
     from src.models import Referencedbentity, Locusdbentity, Go, EcoAlias
     # import src.scripts.loading.config
@@ -593,7 +597,10 @@ def read_gpad_file(filename, nex_session, uniprot_to_date_assigned, uniprot_to_s
                 entry['gosupport'] = field[6]
 
             data.append(entry)
-       
+   
+            key = (locus_id, go_id, reference_id, eco_id, field[6], field[10])
+            foundAnnotation[key] = 1
+
     return data
 
 def annot_prop_to_dict(annot_prop):

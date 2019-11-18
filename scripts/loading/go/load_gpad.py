@@ -86,10 +86,11 @@ def load_go_annotations(gpad_file, noctua_gpad_file, gpi_file, annotation_type, 
     dbentity_id_with_new_pmid = {}
     dbentity_id_with_uniprot = {}
     bad_ref = []
+    foundAnnotation = {}
     data = read_gpad_file(gpad_file, nex_session, uniprot_to_date_assigned, 
     	   	          uniprot_to_sgdid_list, yes_goextension, yes_gosupport, 
 			  new_pmids, dbentity_id_with_new_pmid, 
-                          dbentity_id_with_uniprot, bad_ref)
+                          dbentity_id_with_uniprot, bad_ref, foundAnnotation)
 
     noctua_data = []
     if annotation_type == 'manually curated':
@@ -110,7 +111,7 @@ def load_go_annotations(gpad_file, noctua_gpad_file, gpi_file, annotation_type, 
                                             sgdid_to_date_assigned,
                                             yes_goextension, yes_gosupport,
                                             new_pmids, dbentity_id_with_new_pmid, 
-                                            bad_ref)
+                                            bad_ref, foundAnnotation)
 
     nex_session.close()
 
