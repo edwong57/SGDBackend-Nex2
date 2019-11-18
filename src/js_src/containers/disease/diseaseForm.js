@@ -2,20 +2,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import fetchData from '../../lib/fetchData';
 import { setError, setMessage } from '../../actions/metaActions';
-import {setRegulation} from '../../actions/regulationActions';
+import {setDisease} from '../../actions/diseaseActions';
 import DataList from '../../components/dataList';
 import Loader from '../../components/loader';
 import PropTypes from 'prop-types';
 const GET_ECO = '/eco';
 const GET_DO = '/do';
 const GET_RO = '/ro';
-const REGULATIONS = '/regulation';
+const DISEASES = '/disease';
 const GET_STRAINS = '/get_strains';
-const GET_REGULATIONS = 'get_regulations';
-
-//const REGULATION_TYPE =  ['','transcription','protein activity','protein stability','RNA activity','RNA stability'];
-const DIRECTION = [null,'computational', 'high throughput', 'manually curated'];
-//const REGULATOR_TYPE =['','chromatin modifier','transcription factor','protein modifier','RNA-binding protein','RNA modifier'];
+const GET_DISEASES = 'get_diseases';
+const ANNOTATION_TYPES = [null,'computational', 'high throughput', 'manually curated'];
 const SKIP = 5;
 const TIMEOUT = 120000;
 
@@ -30,7 +27,7 @@ class DiseaseForm extends Component {
     this.handleResetForm = this.handleResetForm.bind(this);
     this.renderActions = this.renderActions.bind(this);
     this.handleGetRegulations = this.handleGetRegulations.bind(this);
-    this.handleSelectRegulation = this.handleSelectRegulation.bind(this);
+    this.handleSelectDisease = this.handleSelectDisease.bind(this);
     this.handleNextPrevious = this.handleNextPrevious.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
 
@@ -42,7 +39,7 @@ class DiseaseForm extends Component {
       isUpdate:false,
       pageIndex:0,
       currentIndex:-1,
-      list_of_regulations:[],
+      list_of_diseases:[],
       isLoading:false
     };
 
@@ -88,22 +85,21 @@ class DiseaseForm extends Component {
   }
 
   handleGetRegulations(){
-    this.setState({ list_of_regulations: [], isLoading: true, currentIndex: -1, pageIndex: 0});
-    fetchData(GET_REGULATIONS,{
+    this.setState({ list_of_diseases: [], isLoading: true, currentIndex: -1, pageIndex: 0});
+    fetchData(GET_DISEASES,{
       type:'POST',
       data: {
-        target_id: this.props.regulation.target_id,
-        regulator_id: this.props.regulation.regulator_id,
-        reference_id: this.props.regulation.reference_id
+        gene_id: this.props.disease.gene_id,
+        reference_id: this.props.disease.reference_id
       },
       timeout: TIMEOUT
     })
     .then(data => {
       if(data['success'].length == 0 ){
-        this.props.dispatch(setMessage('No regulations found for given input.'));
+        this.props.dispatch(setMessage('No diseases found for given input.'));
       }
       else{
-        this.setState({ list_of_regulations: data['success'] });
+        this.setState({ list_of_diseases: data['success'] });
         this.handleResetForm();
       }
     })
@@ -111,44 +107,39 @@ class DiseaseForm extends Component {
     .finally(() => this.setState({ isLoading: false }));
   }
 
-  handleSelectRegulation(index){
-    var regulation = this.state.list_of_regulations[index];
-    var currentRegulation = {
-      annotation_id: regulation.id,
-      target_id: regulation.target_id.id,
-      regulator_id: regulation.regulator_id.id,
-      taxonomy_id: regulation.taxonomy_id,
-      reference_id: regulation.reference_id,
-      eco_id: regulation.eco_id,
-      regulator_type: regulation.regulator_type,
-      regulation_type: regulation.regulation_type,
-      direction: regulation.direction,
-      happens_during: regulation.happens_during,
-      annotation_type: regulation.annotation_type,
+  handleSelectDisease(index){
+    var disease = this.state.list_of_diseases[index];
+    var currentDisease = {
+      annotation_id: disease.id,
+      gene_id: disease.dbentity.id,
+      taxonomy_id: disease.taxonomy_id,
+      reference_id: disease.reference_id,
+      eco_id: disease.eco_id,
+      association_type: disease.association_type,
+      with_ortholog: disease.with_ortholog,
+      annotation_type: disease.annotation_type,
     };
-    this.props.dispatch(setRegulation(currentRegulation));
+    this.props.dispatch(setDisease(currentDisease));
     this.setState({currentIndex:index});
   }
 
   handleResetForm(){
-    var currentRegulation =  {
+    var currentDisease =  {
       annotation_id: 0,
-      target_id: '',
-      regulator_id: '',
+      gene_id: '',
       taxonomy_id: '',
       reference_id: '',
       eco_id: '',
-      regulator_type: '',
-      regulation_type: '',
-      direction: '',
-      happens_during: '',
+      association_type: '',
+      disease_id: '',
+      with_ortholog: '',
       annotation_type: '',
     };
-    this.props.dispatch(setRegulation(currentRegulation));
+    this.props.dispatch(setDisease(currentDisease));
   }
 
   handleToggleInsertUpdate() {
-    this.setState({ isUpdate: !this.state.isUpdate, list_of_regulations: [], currentIndex: -1, pageIndex:0});
+    this.setState({ isUpdate: !this.state.isUpdate, list_of_diseases: [], currentIndex: -1, pageIndex:0});
     this.handleResetForm();
   }
 
@@ -158,25 +149,25 @@ class DiseaseForm extends Component {
 
   handleChange(){
     var data = new FormData(this.refs.form);
-    var currentRegulation = {};
+    var currentDisease = {};
     for (var key of data.entries()) {
-      currentRegulation[key[0]] = key[1];
+      currentDisease[key[0]] = key[1];
     }
-    this.props.dispatch(setRegulation(currentRegulation));
+    this.props.dispatch(setDisease(currentDisease));
   }
 
   handleSubmit(e){
     e.preventDefault();
     this.setState({ isLoading:true});
-    fetchData(REGULATIONS,{
+    fetchData(DISEASES,{
       type:'POST',
-      data:this.props.regulation
+      data:this.props.disease
     })
     .then(data => {
       this.props.dispatch(setMessage(data.success));
-      var list_of_regulations = this.state.list_of_regulations;
-      list_of_regulations[this.state.currentIndex] = data.regulation;
-      this.setState({list_of_regulations:list_of_regulations});
+      var list_of_diseases = this.state.list_of_diseases;
+      list_of_diseases[this.state.currentIndex] = data.disease;
+      this.setState({list_of_diseases:list_of_diseases});
     })
     .catch(err => this.props.dispatch(setError(err.error)))
     .finally(() => this.setState({ isLoading: false }));
@@ -185,16 +176,16 @@ class DiseaseForm extends Component {
   handleDelete(e){
     e.preventDefault();
     this.setState({isLoading:true});
-    if (this.props.regulation.annotation_id > 0) {
+    if (this.props.disease.annotation_id > 0) {
       
-      fetchData(`${REGULATIONS}/${this.props.regulation.annotation_id}`, {
+      fetchData(`${DISEASES}/${this.props.disease.annotation_id}`, {
         type: 'DELETE'
       })
         .then((data) => {
           this.props.dispatch(setMessage(data.success));
-          var new_list_of_regulations = this.state.list_of_regulations;
-          new_list_of_regulations.splice(this.state.currentIndex, 1);
-          this.setState({ list_of_regulations: new_list_of_regulations,currentIndex:-1,pageIndex:0});
+          var new_list_of_diseases = this.state.list_of_diseases;
+          new_list_of_diseases.splice(this.state.currentIndex, 1);
+          this.setState({ list_of_diseases: new_list_of_diseases,currentIndex:-1,pageIndex:0});
           this.handleResetForm();
         })
         .catch((err) => {
@@ -204,14 +195,14 @@ class DiseaseForm extends Component {
     }
     else {
       this.setState({ isLoading: false });
-      this.props.dispatch(setError('No regulation is selected to delete.'));
+      this.props.dispatch(setError('No disease is selected to delete.'));
     }
   }
 
   renderActions(){
     var pageIndex = this.state.pageIndex;
-    var count_of_regulations = this.state.list_of_regulations.length;
-    var totalPages = Math.ceil(count_of_regulations/SKIP) - 1;
+    var count_of_diseases = this.state.list_of_diseases.length;
+    var totalPages = Math.ceil(count_of_diseases/SKIP) - 1;
 
     if (this.state.isLoading) {
       return (
@@ -220,12 +211,12 @@ class DiseaseForm extends Component {
     }
   
     if(this.state.isUpdate){
-      var buttons = this.state.list_of_regulations.filter((i,index) => {
+      var buttons = this.state.list_of_diseases.filter((i,index) => {
         return index >= (pageIndex * SKIP) && index < (pageIndex * SKIP) + SKIP;
       })
-      .map((regulation, index) =>{
+      .map((disease, index) =>{
         var new_index = index + pageIndex*SKIP;
-        return <li key={new_index} onClick={() => this.handleSelectRegulation(new_index)} className={`button medium-only-expanded ${this.state.currentIndex == new_index ? 'success' : ''}`}>{regulation.target_id.display_name + ' ' + regulation.regulator_id.display_name}</li>;
+        return <li key={new_index} onClick={() => this.handleSelectDisease(new_index)} className={`button medium-only-expanded ${this.state.currentIndex == new_index ? 'success' : ''}`}>{disease.gene_id.display_name}</li>;
       }
         );
       return (
@@ -233,9 +224,9 @@ class DiseaseForm extends Component {
           <div className='row'>
             <div className='columns medium-12'>
               <div className='expanded button-group'>
-                <li type='button' className='button warning' disabled={count_of_regulations < 0 || pageIndex <= 0 ? true : false} onClick={() => this.handleNextPrevious(-1)}> <i className="fa fa-chevron-circle-left"></i> </li>
+                <li type='button' className='button warning' disabled={count_of_diseases < 0 || pageIndex <= 0 ? true : false} onClick={() => this.handleNextPrevious(-1)}> <i className="fa fa-chevron-circle-left"></i> </li>
                 {buttons}
-                <li type='button' className='button warning' disabled={count_of_regulations == 0 || pageIndex >= totalPages ? true : false} onClick={() => this.handleNextPrevious(1)}> <i className="fa fa-chevron-circle-right"></i></li>
+                <li type='button' className='button warning' disabled={count_of_diseases == 0 || pageIndex >= totalPages ? true : false} onClick={() => this.handleNextPrevious(1)}> <i className="fa fa-chevron-circle-right"></i></li>
               </div>
             </div>
           </div>
@@ -264,9 +255,7 @@ class DiseaseForm extends Component {
 
   render() {
     
-    //var regulation_types = REGULATION_TYPE.map((item) => <option key={item}>{item}</option>);
-    //var regulator_types = REGULATOR_TYPE.map((item) => <option key={item}>{item}</option>);
-    var directions = DIRECTION.map((item) => <option key={item}>{item}</option>);
+    var annotation_types = ANNOTATION_TYPES.map((item) => <option key={item}>{item}</option>);
 
     return (
       <div>
@@ -282,7 +271,7 @@ class DiseaseForm extends Component {
 
         <form ref='form' onSubmit={this.handleSubmit}>
 
-          <input name='annotation_id' className="hide" value={this.props.regulation.annotation_id} />
+          <input name='annotation_id' className="hide" value={this.props.disease.annotation_id} />
 
           {this.state.isUpdate &&
             <ul>
@@ -302,7 +291,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <input type='text' name='target_id' onChange={this.handleChange} value={this.props.regulation.target_id} />
+                  <input type='text' name='target_id' onChange={this.handleChange} value={this.props.disease.gene_id} />
                 </div>
               </div>
             </div>
@@ -318,7 +307,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <input type='text' name='reference_id' onChange={this.handleChange} value={this.props.regulation.reference_id} />
+                  <input type='text' name='reference_id' onChange={this.handleChange} value={this.props.disease.reference_id} />
                 </div>
               </div>
             </div>
@@ -346,7 +335,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <select value={this.props.regulation.taxonomy_id} onChange={this.handleChange} name='taxonomy_id'>
+                  <select value={this.props.disease.taxonomy_id} onChange={this.handleChange} name='taxonomy_id'>
                     {this.state.list_of_taxonomy}
                   </select>
                 </div>
@@ -364,7 +353,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 {(this.state.list_of_do.length > 0) &&
-                  <DataList options={this.state.list_of_do} id='go_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.regulation.happens_during} />
+                  <DataList options={this.state.list_of_do} id='go_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.disease.happens_during} />
                 }
               </div>
             </div>
@@ -379,7 +368,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <input type='text' name='regulator_id' onChange={this.handleChange} value={this.props.regulation.regulator_id} />
+                  <input type='text' name='regulator_id' onChange={this.handleChange} value={this.props.disease.regulator_id} />
                 </div>
               </div>
             </div>
@@ -395,7 +384,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 {(this.state.list_of_ro.length > 0) &&
-                  <DataList options={this.state.list_of_ro} id='ro_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.regulation.happens_during} />
+                  <DataList options={this.state.list_of_ro} id='ro_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.disease.happens_during} />
                 }
               </div>
             </div>
@@ -411,8 +400,8 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <select onChange={this.handleChange} name='direction' value={this.props.regulation.direction || ''}>
-                    {directions}
+                  <select onChange={this.handleChange} name='direction' value={this.props.disease.direction || ''}>
+                    {annotation_types}
                   </select>
                 </div>
               </div>
@@ -427,7 +416,7 @@ class DiseaseForm extends Component {
                 </div>
               </div>
               <div className='row'>
-                <DataList options={this.state.list_of_eco} id='eco_id' value1='display_name' value2='format_name' selectedIdName='eco_id' onOptionChange={this.handleChange} selectedId={this.props.regulation.eco_id} />
+                <DataList options={this.state.list_of_eco} id='eco_id' value1='display_name' value2='format_name' selectedIdName='eco_id' onOptionChange={this.handleChange} selectedId={this.props.disease.eco_id} />
               </div>
             </div>
           </div>
@@ -444,12 +433,13 @@ class DiseaseForm extends Component {
 
 DiseaseForm.propTypes = {
   dispatch: PropTypes.func,
-  regulation:PropTypes.object
+  disease:PropTypes.object
 };
 
 function mapStateToProps(state) {
+  console.log(state);
   return {
-    regulation: state.regulation['currentRegulation']
+    disease: state.disease['currentDisease']
   };
 }
 
