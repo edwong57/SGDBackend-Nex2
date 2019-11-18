@@ -2671,17 +2671,12 @@ def disease_insert_update(request):
         CREATED_BY = request.session['username']
         curator_session = get_curator_session(request.session['username'])
         source_id = 834
-        MANUALLY_CURATED ='manually curated'
 
         annotation_id = request.params.get('annotation_id')
 
-        target_id = request.params.get('target_id')
+        gene_id = request.params.get('gene_id')
         if not target_id:
-            return HTTPBadRequest(body=json.dumps({'error': "target gene is blank"}), content_type='text/json')
-
-        regulator_id = request.params.get('regulator_id')
-        if not regulator_id:
-            return HTTPBadRequest(body=json.dumps({'error': "regulator gene is blank"}), content_type='text/json')
+            return HTTPBadRequest(body=json.dumps({'error': "gene is blank"}), content_type='text/json')
 
         taxonomy_id = request.params.get('taxonomy_id')
         if not taxonomy_id:
@@ -2695,38 +2690,28 @@ def disease_insert_update(request):
         if not eco_id:
             return HTTPBadRequest(body=json.dumps({'error': "eco is blank"}), content_type='text/json')
         
-        regulator_type = request.params.get('regulator_type')
-        if not regulator_type:
-            return HTTPBadRequest(body=json.dumps({'error': "regulator type is blank"}), content_type='text/json')
-
-        regulation_type = request.params.get('regulation_type')
-        if not regulation_type:
-            return HTTPBadRequest(body=json.dumps({'error': "regulation type is blank"}), content_type='text/json')
-
-        direction = request.params.get('direction')
-        if not direction:
-            direction = None
+        disease_id = request.params.get('disease_id')
+        if not disease_id:
+            return HTTPBadRequest(body=json.dumps({'error': "disease_id is blank"}), content_type='text/json')
         
+        association_type = request.params.get('association_type')
+        if not regulator_type:
+            return HTTPBadRequest(body=json.dumps({'error': "association type is blank"}), content_type='text/json')
 
-        happens_during = request.params.get('happens_during')
-        if not happens_during:
-            happens_during = None
+        annotation_type = request.params.get('annotation_type')
+        if not regulation_type:
+            return HTTPBadRequest(body=json.dumps({'error': "annotation type is blank"}), content_type='text/json')
 
-        annotation_type = MANUALLY_CURATED
-
-        dbentity_in_db = None
-        dbentity_in_db = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == target_id, Dbentity.format_name == target_id)).filter(Dbentity.subclass == 'LOCUS').one_or_none()
-        if dbentity_in_db is not None:
-            target_id = dbentity_in_db.dbentity_id
-        else:
-            return HTTPBadRequest(body=json.dumps({'error': "target gene value not found in database"}), content_type='text/json')
+        with_ortholog = request.params.get('with_ortholog')
+        if not with_ortholog:
+            with_ortholog = None
 
         dbentity_in_db = None
-        dbentity_in_db = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == regulator_id, Dbentity.format_name == regulator_id)).filter(Dbentity.subclass == 'LOCUS').one_or_none()
+        dbentity_in_db = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == target_id, Dbentity.format_name == gene_id)).filter(Dbentity.subclass == 'LOCUS').one_or_none()
         if dbentity_in_db is not None:
-            regulator_id = dbentity_in_db.dbentity_id
+            gene_id = dbentity_in_db.dbentity_id
         else:
-            return HTTPBadRequest(body=json.dumps({'error': "regulator gene value not found in database"}), content_type='text/json')
+            return HTTPBadRequest(body=json.dumps({'error': "gene value not found in database"}), content_type='text/json')
 
         dbentity_in_db = None
         pmid_in_db = None
@@ -2756,51 +2741,43 @@ def disease_insert_update(request):
 
         if(int(annotation_id) > 0):
             try:
-                update_regulation = {'target_id': target_id,
-                                    'regulator_id': regulator_id,
+                update_disease = {'dbentity_id': gene_id,
                                     'taxonomy_id': taxonomy_id,
                                     'reference_id': reference_id,
                                     'eco_id': eco_id,
-                                    'regulator_type': regulator_type,
-                                    'regulation_type': regulation_type,
-                                    'direction': direction,
-                                    'happens_during': happens_during,
-                                    'annotation_type': annotation_type
+                                    'association_type': association_type,
+                                    'annotation_type': annotation_type,
+                                    'disease_id': disease_id,
+                                    'with_ortholog': with_ortholog
                                     }
 
-                curator_session.query(Regulationannotation).filter(Regulationannotation.annotation_id == annotation_id).update(update_regulation)
+                curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == annotation_id).update(update_disease)
                 transaction.commit()
                 isSuccess = True
                 returnValue = 'Record updated successfully.'
 
-                regulation = curator_session.query(Regulationannotation).filter(Regulationannotation.annotation_id == annotation_id).one_or_none()
+                disease = curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == annotation_id).one_or_none()
                 reference_in_db = {
-                    'id': regulation.annotation_id,
-                    'target_id': {
-                        'id': regulation.target.format_name,
-                        'display_name': regulation.target.display_name
-                    },
-                    'regulator_id': {
-                        'id': regulation.regulator.format_name,
-                        'display_name': regulation.regulator.display_name
+                    'id': disease.annotation_id,
+                    'gene_id': {
+                        'id': disease.dbentity.format_name,
+                        'display_name': disease.dbentity.display_name
                     },
                     'taxonomy_id': '',
-                    'reference_id': regulation.reference.pmid,
+                    'reference_id': disease.reference.pmid,
                     'eco_id': '',
-                    'regulator_type': regulation.regulator_type,
-                    'regulation_type': regulation.regulation_type,
-                    'direction': regulation.direction,
-                    'happens_during': '',
-                    'annotation_type': regulation.annotation_type,
+                    'association_type': regulation.regulator_type,
+                    'annotation_type': regulation.regulation_type,
+                    'with_ortholog': regulation.direction
                 }
-                if regulation.eco:
-                    reference_in_db['eco_id'] = str(regulation.eco.eco_id)
+                if disease.eco:
+                    reference_in_db['eco_id'] = str(disease.eco.eco_id)
 
-                if regulation.go:
-                    reference_in_db['happens_during'] = str(regulation.go.go_id)
+                if disease.association_type:
+                    reference_in_db['association_type'] = str(disease.association_type)
 
                 if regulation.taxonomy:
-                    reference_in_db['taxonomy_id'] = regulation.taxonomy.taxonomy_id
+                    reference_in_db['taxonomy_id'] = disease.taxonomy.taxonomy_id
 
             except IntegrityError as e:
                 transaction.abort()
@@ -2836,18 +2813,15 @@ def disease_insert_update(request):
         if(int(annotation_id) == 0):
             try:
                 y = None
-                y = Regulationannotation(target_id = target_id,
-                                    regulator_id = regulator_id,
+                y = Diseaseannotation(dbentity_id = gene_id,
                                     source_id = source_id,
                                     taxonomy_id = taxonomy_id,
                                     reference_id = reference_id,
                                     eco_id = eco_id,
-                                    regulator_type = regulator_type,
-                                    regulation_type = regulation_type,
-                                    direction = direction,
-                                    happens_during = happens_during,
-                                    created_by = CREATED_BY,
-                                    annotation_type = annotation_type)
+                                    association_type = association_type,
+                                    annotation_type = annotation_type,
+                                    with_ortholog = with_ortholog,
+                                    created_by = CREATED_BY)
                 curator_session.add(y)
                 transaction.commit()
                 isSuccess = True
@@ -2875,7 +2849,7 @@ def disease_insert_update(request):
                     curator_session.close()
 
         if isSuccess:
-            return HTTPOk(body=json.dumps({'success': returnValue,'regulation':reference_in_db}), content_type='text/json')
+            return HTTPOk(body=json.dumps({'success': returnValue,'disease':reference_in_db}), content_type='text/json')
 
         return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
 
@@ -2887,34 +2861,24 @@ def disease_insert_update(request):
 @authenticate
 def diseases_by_filters(request):
     try:
-        target_id = str(request.params.get('target_id')).strip()
-        regulator_id = str(request.params.get('regulator_id')).strip()
+        gene_id = str(request.params.get('gene_id')).strip()
         reference_id = str(request.params.get('reference_id')).strip()
 
-        if not(target_id or regulator_id or reference_id):
-            raise Exception("Please provide input for target gene, regulator gene, reference or combination to get the regulations.")
+        if not(target_id or reference_id):
+            raise Exception("Please provide input for gene, reference or combination to get the regulations.")
 
-        regulations_in_db = DBSession.query(Regulationannotation)
+        diseases_in_db = DBSession.query(Diseaseannotation)
         
-        target_dbentity_id,regulator_dbentity_id,reference_dbentity_id = None,None,None
+        gene_dbentity_id,reference_dbentity_id = None,None
 
-        if target_id:
-            target_dbentity_id = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid==target_id, Dbentity.format_name==target_id)).one_or_none()
+        if gene_id:
+            gene_dbentity_id = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid==gene_id, Dbentity.format_name==gene_id)).one_or_none()
 
-            if not target_dbentity_id:
-                raise Exception('Target gene not found, please provide sgdid or systematic name')
+            if not gene_dbentity_id:
+                raise Exception('gene not found, please provide sgdid or systematic name')
             else:
-                target_dbentity_id = target_dbentity_id.dbentity_id
-                regulations_in_db = regulations_in_db.filter_by(target_id=target_dbentity_id)
-
-        if regulator_id:
-            regulator_dbentity_id = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == regulator_id,Dbentity.format_name== regulator_id)).one_or_none()
-
-            if not regulator_dbentity_id:
-                raise Exception('Regulator gene not found, please provide sgdid or systematic name')
-            else:
-                regulator_dbentity_id = regulator_dbentity_id.dbentity_id
-                regulations_in_db = regulations_in_db.filter_by(regulator_id=regulator_dbentity_id)
+                gene_dbentity_id = gene_dbentity_id.dbentity_id
+                diseases_in_db = diseases_in_db.filter_by(gene_id=gene_dbentity_id)
         
         if reference_id:
             if reference_id.startswith('S00'):
@@ -2928,43 +2892,38 @@ def diseases_by_filters(request):
                 reference_dbentity_id = reference_dbentity_id.dbentity_id
                 regulations_in_db = regulations_in_db.filter_by(reference_id=reference_dbentity_id)
         
-        regulations = regulations_in_db.options(joinedload(Regulationannotation.eco), joinedload(Regulationannotation.go), joinedload(Regulationannotation.taxonomy)
-                                                , joinedload(Regulationannotation.reference), joinedload(Regulationannotation.regulator), joinedload(Regulationannotation.target)).order_by(Regulationannotation.annotation_id.asc()).all()
+        diseases = diseases_in_db.options(joinedload(Diseaseannotation.eco), joinedload(Diseaseannotation.do), joinedload(Diseaseannotation.taxonomy)
+                                                , joinedload(Diseaseannotation.reference), joinedload(Diseaseannotation.dbentity)).order_by(Diseaseannotation.annotation_id.asc()).all()
         
-        list_of_regulations = []
-        for regulation in regulations:
-            currentRegulation = {
-                'id': regulation.annotation_id,
-                'target_id': {
-                    'id': regulation.target.format_name,
-                    'display_name': regulation.target.display_name
-                },
-                'regulator_id': {
-                    'id': regulation.regulator.format_name,
-                    'display_name': regulation.regulator.display_name
+        list_of_diseases = []
+        for disease in diseases:
+            currentDisease = {
+                'id': disease.annotation_id,
+                'gene_id': {
+                    'id': disease.dbentity.format_name,
+                    'display_name': disease.dbentity.display_name
                 },
                 'taxonomy_id': '',
-                'reference_id': regulation.reference.pmid,
+                'reference_id': disease.reference.pmid,
                 'eco_id': '',
-                'regulator_type': regulation.regulator_type,
-                'regulation_type': regulation.regulation_type,
-                'direction': regulation.direction,
-                'happens_during': '',
-                'annotation_type': regulation.annotation_type,
+                'association_type': disease.association_type,
+                'annotation_type': disease.annotation_type,
+                'disease_id': disease.disease_id,
+                'with_ortholog': ''
             }
 
-            if regulation.eco:
-                currentRegulation['eco_id'] = str(regulation.eco.eco_id)
+            if disease.eco:
+                currentDisease['eco_id'] = str(disease.eco.eco_id)
 
-            if regulation.go:
-                currentRegulation['happens_during'] = str(regulation.go.go_id)
+            if disease.do:
+                currentDisease['disease_id'] = str(disease.do.do_id)
 
-            if regulation.taxonomy:
-                currentRegulation['taxonomy_id'] = regulation.taxonomy.taxonomy_id
+            if diseaes.taxonomy:
+                currentDisease['taxonomy_id'] = disease.taxonomy.taxonomy_id
 
-            list_of_regulations.append(currentRegulation)
+            list_of_diseases.append(currentDisease)
         
-        return HTTPOk(body=json.dumps({'success': list_of_regulations}), content_type='text/json')
+        return HTTPOk(body=json.dumps({'success': list_of_diseases}), content_type='text/json')
     except Exception as e:
         return HTTPBadRequest(body=json.dumps({'error': e.message}), content_type='text/json')
 
@@ -2977,10 +2936,10 @@ def disease_delete(request):
         curator_session = get_curator_session(request.session['username'])
         isSuccess = False
         returnValue = ''
-        regulation_in_db = curator_session.query(Regulationannotation).filter(Regulationannotation.annotation_id == id).one_or_none()
-        if(regulation_in_db):
+        disease_in_db = curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == id).one_or_none()
+        if(disease_in_db):
             try:
-                curator_session.delete(regulation_in_db)
+                curator_session.delete(disease_in_db)
                 transaction.commit()
                 isSuccess = True
                 returnValue = 'Regulation successfully deleted.'
