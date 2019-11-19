@@ -305,7 +305,7 @@ def get_strain_taxid_mapping():
              'Other':           "TAX:4932",
              'other':           "TAX:4932" }
 
-def read_noctua_gpad_file(filename, nex_session, sgdid_to_date_assigned, get_extension=None, get_support=None, new_pmids=None, dbentity_with_new_pmid=None, bad_ref=None):
+def read_noctua_gpad_file(filename, nex_session, sgdid_to_date_assigned, foundAnnotation, get_extension=None, get_support=None, new_pmids=None, dbentity_with_new_pmid=None, bad_ref=None):
 
     from src.models import Referencedbentity, Locusdbentity, Go, Eco
 
@@ -351,13 +351,11 @@ def read_noctua_gpad_file(filename, nex_session, sgdid_to_date_assigned, get_ext
  
         ## go_qualifier
         go_qualifier = field[2]
-        if go_qualifier == 'involved_in':
-            go_qualifier = 'involved in'
-        if go_qualifier == 'colocalizes with':
-            go_qualifier == 'colocalizes_with'
         if 'NOT' in go_qualifier:
             go_qualifier = 'NOT'
-        
+        else: 
+            go_qualifier = go_qualifier.replace('_', ' ')
+
         ## go_id
         goid = field[3]
         go_id = goid_to_go_id.get(goid)
@@ -436,7 +434,7 @@ def read_noctua_gpad_file(filename, nex_session, sgdid_to_date_assigned, get_ext
     return data
 
 
-def read_gpad_file(filename, nex_session, uniprot_to_date_assigned, uniprot_to_sgdid_list, get_extension=None, get_support=None, new_pmids=None, dbentity_with_new_pmid=None, dbentity_with_uniprot=None, bad_ref=None, foundAnnotation):
+def read_gpad_file(filename, nex_session, uniprot_to_date_assigned, uniprot_to_sgdid_list, foundAnnotation, get_extension=None, get_support=None, new_pmids=None, dbentity_with_new_pmid=None, dbentity_with_uniprot=None, bad_ref=None):
 
     from src.models import Referencedbentity, Locusdbentity, Go, EcoAlias
     # import src.scripts.loading.config
@@ -480,12 +478,10 @@ def read_gpad_file(filename, nex_session, uniprot_to_date_assigned, uniprot_to_s
 
         ## go_qualifier                                                                                     
         go_qualifier = field[2]
-        if go_qualifier == 'part_of':
-            go_qualifier = 'part of'
-        if go_qualifier == 'involved_in':
-            go_qualifier = 'involved in'
         if 'NOT' in go_qualifier:
             go_qualifier = 'NOT'
+        else:
+            go_qualifier = go_qualifier.replace('_', ' ')
 
         ## go_id                                                                                            
         goid = field[3]
