@@ -437,7 +437,7 @@ DiseaseForm.propTypes = {
 };
 
 function mapStateToProps(state) {
-  console.log(state);
+
   return {
     disease: state.disease['currentDisease']
   };
