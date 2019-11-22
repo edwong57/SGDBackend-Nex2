@@ -22,11 +22,11 @@ class AuthorResponse extends Component {
     let formData = new FormData();
     for(let key in this.props.authorResponse){
       formData.append(key,this.props.authorResponse[key]);
-      alert('key='+key+', value='+this.props.authorResponse[key]);
     }
     fetchData(ADD_DATA, {
       type: 'POST',
       data: formData,
+      processData: false,
       contentType: false
     }).then((data) => {
       this.props.dispatch(setMessage(data.success));
