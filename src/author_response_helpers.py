@@ -11,10 +11,6 @@ def insert_author_response(response):
         sgd = DBSession.query(Source).filter_by(display_name='SGD').one_or_none()
         source_id = sgd.source_id
         created_by = 'OTTO'
-        
-
-        return HTTPBadRequest(body=json.dumps({'error': "HELLO WORLD!!"}), content_type='text/json')
-
 
         email = request.params.get('email')
         if email == '':
@@ -24,12 +20,6 @@ def insert_author_response(response):
             return HTTPBadRequest(body=json.dumps({'error': "Please enter Pubmed ID for your paper"}), content_type='text/json')
         
         pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
-
-        x = DBSession.query(Referencedbentity).filter_by(pmid=int(pmid)).one_or_none()
-        
-        if x is None:
-            return HTTPBadRequest(body=json.dumps({'error': "Your paper is not in our database yet.???"}), content_type='text/json')        
-        reference_id = x.reference_id
 
         has_novel_research = request.params.get('has_novel_research')
         
