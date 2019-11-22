@@ -1,116 +1,121 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import fetchData from '../../lib/fetchData';
-import { setData } from '../../actions/authorResponseActions';
 import { connect } from 'react-redux';
-import { setError, setMessage } from '../../actions/metaActions';
-const ADD_DATA = '/add_author_response';
+// import { push } from 'connected-react-router';
+import { Async } from 'react-select';
+import PropTypes from 'prop-types';
+import ColleagueForm from '../../components/colleagueForm';
+import fetchData from '../../lib/fetchData';
+import Loader from '../../components/loader';
 
-class AuthorResponse extends Component {
+const AUTOCOMPLETE_BASE = '/autocomplete_results?category=colleague&q=';
+const COLLEAGUE_BASE = '/colleagues';
 
+export class ColleagueUpdate extends Component {
   constructor(props) {
     super(props);
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.onReset = this.onReset.bind(this);
-    // this.state = {};                                                            \
+    this.state = {
+      data: null,
+      colleagueId: null,
+      selectorValue: null,
+      formValue: null,
+      isPending: false,
+      isNewColleague: false
+    };
   }
- 
-  onSubmit(e) {
-    e.preventDefault();
-    let formData = new FormData();
-    for(let key in this.props.authorResponse){
-      formData.append(key,this.props.authorResponse[key]);
-    }
 
-    fetchData(ADD_DATA, {
-      type: 'POST',
-      data: formData,
-      contentType: false
-    }).then((data) => {
-      this.props.dispatch(setMessage(data.success));
-    }).catch((err) => {
-      this.props.dispatch(setError(err.error));
+  handleCheckChange() {
+    this.setState({ isNewColleague: !this.state.isNewColleague });
+  }
+
+  handleSelect(value) {
+    if (Array.isArray(value)) {
+      this.setState({ selectorValue: null, colleagueId: null });
+    }
+    this.setState({ selectorValue: value });
+    // fetch data to update form
+    let url = `${COLLEAGUE_BASE}/${value.formatName}`;
+    this.setState({ isPending: true });
+    fetchData(url).then( data => {
+      this.setState({ formValue: data, isPending: false, colleagueId: data.colleague_id });
     });
   }
 
-  onReset() {
-    let currData = {
-      pmid: '',
-      email: '',
-      citation: '',
-      has_novel_research: '0',
-      has_large_scale_data: '0',
-      research_results: '',
-      genes: '',
-      dateset_desc: '',
-      other_desc: ''
+  renderSelector() {
+    let getOptions = (input, callback) => {
+      if (input === '') {
+        callback(null, {
+          options: [],
+          complete: false
+        });
+      }
+
+      let url = `${AUTOCOMPLETE_BASE}${input}`;
+      fetchData(url).then( data => {
+        let results = data.results || [];
+        let _options = results.map( d => {
+          let institution =  d.institution ? `, ${d.institution}` : '';
+          return {
+            label: `${d.name}${institution}`,
+            formatName: d.format_name
+          };
+        });
+        callback(null, {
+          options: _options,
+          complete: false
+        });
+      });
     };
-    this.props.dispatch(setData(currData));
+    let selectNode = this.state.isNewColleague ? null : <Async value={this.state.selectorValue} loadOptions={getOptions} onChange={this.handleSelect.bind(this)} placeholder='Search for your last name in colleague registry' />;
+    return (
+      <div style={{ marginBottom: '1rem' }}>
+        <p>Are you registered as an SGD colleague? If so, select your name and make any desired updates. If not, select the checkbox and enter information below.</p>
+        <div className='row'>
+          <div className='columns small-12 medium-6'>
+            {selectNode}
+          </div>
+          <div className='columns small-12 medium-6'>
+            <label>
+              <input checked={this.state.isNewColleague} onChange={this.handleCheckChange.bind(this)} type='checkbox' />
+              I am not yet an SGD colleague. Add my information to registry.
+            </label>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  onChange() {
-    let currData = {};
-    let data = new FormData(this.refs.form);
-    for (let key of data.entries()) {
-      currData[key[0]] = key[1];
+  renderForm() {
+    if (this.state.isPending) return <Loader />;
+    if (!this.state.selectorValue && !this.state.isNewColleague) return null;
+    let _requestMethod = 'POST';
+    let url = 'colleagues';
+    if (!this.state.isNewColleague) {
+      _requestMethod = 'PUT';
+      url = `colleagues/${this.state.colleagueId}`;
     }
-    this.props.dispatch(setData(currData));
+    let _submitText = this.props.submitText || 'Next';
+    return <ColleagueForm defaultData={this.state.formValue} onComplete={this.props.onComplete.bind(this)} requestMethod={_requestMethod} submitUrl={url} submitText={_submitText} />;
   }
 
   render() {
     return (
-      <form onSubmit={this.onSubmit} ref='form'>
-        <div>
-          <h3>Information About Your Recently Published Paper</h3>
-          <div className='row'>
-            <div className='columns small-6'>
-              <label>Your email (required)</label>
-              <input name='email' value={this.props.authorResponse.email} onChange={this.onChange} type='text' />
-            </div>
-            <div className='columns small-6'>
-              <label>Pubmed ID of your paper (required)</label>
-              <input name='pmid' value={this.props.authorResponse.pmid} onChange={this.onChange} type='text' />
-            </div>
-          </div>
-          <label>Citation</label>
-          <input name='citation' value={this.props.authorResponse.citation} onChange={this.onChange} type='text' />
-          <p>Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)?
-          Yes <input type="radio" name='has_novel_research' value={this.props.authorResponse.has_novel_research} nChange={this.onChange} />  No <input type="radio" name='has_novel_research' value={this.props.authorResponse.has_novel_research} nChange={this.onChange} checked='1' /> <br></br>
-          If yes, please summarize briefly the novel results.</p>
-          <input name='research_result' value={this.props.authorResponse.research_result} onChange={this.onChange} type='text' />
-          <p>If this paper focuses on specific genes/proteins, please identify them here (enter a list of gene names/systematic names).</p>
-          <input name='genes' value={this.props.authorResponse.genes} onChange={this.onChange} type='text' />
-          <p>Does this study include large-scale datasets that you would like to see incorporated into SGD?
-          Yes <input type="radio" name='has_large_scale_data' value={this.props.authorResponse.has_large_scale_data} onChange={this.onChange} />  No <input type="radio" name='has_large_scale_data' value={this.props.authorResponse.has_large_scale_data} onChange={this.onChange} checked='1' /> <br></br>
-          If yes, please describe briefly the type(s) of data.</p>
-          <input name='dataset_desc' value={this.props.authorResponse.dataset_desc} onChange={this.onChange} type='text' />
-          <p>Is there anything else that you would like us to know about this paper? </p>
-          <input name='other_desc' value={this.props.authorResponse.other_desc} onChange={this.onChange} type='text' />
-          <div className='row'>
-            <div className='columns medium-3 small-3'>
-              <button type='submit' className="button expanded">Submit</button>
-            </div>
-            <div className='columns medium-3 small-3'>
-              <button type='reset' className="button expanded" onClick={this.onReset.bind(this)}>Reset</button>
-            </div>
-          </div>
-        </div>
-      </form>
+      <div>
+        {this.renderSelector()}
+        {this.renderForm()}
+      </div>
     );
   }
 }
 
-AuthorResponse.propTypes = {
+ColleagueUpdate.propTypes = {
   dispatch: PropTypes.func,
-  authorResponse: PropTypes.object
+  onComplete: PropTypes.func,
+  submitText: PropTypes.string
 };
 
-
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {
-    authorResponse: state.authorResponse['currentData']
   };
 }
 
-export default connect(mapStateToProps)(AuthorResponse);
+export default connect(mapStateToProps)(ColleagueUpdate);
