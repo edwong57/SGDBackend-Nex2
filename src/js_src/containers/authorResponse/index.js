@@ -77,13 +77,13 @@ class AuthorResponse extends Component {
           <label>Citation</label>
           <input name='citation' value={this.props.authorResponse.citation} onChange={this.onChange} type='text' />
           <p>Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)?
-          Yes <input type="radio" name='has_novel_research' value='on' onChange={this.onChange} />  No <input type="radio" name='has_novel_research' value='off' onChange={this.onChange} checked='1' /> <br></br>
+          Yes <input type="radio" name='has_novel_research' value='1' onChange={this.onChange} />  No <input type="radio" name='has_novel_research' value='0' onChange={this.onChange} checked='1' /> <br></br>
           If yes, please summarize briefly the novel results.</p>
           <input name='research_result' value={this.props.authorResponse.research_result} onChange={this.onChange} type='text' />
           <p>If this paper focuses on specific genes/proteins, please identify them here (enter a list of gene names/systematic names).</p>
           <input name='genes' value={this.props.authorResponse.genes} onChange={this.onChange} type='text' />
           <p>Does this study include large-scale datasets that you would like to see incorporated into SGD?
-          Yes <input type="radio" name='has_large_scale_data' value={this.props.authorResponse.has_large_scale_data} onChange={this.onChange} />  No <input type="radio" name='has_large_scale_data' value={this.props.authorResponse.has_large_scale_data} onChange={this.onChange} checked='1' /> <br></br>
+          Yes <input type="radio" name='has_large_scale_data' value='1' onChange={this.onChange} />  No <input type="radio" name='has_large_scale_data' value='0' onChange={this.onChange} checked='1' /> <br></br>
           If yes, please describe briefly the type(s) of data.</p>
           <input name='dataset_desc' value={this.props.authorResponse.dataset_desc} onChange={this.onChange} type='text' />
           <p>Is there anything else that you would like us to know about this paper? </p>

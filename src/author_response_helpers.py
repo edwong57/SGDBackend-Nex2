@@ -14,10 +14,10 @@ def insert_author_response(request):
 
         email = request.params.get('email')
         if email == '':
-            return HTTPBadRequest(body=json.dumps({'error': "Please enter your email address"}), content_type='text/json')
+            return HTTPBadRequest(body=json.dumps({'error': "Please enter your email address."}), content_type='text/json')
         pmid = request.params.get('pmid')
         if pmid == '':
-            return HTTPBadRequest(body=json.dumps({'error': "Please enter Pubmed ID for your paper"}), content_type='text/json')
+            return HTTPBadRequest(body=json.dumps({'error': "Please enter Pubmed ID for your paper."}), content_type='text/json')
         
         pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
 
@@ -43,8 +43,8 @@ def insert_author_response(request):
         x = Authorresponse(source_id = source_id,
                            pmid = pmid,
                            author_email = email,
-                           has_novel_research = has_novel_research,
-                           has_large_scale_data = has_large_scale_data,
+                           has_novel_research = str(has_novel_research),
+                           has_large_scale_data = str(has_large_scale_data),
                            research_results = research_results,
                            gene_list = gene_list,
                            dataset_description = dataset_description,
