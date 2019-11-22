@@ -53,7 +53,9 @@ class DataList extends Component {
   }
 
   handleChange(e) {
+    console.log(e.target.value);
     var input_value = e.target.value;
+    console.log(input_value);
     if (input_value != '') {
       this.setState({ inputFieldText: input_value});
     }

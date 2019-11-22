@@ -1,7 +1,7 @@
 const DEFAULT_STATE = {
   currentDisease: {
     annotation_id: 0,
-    gene_id: '',
+    dbentity_id: '',
     taxonomy_id: '',
     reference_id: '',
     eco_id: '',

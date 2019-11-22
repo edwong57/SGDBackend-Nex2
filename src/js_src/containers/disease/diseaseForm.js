@@ -26,7 +26,7 @@ class DiseaseForm extends Component {
     this.handleToggleInsertUpdate = this.handleToggleInsertUpdate.bind(this);
     this.handleResetForm = this.handleResetForm.bind(this);
     this.renderActions = this.renderActions.bind(this);
-    this.handleGetRegulations = this.handleGetRegulations.bind(this);
+    this.handleGetDiseases = this.handleGetDiseases.bind(this);
     this.handleSelectDisease = this.handleSelectDisease.bind(this);
     this.handleNextPrevious = this.handleNextPrevious.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
@@ -84,12 +84,12 @@ class DiseaseForm extends Component {
     }).catch(err => this.props.dispatch(setError(err.error)));
   }
 
-  handleGetRegulations(){
+  handleGetDiseases(){
     this.setState({ list_of_diseases: [], isLoading: true, currentIndex: -1, pageIndex: 0});
     fetchData(GET_DISEASES,{
       type:'POST',
       data: {
-        gene_id: this.props.disease.gene_id,
+        dbentity_id: this.props.disease.dbentity_id,
         reference_id: this.props.disease.reference_id
       },
       timeout: TIMEOUT
@@ -111,9 +111,10 @@ class DiseaseForm extends Component {
     var disease = this.state.list_of_diseases[index];
     var currentDisease = {
       annotation_id: disease.id,
-      gene_id: disease.dbentity.id,
+      dbentity_id: disease.dbentity.id,
       taxonomy_id: disease.taxonomy_id,
       reference_id: disease.reference_id,
+      disease_id: disease.disease_id,
       eco_id: disease.eco_id,
       association_type: disease.association_type,
       with_ortholog: disease.with_ortholog,
@@ -126,7 +127,7 @@ class DiseaseForm extends Component {
   handleResetForm(){
     var currentDisease =  {
       annotation_id: 0,
-      gene_id: '',
+      dbentity_id: '',
       taxonomy_id: '',
       reference_id: '',
       eco_id: '',
@@ -148,6 +149,7 @@ class DiseaseForm extends Component {
   }
 
   handleChange(){
+  
     var data = new FormData(this.refs.form);
     var currentDisease = {};
     for (var key of data.entries()) {
@@ -216,7 +218,7 @@ class DiseaseForm extends Component {
       })
       .map((disease, index) =>{
         var new_index = index + pageIndex*SKIP;
-        return <li key={new_index} onClick={() => this.handleSelectDisease(new_index)} className={`button medium-only-expanded ${this.state.currentIndex == new_index ? 'success' : ''}`}>{disease.gene_id.display_name}</li>;
+        return <li key={new_index} onClick={() => this.handleSelectDisease(new_index)} className={`button medium-only-expanded ${this.state.currentIndex == new_index ? 'success' : ''}`}>{disease.dbentity_id.display_name}</li>;
       }
         );
       return (
@@ -291,7 +293,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <input type='text' name='target_id' onChange={this.handleChange} value={this.props.disease.gene_id} />
+                  <input type='text' name='dbentity_id' onChange={this.handleChange} value={this.props.disease.dbentity_id} />
                 </div>
               </div>
             </div>
@@ -318,7 +320,7 @@ class DiseaseForm extends Component {
               <div className='columns medium-12'>
                 <div className='row'>
                   <div className='columns medium-6'>
-                    <button type='button' className='button expanded' onClick={this.handleGetRegulations}>Get database value</button>
+                    <button type='button' className='button expanded' onClick={this.handleGetDiseases}>Get database value</button>
                   </div>
                 </div>
               </div>
@@ -344,7 +346,7 @@ class DiseaseForm extends Component {
           </div>
           
          {/* Disease DOID */}
-                    <div className='row'>
+          <div className='row'>
             <div className='columns medium-12'>
               <div className='row'>
                 <div className='columns medium-12'>
@@ -353,7 +355,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 {(this.state.list_of_do.length > 0) &&
-                  <DataList options={this.state.list_of_do} id='go_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.disease.happens_during} />
+                  <DataList options={this.state.list_of_do} id='disease_id' value1='display_name' value2='format_name' selectedIdName='disease_id' onOptionChange={this.handleChange} selectedId={this.props.disease.disease_id} />
                 }
               </div>
             </div>
@@ -368,7 +370,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <input type='text' name='regulator_id' onChange={this.handleChange} value={this.props.disease.regulator_id} />
+                  <input type='text' name='with_ortholog' onChange={this.handleChange} value={this.props.disease.with_ortholog} />
                 </div>
               </div>
             </div>
@@ -384,7 +386,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 {(this.state.list_of_ro.length > 0) &&
-                  <DataList options={this.state.list_of_ro} id='ro_id' value1='display_name' value2='format_name' selectedIdName='happens_during' onOptionChange={this.handleChange} selectedId={this.props.disease.happens_during} />
+                  <DataList options={this.state.list_of_ro} id='ro_id' value1='display_name' value2='format_name' selectedIdName='association_type' onOptionChange={this.handleChange} selectedId={this.props.disease.association_type} />
                 }
               </div>
             </div>
@@ -400,7 +402,7 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <div className='columns medium-12'>
-                  <select onChange={this.handleChange} name='direction' value={this.props.disease.direction || ''}>
+                  <select onChange={this.handleChange} name='annotation_type' value={this.props.disease.annotation_type || ''}>
                     {annotation_types}
                   </select>
                 </div>

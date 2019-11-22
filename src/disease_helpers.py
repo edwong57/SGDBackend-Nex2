@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPBadRequest, HTTPOk
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPNotFound, HTTPFound
 from sqlalchemy.exc import IntegrityError, DataError
 import transaction
 import json
@@ -16,8 +16,8 @@ def insert_update_disease_annotations(request):
 
         annotation_id = request.params.get('annotation_id')
 
-        gene_id = request.params.get('gene_id')
-        if not target_id:
+        dbentity_id = request.params.get('dbentity_id')
+        if not dbentity_id:
             return HTTPBadRequest(body=json.dumps({'error': "gene is blank"}), content_type='text/json')
 
         taxonomy_id = request.params.get('taxonomy_id')
@@ -32,16 +32,16 @@ def insert_update_disease_annotations(request):
         if not eco_id:
             return HTTPBadRequest(body=json.dumps({'error': "eco is blank"}), content_type='text/json')
         
-        disease_id = request.params.get('disease_id')
-        if not disease_id:
-            return HTTPBadRequest(body=json.dumps({'error': "disease_id is blank"}), content_type='text/json')
+        # disease_id = request.params.get('disease_id')
+        # if not disease_id:
+        #     return HTTPBadRequest(body=json.dumps({'error': "disease_id is blank"}), content_type='text/json')
         
         association_type = request.params.get('association_type')
-        if not regulator_type:
+        if not association_type:
             return HTTPBadRequest(body=json.dumps({'error': "association type is blank"}), content_type='text/json')
 
         annotation_type = request.params.get('annotation_type')
-        if not regulation_type:
+        if not annotation_type:
             return HTTPBadRequest(body=json.dumps({'error': "annotation type is blank"}), content_type='text/json')
 
         with_ortholog = request.params.get('with_ortholog')
@@ -49,9 +49,9 @@ def insert_update_disease_annotations(request):
             with_ortholog = None
 
         dbentity_in_db = None
-        dbentity_in_db = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == target_id, Dbentity.format_name == gene_id)).filter(Dbentity.subclass == 'LOCUS').one_or_none()
+        dbentity_in_db = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == dbentity_id, Dbentity.format_name == gene_id)).filter(Dbentity.subclass == 'LOCUS').one_or_none()
         if dbentity_in_db is not None:
-            gene_id = dbentity_in_db.dbentity_id
+            dbentity_id = dbentity_in_db.dbentity_id
         else:
             return HTTPBadRequest(body=json.dumps({'error': "gene value not found in database"}), content_type='text/json')
 
@@ -83,7 +83,7 @@ def insert_update_disease_annotations(request):
 
         if(int(annotation_id) > 0):
             try:
-                update_disease = {'dbentity_id': gene_id,
+                update_disease = {'dbentity_id': dbentity_id,
                                     'taxonomy_id': taxonomy_id,
                                     'reference_id': reference_id,
                                     'eco_id': eco_id,
@@ -101,16 +101,16 @@ def insert_update_disease_annotations(request):
                 disease = curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == annotation_id).one_or_none()
                 reference_in_db = {
                     'id': disease.annotation_id,
-                    'gene_id': {
+                    'dbentity_id': {
                         'id': disease.dbentity.format_name,
                         'display_name': disease.dbentity.display_name
                     },
                     'taxonomy_id': '',
                     'reference_id': disease.reference.pmid,
                     'eco_id': '',
-                    'association_type': regulation.regulator_type,
-                    'annotation_type': regulation.regulation_type,
-                    'with_ortholog': regulation.direction
+                    'association_type': disease.association_type,
+                    'annotation_type': disease.annotation_type,
+                    'with_ortholog': disease.with_ortholog
                 }
                 if disease.eco:
                     reference_in_db['eco_id'] = str(disease.eco.eco_id)
@@ -155,7 +155,7 @@ def insert_update_disease_annotations(request):
         if(int(annotation_id) == 0):
             try:
                 y = None
-                y = Diseaseannotation(dbentity_id = gene_id,
+                y = Diseaseannotation(dbentity_id = dbentity_id,
                                     source_id = source_id,
                                     taxonomy_id = taxonomy_id,
                                     reference_id = reference_id,
@@ -200,18 +200,19 @@ def insert_update_disease_annotations(request):
 
 def get_diseases_by_filters(request):
     try:
-        gene_id = str(request.params.get('gene_id')).strip()
+        console.log(request);
+        dbentity_id = str(request.params.get('dbentity_id')).strip()
         reference_id = str(request.params.get('reference_id')).strip()
 
-        if not(target_id or reference_id):
+        if not(dbentity_id or reference_id):
             raise Exception("Please provide input for gene, reference or combination to get the regulations.")
 
         diseases_in_db = DBSession.query(Diseaseannotation)
         
         gene_dbentity_id,reference_dbentity_id = None,None
 
-        if gene_id:
-            gene_dbentity_id = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid==gene_id, Dbentity.format_name==gene_id)).one_or_none()
+        if dbentity_id:
+            gene_dbentity_id = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid==dbentity_id, Dbentity.format_name==dbentity_id)).one_or_none()
 
             if not gene_dbentity_id:
                 raise Exception('gene not found, please provide sgdid or systematic name')
@@ -233,7 +234,7 @@ def get_diseases_by_filters(request):
         
         diseases = diseases_in_db.options(joinedload(Diseaseannotation.eco), joinedload(Diseaseannotation.do), joinedload(Diseaseannotation.taxonomy)
                                                 , joinedload(Diseaseannotation.reference), joinedload(Diseaseannotation.dbentity)).order_by(Diseaseannotation.annotation_id.asc()).all()
-        
+        console.log(diseases);
         list_of_diseases = []
         for disease in diseases:
             currentDisease = {
