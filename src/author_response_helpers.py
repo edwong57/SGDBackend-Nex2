@@ -12,6 +12,10 @@ def insert_author_response(response):
         source_id = sgd.source_id
         created_by = 'OTTO'
         
+
+        return HTTPBadRequest(body=json.dumps({'error': "HELLO WORLD!!"}), content_type='text/json')
+
+
         email = request.params.get('email')
         if email == '':
             return HTTPBadRequest(body=json.dumps({'error': "Please enter your email address"}), content_type='text/json')

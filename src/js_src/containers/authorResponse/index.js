@@ -22,7 +22,6 @@ class AuthorResponse extends Component {
     for(let key in this.props.authorResponse){
       formData.append(key,this.props.authorResponse[key]);
     }
-
     fetchData(ADD_DATA, {
       type: 'POST',
       data: formData,
