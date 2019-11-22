@@ -36,7 +36,7 @@ import GeneNameReservationEdit from './containers/reserve/edit';
 import GeneNameReservationStandardize from './containers/reserve/standardize';
 import ColleaguesIndex from './containers/colleagues/index';
 import ColleaguesShow from './containers/colleagues/show';
-// import AuthorResponse from './containers/authorResponse/index';
+import AuthorResponse from './containers/authorResponse/index';
 import NewColleague from './containers/colleagues/new';
 import Regulation from './containers/regulation/index';
 import FileCurate from './containers/fileCurate';
@@ -51,6 +51,7 @@ export default (
     <Switch>
       <Route render={(props) => <PublicLayout {...props}><NewColleague/></PublicLayout>} path='/new_colleague' />
       <Route render={(props) => <PublicLayout {...props}><NewGeneNameReservation /></PublicLayout>} path='/new_reservation' />
+      <Route render={(props) => <PublicLayout {...props}><AuthorResponse /></PublicLayout>} path='/author_response' />
       <Route render={() => <Layout>
         <Switch>
           <Route component={requireAuthentication(TriageIndex)} path='/triage' />

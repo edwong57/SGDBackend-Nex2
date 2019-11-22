@@ -210,7 +210,9 @@ def main(global_config, **settings):
     config.add_route('phenotype_add','/phenotype_add', request_method='POST')
     config.add_route('phenotype_update','/phenotype_update', request_method='POST')
     config.add_route('phenotype_delete','/phenotype_delete', request_method='POST')
-   
+    
+    config.add_route('add_author_response','/add_author_response', request_method='POST')
+
     config.add_route('healthcheck', '/healthcheck')
 
     #swagger
