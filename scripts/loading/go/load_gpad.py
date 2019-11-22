@@ -147,16 +147,16 @@ def load_go_annotations(gpad_file, noctua_gpad_file, gpi_file, annotation_type, 
         log.info(str(datetime.now()))
         log.info("Uploading GPAD/GPI files to AWS...")
 
-        ENGINE_CREATED = 0
+        recreate_engine()
 
         update_database_load_file_to_s3(nex_session, gpad_file, source_to_id, 
-                                        edam_to_id, ENGINE_CREATED)
+                                        edam_to_id)
 
         update_database_load_file_to_s3(nex_session, gpi_file, source_to_id,
-                                        edam_to_id, ENGINE_CREATED)
+                                        edam_to_id)
 
         update_database_load_file_to_s3(nex_session, noctua_gpad_file, source_to_id, 
-                                        edam_to_id, ENGINE_CREATED)
+                                        edam_to_id)
 
     log.info(str(datetime.now()))
     log.info("Writing summary...")
@@ -588,7 +588,13 @@ def delete_extensions_evidences(nex_session, annotation_id):
     for x in to_delete_list:
         nex_session.delete(x)
 
-def update_database_load_file_to_s3(nex_session, go_file, source_to_id, edam_to_id, ENGINE_CREATED):
+def recreate_engine():
+    from sqlalchemy import create_engine
+    from src.models import DBSession
+    engine = create_engine(os.environ['NEX2_URI'], pool_recycle=3600)
+    DBSession.configure(bind=engine)
+    
+def update_database_load_file_to_s3(nex_session, go_file, source_to_id, edam_to_id):
 
     import hashlib
 
@@ -615,13 +621,12 @@ def update_database_load_file_to_s3(nex_session, go_file, source_to_id, edam_to_
     topic_id = edam_to_id.get('EDAM:0089')  ## topic:0089 Ontology and terminology
     format_id = edam_to_id.get('EDAM:3475') ## format:3475 TSV
 
-    if ENGINE_CREATED == 0:
-        from sqlalchemy import create_engine
-        from src.models import DBSession
-        engine = create_engine(os.environ['NEX2_URI'], pool_recycle=3600)
-        DBSession.configure(bind=engine)
-        ENGINE_CREATED = 1
-
+    
+    # from sqlalchemy import create_engine
+    # from src.models import DBSession
+    # engine = create_engine(os.environ['NEX2_URI'], pool_recycle=3600)
+    # DBSession.configure(bind=engine)
+     
     if go_row is None:
         upload_file(CREATED_BY, go_local_file,
                     filename=go_file,
