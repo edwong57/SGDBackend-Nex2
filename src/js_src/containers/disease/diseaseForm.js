@@ -9,13 +9,14 @@ import PropTypes from 'prop-types';
 const GET_ECO = '/eco';
 const GET_DO = '/do';
 const GET_RO = '/ro';
+
 const DISEASES = '/disease';
 const GET_STRAINS = '/get_strains';
 const GET_DISEASES = 'get_diseases';
 const ANNOTATION_TYPES = [null,'computational', 'high throughput', 'manually curated'];
+const DIRECTION = [null,'computational', 'high throughput', 'manually curated'];
 const SKIP = 5;
 const TIMEOUT = 120000;
-
 
 class DiseaseForm extends Component {
   constructor(props) {

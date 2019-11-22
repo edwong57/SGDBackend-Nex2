@@ -69,8 +69,9 @@ export default (
           <Route component={requireAuthentication(CurateLit)} path='/curate/reference/:id' />
           <Route component={requireAuthentication(Regulation)} path='/regulation' />
 	        <Route component={requireAuthentication(SearchPhenotype)} path='/search_phenotype' />  
-          <Route component={requireAuthentication(EditPhenotype)} path='/edit_phenotype/:id' />   
+          <Route component={requireAuthentication(EditPhenotype)} path='/edit_phenotype/:id' />  
           <Route component={requireAuthentication(Disease)} path='/disease' />
+          <Route component={requireAuthentication(LocusLayout)} path='/curate/locus/:id' />
           <Route component={requireAuthentication(FileCurate)} path='/file_curate' />
           <Route component={requireAuthentication(GeneNameReservationIndex)} path='/reservations' exact />
           <Route component={requireAuthentication(GeneNameReservation)} path='/reservations/:id' exact />
