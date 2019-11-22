@@ -23,11 +23,11 @@ def insert_author_response(request):
 
         has_novel_research = request.params.get('has_novel_research')
         
-        # return HTTPBadRequest(body=json.dumps({'error': "TESTING: has_novel_research=" + has_novel_research}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'error': "TESTING: has_novel_research=" + has_novel_research}), content_type='text/json')
     
         has_large_scale_data = request.params.get('has_large_scale_data')
 
-        # return HTTPBadRequest(body=json.dumps({'error': "TESTING: has_large_scale_data=" + has_large_scale_data}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'error': "TESTING: has_large_scale_data=" + has_large_scale_data}), content_type='text/json')
 
         research_results = request.params.get('research_result')
     
@@ -38,7 +38,7 @@ def insert_author_response(request):
         other_description = request.params.get('other_desc')
 
         x = Authorresponse(source_id = source_id,
-                           reference_id = reference_id,
+                           pmid = pmid,
                            author_email = email,
                            has_novel_research = has_novel_research,
                            has_large_scale_data = has_large_scale_data,
