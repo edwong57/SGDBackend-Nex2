@@ -77,7 +77,7 @@ class AuthorResponse extends Component {
           <label>Citation</label>
           <input name='citation' value={this.props.authorResponse.citation} onChange={this.onChange} type='text' />
           <p>Does this paper contain novel characterizations of the function, role, or localization of a gene product(s)?
-          Yes <input type="radio" name='has_novel_research' value='on' nChange={this.onChange} />  No <input type="radio" name='has_novel_research' value='off' nChange={this.onChange} checked='1' /> <br></br>
+          Yes <input type="radio" name='has_novel_research' value='on' onChange={this.onChange} />  No <input type="radio" name='has_novel_research' value='off' onChange={this.onChange} checked='1' /> <br></br>
           If yes, please summarize briefly the novel results.</p>
           <input name='research_result' value={this.props.authorResponse.research_result} onChange={this.onChange} type='text' />
           <p>If this paper focuses on specific genes/proteins, please identify them here (enter a list of gene names/systematic names).</p>
