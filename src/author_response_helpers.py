@@ -5,7 +5,7 @@ import json
 from src.models import DBSession, Authorresponse, Referencedbentity, Source
 from src.curation_helpers import get_curator_session
 
-def insert_author_response(response):
+def insert_author_response(request):
 
     try:
         sgd = DBSession.query(Source).filter_by(display_name='SGD').one_or_none()
