@@ -5,7 +5,7 @@ import { setData } from '../../actions/authorResponseActions';
 import { connect } from 'react-redux';
 import { setError, setMessage } from '../../actions/metaActions';
 // const ADD_DATA = '/add_author_response';
-const ADD_DATA = '/phenotype_add';  
+const ADD_DATA = '/add_author_response';  
 
 class AuthorResponse extends Component {
 
