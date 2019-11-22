@@ -19,10 +19,10 @@ class AuthorResponse extends Component {
  
   onSubmit(e) {
     e.preventDefault();
-    console.log('HELLO WORLD'); 
     let formData = new FormData();
     for(let key in this.props.authorResponse){
       formData.append(key,this.props.authorResponse[key]);
+      alert('key='+key+', value='+this.props.authorResponse[key]);
     }
     fetchData(ADD_DATA, {
       type: 'POST',
