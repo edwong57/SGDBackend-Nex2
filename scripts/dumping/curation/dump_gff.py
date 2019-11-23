@@ -26,7 +26,9 @@ S3_SECRET_KEY = os.environ['S3_SECRET_KEY']
 S3_BUCKET = os.environ['S3_BUCKET']
 
 CREATED_BY = os.environ['DEFAULT_USER']
- 
+
+## https://downloads.yeastgenome.org/latest/saccharomyces_cerevisiae.gff.gz 
+
 gff_file = "scripts/dumping/curation/data/saccharomyces_cerevisiae.gff"
 landmark_file = "scripts/dumping/curation/data/landmark_gene.txt"
 
