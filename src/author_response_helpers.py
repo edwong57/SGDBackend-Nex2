@@ -25,21 +25,19 @@ def insert_author_response(request):
             
         has_large_scale_data = request.params.get('has_large_scale_data')
 
-        return HTTPBadRequest(body=json.dumps({'error': "TESTING: has_large_scale_data=" + has_large_scale_data}), content_type='text/json')
-
         research_results = request.params.get('research_result')
-    
-        gene_list = request.params.get('gene_list')
-     
+         
         dataset_description = request.params.get('dataset_desc')
+
+        gene_list = request.params.get('gene_list')
 
         other_description = request.params.get('other_desc')
 
         x = Authorresponse(source_id = source_id,
                            pmid = pmid,
                            author_email = email,
-                           has_novel_research = str(has_novel_research),
-                           has_large_scale_data = str(has_large_scale_data),
+                           has_novel_research = has_novel_research,
+                           has_large_scale_data = has_large_scale_data,
                            research_results = research_results,
                            gene_list = gene_list,
                            dataset_description = dataset_description,
@@ -48,7 +46,7 @@ def insert_author_response(request):
 
         DBSession.add(x)
         transaction.commit()
-        return HTTPOk(body=json.dumps({'success': "Your data has been succesfully added into our database.", 'AUTHOR_RESPONSE': "AUTHOR_RESPONSE"}), content_type='text/json')
+        return HTTPOk(body=json.dumps({'success': "Your response has been sent to SGD curators. Thank you for helping to improve SGD.", 'AUTHOR_RESPONSE': "AUTHOR_RESPONSE"}), content_type='text/json')
     except Exception as e:
         transaction.abort()
         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
