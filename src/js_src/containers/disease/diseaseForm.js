@@ -14,7 +14,6 @@ const DISEASES = '/disease';
 const GET_STRAINS = '/get_strains';
 const GET_DISEASES = 'get_diseases';
 const ANNOTATION_TYPES = [null,'computational', 'high throughput', 'manually curated'];
-const DIRECTION = [null,'computational', 'high throughput', 'manually curated'];
 const SKIP = 5;
 const TIMEOUT = 120000;
 
@@ -112,7 +111,7 @@ class DiseaseForm extends Component {
     var disease = this.state.list_of_diseases[index];
     var currentDisease = {
       annotation_id: disease.id,
-      dbentity_id: disease.dbentity.id,
+      dbentity_id: disease.dbentity_id,
       taxonomy_id: disease.taxonomy_id,
       reference_id: disease.reference_id,
       disease_id: disease.disease_id,
@@ -238,7 +237,7 @@ class DiseaseForm extends Component {
               <button type='submit' className="button expanded" disabled={this.state.currentIndex > -1 ? '' : 'disabled'}>Update</button>
             </div>
             <div className='columns medium-3'>
-              <button type='button' className="button alert expanded" disabled={this.state.currentIndex > -1 ? '':'disabled'} onClick={(e) => { if (confirm('Are you sure, you want to delete selected Regulation ?')) this.handleDelete(e); }}>Delete</button>
+              <button type='button' className="button alert expanded" disabled={this.state.currentIndex > -1 ? '':'disabled'} onClick={(e) => { if (confirm('Are you sure, you want to delete selected Disease ?')) this.handleDelete(e); }}>Delete</button>
             </div>
           </div>
         </div >
@@ -346,7 +345,7 @@ class DiseaseForm extends Component {
             </div>
           </div>
           
-         {/* Disease DOID */}
+
           <div className='row'>
             <div className='columns medium-12'>
               <div className='row'>
@@ -355,9 +354,7 @@ class DiseaseForm extends Component {
                 </div>
               </div>
               <div className='row'>
-                {(this.state.list_of_do.length > 0) &&
-                  <DataList options={this.state.list_of_do} id='disease_id' value1='display_name' value2='format_name' selectedIdName='disease_id' onOptionChange={this.handleChange} selectedId={this.props.disease.disease_id} />
-                }
+                <DataList options={this.state.list_of_do} id='disease_id' value1='display_name' value2='format_name' selectedIdName='disease_id' onOptionChange={this.handleChange} selectedId={this.props.disease.disease_id} />
               </div>
             </div>
           </div>
