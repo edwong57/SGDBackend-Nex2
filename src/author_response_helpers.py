@@ -18,15 +18,17 @@ def insert_author_response(request):
         pmid = request.params.get('pmid')
         if pmid == '':
             return HTTPBadRequest(body=json.dumps({'error': "Please enter Pubmed ID for your paper."}), content_type='text/json')
-        
+
         pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
 
         has_novel_research = '0'
-        if request.params.get('has_novel_research') != 0:
+        if request.params.get('has_novel_research') != '0':
             has_novel_research = '1'
         has_large_scale_data = '0'
-        if request.params.get('has_large_scale_data') != 0:
+        if request.params.get('has_large_scale_data') != '0':
             has_large_scale_data = '1'
+
+        return HTTPBadRequest(body=json.dumps({'error': "has_novel_research="+has_novel_research+", has_large_scale_data="+has_large_scale_data}), content_type='text/json')
 
         research_results = request.params.get('research_result')
          
