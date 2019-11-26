@@ -60,8 +60,8 @@ def insert_author_response(request):
 
         DBSession.add(x)
         transaction.commit()
-        return HTTPBadRequest(body=json.dumps({'success': "Your response has been sent to SGD curators. Thank you for helping to improve SGD."}), content_type='text/json')
-        # return HTTPOk(body=json.dumps({'success': "Your response has been sent to SGD curators. Thank you for helping to improve SGD.", 'AUTHOR_RESPONSE': "AUTHOR_RESPONSE"}), content_type='text/json')
+        # return HTTPBadRequest(body=json.dumps({'success': "Your response has been sent to SGD curators. Thank you for helping to improve SGD."}), content_type='text/json')
+        return HTTPOk(body=json.dumps({'success': "Your response has been sent to SGD curators. Thank you for helping to improve SGD."}), content_type='text/json')
     except Exception as e:
         transaction.abort()
         return HTTPBadRequest(body=json.dumps({'error': str(e) + ' something bad happened'}), content_type='text/json')
