@@ -46,7 +46,7 @@ def insert_author_response(request):
 
     try:
 
-        return HTTPOk(body=json.dumps({'success': "DONE"}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'error': "DONE"}), content_type='text/json')
 
         x = Authorresponse(source_id = source_id,
                            pmid = pmid,
