@@ -33,6 +33,8 @@ def insert_author_response(request):
 
         other_description = request.params.get('other_desc')
 
+        return HTTPOk(body=json.dumps({'success': "has_novel_research=" + has_novel_research, ", has_large_scale_data=", has_large_scale_data}), content_type='text/json')
+
         x = Authorresponse(source_id = source_id,
                            pmid = pmid,
                            author_email = email,
