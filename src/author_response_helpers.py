@@ -21,8 +21,10 @@ def insert_author_response(request):
         
         pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
 
-        # has_novel_research = request.params.get('has_novel_research')
-            
+        has_novel_research = request.params.get('has_novel_research')
+        
+        return HTTPBadRequest(body=json.dumps({'error': "has_novel_research="+str(has_novel_research)}), content_type='text/json')
+
         # has_large_scale_data = request.params.get('has_large_scale_data')
 
         # research_results = request.params.get('research_result')
