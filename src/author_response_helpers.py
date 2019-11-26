@@ -8,45 +8,44 @@ from src.curation_helpers import get_curator_session
 
 def insert_author_response(request):
 
-    sgd = DBSession.query(Source).filter_by(display_name='SGD').one_or_none()
-    source_id = sgd.source_id
-    created_by = 'OTTO'
-
-    email = request.params.get('email')
-    if email == '':
-        return HTTPBadRequest(body=json.dumps({'error': "Please enter your email address."}), content_type='text/json')
-    is_email_valid = validate_email(email, verify=False)
-    if not is_email_valid:
-        msg = email + ' is not a valid email.'
-        return HTTPBadRequest(body=json.dumps({'error': msg}), content_type='text/json')
-    pmid = request.params.get('pmid')
-    if pmid == '':
-        return HTTPBadRequest(body=json.dumps({'error': "Please enter Pubmed ID for your paper."}), content_type='text/json')
-
-    pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
-
-    x = DBSession.query(Authorresponse).filter_by(author_email=email, pmid=int(pmid)).one_or_none()
-    if x is not None:
-        return HTTPBadRequest(body=json.dumps({'error': "You have already subomitted info for PMID:" + pmid+"."}), content_type='text/json')
-
-    has_novel_research = '0'
-    if request.params.get('has_novel_research'):
-        has_novel_research = '1'
-    has_large_scale_data = '0'
-    if request.params.get('has_large_scale_data'):
-        has_large_scale_data = '1'
-
-    research_results = request.params.get('research_result')
-         
-    dataset_description = request.params.get('dataset_desc')
-
-    gene_list = request.params.get('gene_list')
-
-    other_description = request.params.get('other_desc')
-
-    # return HTTPBadRequest(body=json.dumps({'error': "TESTING"}), content_type='text/json')
-
     try:
+        sgd = DBSession.query(Source).filter_by(display_name='SGD').one_or_none()
+        source_id = sgd.source_id
+        created_by = 'OTTO'
+
+        email = request.params.get('email')
+        if email == '':
+            return HTTPBadRequest(body=json.dumps({'error': "Please enter your email address."}), content_type='text/json')
+        is_email_valid = validate_email(email, verify=False)
+        if not is_email_valid:
+            msg = email + ' is not a valid email.'
+            return HTTPBadRequest(body=json.dumps({'error': msg}), content_type='text/json')
+
+        pmid = request.params.get('pmid')
+        pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
+        if pmid == '':
+            return HTTPBadRequest(body=json.dumps({'error': "Please enter Pubmed ID for your paper."}), content_type='text/json')
+        if pmid.isdigit():
+            pmid = int(pmid)
+        else:
+            return HTTPBadRequest(body=json.dumps({'error': "Please enter a number for Pubmed ID."}), content_type='text/json')
+
+        x = DBSession.query(Authorresponse).filter_by(author_email=email, pmid=int(pmid)).one_or_none()
+        if x is not None:
+            return HTTPBadRequest(body=json.dumps({'error': "You have already subomitted info for PMID:" + pmid+"."}), content_type='text/json')
+
+        has_novel_research = '0'
+        if request.params.get('has_novel_research'):
+            has_novel_research = '1'
+        has_large_scale_data = '0'
+        if request.params.get('has_large_scale_data'):
+            has_large_scale_data = '1'
+
+        research_results = request.params.get('research_result')
+        dataset_description = request.params.get('dataset_desc')
+        gene_list = request.params.get('gene_list')
+        other_description = request.params.get('other_desc')
+
         x = Authorresponse(source_id = source_id,
                            pmid = pmid,
                            author_email = email,
