@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import fetchData from '../../lib/fetchData';
 import { setData } from '../../actions/authorResponseActions';
 import { connect } from 'react-redux';
-import { setError, setMessage } from '../../actions/metaActions';
+// import { setError, setMessage } from '../../actions/metaActions';
+import { setError } from '../../actions/metaActions';  
 const ADD_DATA = '/add_author_response';
 
 class AuthorResponse extends Component {
@@ -13,7 +14,7 @@ class AuthorResponse extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onReset = this.onReset.bind(this);
-    this.state = { isComplete: false };	
+    this.state = { isComplete: false, data: {} };	
   }
  
   onSubmit(e) {
@@ -29,7 +30,7 @@ class AuthorResponse extends Component {
       contentType: false
     }).then((data) => {
       // this.props.dispatch(setMessage(data.success));
-      this.setState({ isComplete: true });
+      this.setState({ isComplete: true, data: data });
     }).catch((err) => {
       this.props.dispatch(setError(err.error));
     });
