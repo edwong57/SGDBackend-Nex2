@@ -103,7 +103,8 @@ class AuthorResponse extends Component {
 
 AuthorResponse.propTypes = {
   dispatch: PropTypes.func,
-  authorResponse: PropTypes.object
+  authorResponse: PropTypes.object,
+  onComplete: PropTypes.func
 };
 
 
