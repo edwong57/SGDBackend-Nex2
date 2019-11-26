@@ -22,10 +22,10 @@ def insert_author_response(request):
         pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
 
         has_novel_research = '0'
-        if request.params.get('has_novel_research'):
+        if request.params.get('has_novel_research') != 0:
             has_novel_research = '1'
         has_large_scale_data = '0'
-        if request.params.get('has_large_scale_data'):
+        if request.params.get('has_large_scale_data') != 0:
             has_large_scale_data = '1'
 
         research_results = request.params.get('research_result')
