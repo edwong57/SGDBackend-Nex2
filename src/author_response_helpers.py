@@ -28,7 +28,7 @@ def insert_author_response(request):
         if request.params.get('has_large_scale_data') != '0':
             has_large_scale_data = '1'
 
-        return HTTPBadRequest(body=json.dumps({'error': "has_novel_research="+has_novel_research+", has_large_scale_data="+has_large_scale_data}), content_type='text/json')
+        # return HTTPBadRequest(body=json.dumps({'error': "has_novel_research="+has_novel_research+", has_large_scale_data="+has_large_scale_data}), content_type='text/json')
 
         research_results = request.params.get('research_result')
          
