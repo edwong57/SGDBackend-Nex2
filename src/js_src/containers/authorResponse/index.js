@@ -63,7 +63,7 @@ class AuthorResponse extends Component {
   render() {
     if (this.state.isComplete) {
       return (
-        <div><h3>Your response has been sent to SGD curators. Thank you for helping to improve SGD.</h3></div>
+        <div><p>Your response has been sent to SGD curators. Thank you for helping to improve SGD.</p></div>
       );
     }
     return (
