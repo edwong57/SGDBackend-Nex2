@@ -1886,7 +1886,6 @@ def phenotype_delete(request):
     return delete_phenotype_annotations(request)
 
 @view_config(route_name='add_author_response',renderer='json',request_method='POST')
-@authenticate
 def add_author_response(request):
 
     return insert_author_response(request)
