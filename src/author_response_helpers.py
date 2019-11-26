@@ -40,7 +40,7 @@ def insert_author_response(request):
 
     other_description = request.params.get('other_desc')
 
-    # return HTTPBadRequest(body=json.dumps({'error': "HELLO: has_novel_research="+has_novel_research+", has_large_scale_data="+has_large_scale_data}), content_type='text/json')
+    # return HTTPBadRequest(body=json.dumps({'error': "TESTING"}), content_type='text/json')
 
     try:
         x = Authorresponse(source_id = source_id,
@@ -60,7 +60,7 @@ def insert_author_response(request):
 
         DBSession.add(x)
         transaction.commit()
-        return HTTPBadRequest(body=json.dumps({'error': "Your response has been sent to SGD curators. Thank you for helping to improve SGD."}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'success': "Your response has been sent to SGD curators. Thank you for helping to improve SGD."}), content_type='text/json')
         # return HTTPOk(body=json.dumps({'success': "Your response has been sent to SGD curators. Thank you for helping to improve SGD.", 'AUTHOR_RESPONSE': "AUTHOR_RESPONSE"}), content_type='text/json')
     except Exception as e:
         transaction.abort()
