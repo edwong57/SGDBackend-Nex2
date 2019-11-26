@@ -29,6 +29,8 @@ def insert_author_response(request):
     if x is not None:
         return HTTPBadRequest(body=json.dumps({'error': "You have already subomitted info for PMID:" + pmid+"."}), content_type='text/json')
 
+    return HTTPBadRequest(body=json.dumps({'error': "has_novel_research=" + str(request.params.get('has_novel_research'))}), content_type='text/json')  
+
     has_novel_research = '0'
     if request.params.get('has_novel_research') != '0':
         has_novel_research = '1'
