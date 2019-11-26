@@ -66,6 +66,6 @@ def insert_author_response(request):
         return {'curation_id': 0}
     except Exception as e:
         transaction.abort()
-        return HTTPBadRequest(body=json.dumps({'error': str(e) + ' something bad happened'}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'error': str(e) + '<br>something bad happened'}), content_type='text/json')
 
 
