@@ -42,7 +42,7 @@ def insert_author_response(request):
 
     other_description = request.params.get('other_desc')
 
-    return HTTPBadRequest(body=json.dumps({'error': "HELLO: has_novel_research="+has_novel_research+", has_large_scale_data="+has_large_scale_data}), content_type='text/json')
+    # return HTTPBadRequest(body=json.dumps({'error': "HELLO: has_novel_research="+has_novel_research+", has_large_scale_data="+has_large_scale_data}), content_type='text/json')
 
     try:
 
