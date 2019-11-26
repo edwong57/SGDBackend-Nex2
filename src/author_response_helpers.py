@@ -21,9 +21,12 @@ def insert_author_response(request):
         
         pmid = pmid.replace('PMID:', '').replace('Pubmed ID:', '').strip()
 
-        has_novel_research = request.params.get('has_novel_research')
-        
-        has_large_scale_data = request.params.get('has_large_scale_data')
+        has_novel_research = '0'
+        if request.params.get('has_novel_research'):
+            has_novel_research = '1'
+        has_large_scale_data = '0'
+        if request.params.get('has_large_scale_data'):
+            has_large_scale_data = '1'
 
         research_results = request.params.get('research_result')
          
@@ -36,8 +39,8 @@ def insert_author_response(request):
         x = Authorresponse(source_id = source_id,
                            pmid = pmid,
                            author_email = email,
-                           has_novel_research = str(has_novel_research),
-                           has_large_scale_data = str(has_large_scale_data),
+                           has_novel_research = has_novel_research,
+                           has_large_scale_data = has_large_scale_data,
                            has_fast_track_tag = '0',
                            curator_checked_datasets = '0',
                            curator_checked_genelist = '0',
