@@ -38,6 +38,7 @@ def insert_author_response(request):
                            author_email = email,
                            has_novel_research = has_novel_research,
                            has_large_scale_data = has_large_scale_data,
+                           has_fast_track_tag = '0',
                            research_results = research_results,
                            gene_list = gene_list,
                            dataset_description = dataset_description,
