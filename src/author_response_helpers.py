@@ -32,7 +32,7 @@ def insert_author_response(request):
 
         x = DBSession.query(Authorresponse).filter_by(author_email=email, pmid=int(pmid)).one_or_none()
         if x is not None:
-            return HTTPBadRequest(body=json.dumps({'error': "You have already subomitted info for PMID:" + pmid+"."}), content_type='text/json')
+            return HTTPBadRequest(body=json.dumps({'error': "You have already subomitted info for PMID:" + str(pmid)+"."}), content_type='text/json')
 
         has_novel_research = '0'
         if request.params.get('has_novel_research'):
