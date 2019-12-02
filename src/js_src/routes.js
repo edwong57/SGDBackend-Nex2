@@ -36,7 +36,6 @@ import GeneNameReservationEdit from './containers/reserve/edit';
 import GeneNameReservationStandardize from './containers/reserve/standardize';
 import ColleaguesIndex from './containers/colleagues/index';
 import ColleaguesShow from './containers/colleagues/show';
-import SubmitData from './containers/authorResponse/index';
 import NewColleague from './containers/colleagues/new';
 import Regulation from './containers/regulation/index';
 import FileCurate from './containers/fileCurate';
@@ -44,6 +43,9 @@ import FileCurateUpdate from './containers/fileCurate/updateFile.js';
 import NewPhenotype from './containers/phenotype/new';
 import SearchPhenotype from './containers/phenotype/search';
 import EditPhenotype from './containers/phenotype/edit';
+import SubmitData from './containers/authorResponse/index';
+import LitGuide from './containers/litguide/search';
+import EditLitGuide from './containers/litguide/edit';
 
 //TODO: Fix the Routes.
 export default (
@@ -70,7 +72,9 @@ export default (
           <Route component={requireAuthentication(Regulation)} path='/regulation' />
 	  <Route component={requireAuthentication(NewPhenotype)} path='/new_phenotype' />
 	  <Route component={requireAuthentication(SearchPhenotype)} path='/search_phenotype' />  
-          <Route component={requireAuthentication(EditPhenotype)} path='/edit_phenotype/:id' />   
+          <Route component={requireAuthentication(EditPhenotype)} path='/edit_phenotype/:id' /> 
+          <Route component={requireAuthentication(LitGuide)} path='/litguide_todo' />
+          <Route component={requireAuthentication(EditLitGuide)} path='/edit_litguide' />
           <Route component={requireAuthentication(LocusLayout)} path='/curate/locus/:id' />
           <Route component={requireAuthentication(FileCurate)} path='/file_curate' />
           <Route component={requireAuthentication(FileCurateUpdate)} path='/file_curate_update' />

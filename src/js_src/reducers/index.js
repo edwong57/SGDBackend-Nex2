@@ -8,6 +8,7 @@ import newsLetterReducer from './newsLetterReducer';
 import regulationReducer from './regulationReducer';
 import phenotypeReducer from './phenotypeReducer';
 import authorResponseReducer from './authorResponseReducer';
+import litguideReducer from './litguideReducer';
 
 export default {
   auth: authReducer,
@@ -19,5 +20,6 @@ export default {
   newsLetter:newsLetterReducer,
   regulation:regulationReducer,
   phenotype:phenotypeReducer,
-  authorResponse:authorResponseReducer
+  authorResponse:authorResponseReducer,
+  litguide:litguideReducer
 };
