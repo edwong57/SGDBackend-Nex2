@@ -9,7 +9,7 @@ from src.curation_helpers import get_curator_session
 def insert_author_response(request):
 
     try:
-        sgd = DBSession.query(Source).filter_by(display_name='SGD').one_or_none()
+        sgd = DBSession.query(Source).filter_by(display_name='Direct submission').one_or_none()
         source_id = sgd.source_id
         created_by = 'OTTO'
 
@@ -32,7 +32,7 @@ def insert_author_response(request):
 
         x = DBSession.query(Authorresponse).filter_by(author_email=email, pmid=int(pmid)).one_or_none()
         if x is not None:
-            return HTTPBadRequest(body=json.dumps({'error': "You have already subomitted info for PMID:" + pmid+"."}), content_type='text/json')
+            return HTTPBadRequest(body=json.dumps({'error': "You have already subomitted info for PMID:" + str(pmid)+"."}), content_type='text/json')
 
         has_novel_research = '0'
         if request.params.get('has_novel_research'):
@@ -43,7 +43,7 @@ def insert_author_response(request):
 
         research_results = request.params.get('research_result')
         dataset_description = request.params.get('dataset_desc')
-        gene_list = request.params.get('gene_list')
+        gene_list = request.params.get('genes')
         other_description = request.params.get('other_desc')
 
         x = Authorresponse(source_id = source_id,
