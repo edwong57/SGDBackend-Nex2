@@ -14,10 +14,6 @@ DECLARE
 BEGIN
   IF (TG_OP = 'UPDATE') THEN
 
-    IF (OLD.reference_id != NEW.reference_id) THEN
-        PERFORM nex.insertupdatelog('AUTHORRESPONSE'::text, 'REFERENCE_ID'::text, OLD.curation_id, OLD.reference_id::text, NEW.reference_id::text, USER);
-    END IF;
-
      IF (OLD.source_id != NEW.source_id) THEN
         PERFORM nex.insertupdatelog('AUTHORRESPONSE'::text, 'SOURCE_ID'::text, OLD.curation_id, OLD.source_id::text, NEW.source_id::text, USER);
     END IF;
@@ -74,7 +70,7 @@ BEGIN
 
   ELSIF (TG_OP = 'DELETE') THEN
 
-    v_row := OLD.curation_id || '[:]' || OLD.reference_id || '[:]' ||
+    v_row := OLD.curation_id || '[:]' || 
              OLD.source_id || '[:]' || 
              coalesce(OLD.colleague_id,0) || '[:]' || OLD.author_email || '[:]' ||
              OLD.has_novel_research || '[:]' || OLD.has_large_scale_data || '[:]' ||
@@ -168,7 +164,7 @@ BEGIN
      RETURN OLD;
   END IF;
 
-END;
+END; 
 $BODY$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER colleaguetriage_audr

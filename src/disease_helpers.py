@@ -172,7 +172,8 @@ def insert_update_disease_annotations(request):
                                     disease_id = disease_id,
                                     association_type = int(association_type),
                                     annotation_type = annotation_type,
-                                    created_by = CREATED_BY)
+                                    created_by = CREATED_BY,
+                                    date_assigned = date_created)
                 curator_session.add(y)
                 transaction.commit()
                 isSuccess = True
@@ -209,7 +210,6 @@ def insert_update_disease_annotations(request):
 
 def get_diseases_by_filters(request):
     try:
-        console.log(request);
         dbentity_id = str(request.params.get('dbentity_id')).strip()
         reference_id = str(request.params.get('reference_id')).strip()
 
@@ -239,16 +239,16 @@ def get_diseases_by_filters(request):
                 raise Exception('Reference not found, please provide sgdid , pubmed id or reference number')
             else:
                 reference_dbentity_id = reference_dbentity_id.dbentity_id
-                regulations_in_db = regulations_in_db.filter_by(reference_id=reference_dbentity_id)
+                diseases_in_db = diseases_in_db.filter_by(reference_id=reference_dbentity_id)
         
-        diseases = diseases_in_db.options(joinedload(Diseaseannotation.eco), joinedload(Diseaseannotation.do), joinedload(Diseaseannotation.taxonomy)
+        diseases = diseases_in_db.options(joinedload(Diseaseannotation.eco), joinedload(Diseaseannotation.do), joinedload(\.taxonomy)
                                                 , joinedload(Diseaseannotation.reference), joinedload(Diseaseannotation.dbentity)).order_by(Diseaseannotation.annotation_id.asc()).all()
         console.log(diseases);
         list_of_diseases = []
         for disease in diseases:
             currentDisease = {
-                'id': disease.annotation_id,
-                'gene_id': {
+                'annotation_id': disease.annotation_id,
+                'dbentity_id': {
                     'id': disease.dbentity.format_name,
                     'display_name': disease.dbentity.display_name
                 },
