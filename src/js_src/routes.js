@@ -45,6 +45,7 @@ import SearchPhenotype from './containers/phenotype/search';
 import EditPhenotype from './containers/phenotype/edit';
 import SubmitData from './containers/authorResponse/index';
 import LitGuide from './containers/litguide/search';
+import AddLitGuide from './containers/litguide/add';
 import EditLitGuide from './containers/litguide/edit';
 
 //TODO: Fix the Routes.
@@ -74,6 +75,7 @@ export default (
 	  <Route component={requireAuthentication(SearchPhenotype)} path='/search_phenotype' />  
           <Route component={requireAuthentication(EditPhenotype)} path='/edit_phenotype/:id' /> 
           <Route component={requireAuthentication(LitGuide)} path='/litguide_todo' />
+          <Route component={requireAuthentication(AddLitGuide)} path='/add_litguide' />
           <Route component={requireAuthentication(EditLitGuide)} path='/edit_litguide' />
           <Route component={requireAuthentication(LocusLayout)} path='/curate/locus/:id' />
           <Route component={requireAuthentication(FileCurate)} path='/file_curate' />

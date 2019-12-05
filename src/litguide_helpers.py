@@ -209,14 +209,10 @@ def add_litguide(request):
         topic = request.params.get('topic', '')
         unlink = request.params.get('unlink', '')
 
-
         # return HTTPBadRequest(body=json.dumps({'error': "pmid="+pmid+", unlink="+unlink}), content_type='text/json')
 
-        if old_tag == '':
-            return HTTPBadRequest(body=json.dumps({'error': "No curation tag(old) is passed in"}), content_type='text/json')
-
-        if tag == '':
-            return HTTPBadRequest(body=json.dumps({'error': "No curation tag(new) is passed in"}), content_type='text/json')
+        if pmid == '':
+            return HTTPBadRequest(body=json.dumps({'error': "Please enter a PMID."}), content_type='text/json')
 
         x = curator_session.query(Referencedbentity).filter_by(pmid=int(pmid)).one_or_none()
         if x is None:
@@ -233,13 +229,21 @@ def add_litguide(request):
             else:
                 return HTTPBadRequest(body=json.dumps({'error': "The tag <strong>"+old_tag+"</strong> is not linked with pmid="+pmid+". So no need to unlink."}), content_type='text/json')
             
-        if genes == '': 
-            if old_tag != tag:
-                x = curator_session.query(CurationReference).filter_by(curation_tag=old_tag, reference_id=reference_id).one_or_none()
-                if x is not None:
-                    x.curation_tag = tag
-                    curator_session.add(x)
-                    success_message = success_message + "The tag for this paper has been changed from <strong>" + old_tag + "</strong> to <strong>" + tag + "</strong>. "
+        elif genes == '':
+            if old_tag: 
+                if old_tag != tag:
+                    x = curator_session.query(CurationReference).filter_by(curation_tag=old_tag, reference_id=reference_id).one_or_none()
+                    if x is not None:
+                        x.curation_tag = tag
+                        curator_session.add(x)
+                        success_message = success_message + "The tag for this paper has been changed from <strong>" + old_tag + "</strong> to <strong>" + tag + "</strong>. "
+            elif tag:
+                x = CurationReference(reference_id = reference_id,
+                                      source_id = source_id,
+                                      curation_tag = tag,
+                                      created_by = CREATED_BY)
+                curator_session.add(x)
+                success_message = success_message + "A new curation_reference row for pmid " + "<strong>" + pmid + "</strong>, and curation_tag <strong>" + tag + "</strong> has been added into the database. "
         else:
             gene_list = genes.replace('|', ' ').split(' ')
             dbentity_id_to_gene = {}
@@ -272,8 +276,7 @@ def add_litguide(request):
                                           curation_tag = tag,
                                           created_by = CREATED_BY)
                     curator_session.add(x)
-                    success_message = success_message + "A new curation_reference row for gene <strong>" + dbentity_id_to_gene[dbentity_id] + "</strong>, pmid " + "<strong>" + pmid + "</strong>, and curation_tag <strong>" + tag + "</strong> has been added into the datab\
-ase. "
+                    success_message = success_message + "A new curation_reference row for gene <strong>" + dbentity_id_to_gene[dbentity_id] + "</strong>, pmid " + "<strong>" + pmid + "</strong>, and curation_tag <strong>" + tag + "</strong> has been added into the database. "
 
                 if topic != '':
                     x = Literatureannotation(dbentity_id = dbentity_id,
