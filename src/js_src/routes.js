@@ -37,6 +37,8 @@ import GeneNameReservationStandardize from './containers/reserve/standardize';
 import ColleaguesIndex from './containers/colleagues/index';
 import ColleaguesShow from './containers/colleagues/show';
 import SubmitData from './containers/authorResponse/index';
+import AuthorResponseShow from './containers/authorResponse/show';
+import AuthorResponseProcess from './containers/authorResponse/process';
 import NewColleague from './containers/colleagues/new';
 import Regulation from './containers/regulation/index';
 import FileCurate from './containers/fileCurate';
@@ -78,6 +80,8 @@ export default (
           <Route component={requireAuthentication(GeneNameReservation)} path='/reservations/:id' exact />
           <Route component={requireAuthentication(GeneNameReservationEdit)} path='/reservations/:id/edit' exact />
           <Route component={requireAuthentication(GeneNameReservationStandardize)} path='/reservations/:id/standardize' exact />
+          <Route component={requireAuthentication(AuthorResponseShow)} path='/author_responses' exact />
+          <Route component={requireAuthentication(AuthorResponseProcess)} path='/author_responses/:id' exact/>
           <Route component={requireAuthentication(CurateHome)} path='/' exact/>
           <Route component={NotFound} path='*' />
         </Switch>

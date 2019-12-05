@@ -45,7 +45,7 @@ from .tsv_parser import parse_tsv_annotations
 from .models_helpers import ModelsHelper
 from .phenotype_helpers import add_phenotype_annotations, update_phenotype_annotations,\
       delete_phenotype_annotations, get_list_of_phenotypes, get_one_phenotype
-from .author_response_helpers import insert_author_response
+from .author_response_helpers import insert_author_response, get_author_responses
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
@@ -1862,7 +1862,6 @@ def phenotype_add(request):
 
     return add_phenotype_annotations(request)
 
-
 @view_config(route_name='get_phenotypes',renderer='json',request_method='GET')
 def get_phenotypes(request):
 
@@ -1889,6 +1888,18 @@ def phenotype_delete(request):
 def add_author_response(request):
 
     return insert_author_response(request)
+
+@view_config(route_name='all_author_responses',renderer='json',request_method='GET')
+def all_author_responses(request):
+
+    return get_author_responses()
+
+@view_config(route_name='one_author_response',renderer='json',request_method='GET')
+def one_author_response(request):
+
+    curation_id = request.matchdict['id']
+
+    return get_author_responses(curation_id)
 
 @view_config(route_name='regulation_insert_update', renderer='json', request_method='POST')
 @authenticate
