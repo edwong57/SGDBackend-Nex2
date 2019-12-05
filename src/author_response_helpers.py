@@ -2,9 +2,53 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPOk
 from sqlalchemy.exc import IntegrityError, DataError
 import transaction
 import json
+from pyramid.response import Response
 from validate_email import validate_email
 from src.models import DBSession, Authorresponse, Referencedbentity, Source
 from src.curation_helpers import get_curator_session
+
+def get_author_responses(curation_id=None):
+
+    try:
+        all = None
+        if curation_id is None:
+            all = DBSession.query(Authorresponse).filter_by(no_action_required = '0').all()
+        else:
+            all = DBSession.query(Authorresponse).filter_by(curation_id=int(curation_id)).all()
+        data = []
+        for x in all:
+            reference_id = None
+            if curation_id is not None:
+                r = DBSession.query(Referencedbentity).filter_by(pmid=int(x.pmid)).one_or_none()
+                if r is not None:
+                    reference_id = r.dbentity_id
+            if x.curator_checked_datasets == '1' and curator_checked_genelist == '1':
+                continue
+            genes = x.gene_list
+            if x.gene_list:
+                genes = genes.replace('|', ' ')
+            data.append({ 'curation_id': x.curation_id,
+                          'author_email': x.author_email,
+                          'pmid': x.pmid,
+                          'no_action_required': x.no_action_required,
+                          'has_novel_research': x.has_novel_research,
+                          'has_large_scale_data': x.has_large_scale_data,
+                          'has_fast_track_tag': x.has_fast_track_tag,
+                          'curator_checked_datasets': x.curator_checked_datasets,
+                          'curator_checked_genelist': x.curator_checked_genelist,
+                          'research_results': x.research_results,
+                          'gene_list': genes,
+                          'dataset_description': x.dataset_description,
+                          'other_description': x.other_description,
+                          'date_created': str(x.date_created).split(' ')[0] })
+        if curation_id is not None:
+            row = data[0]
+            row['reference_id'] = reference_id
+            return Response(body=json.dumps(row), content_type='application/json')
+        else:
+            return Response(body=json.dumps(data), content_type='application/json')
+    except Exception as e:
+        return HTTPBadRequest(body=json.dumps({'error': str(e)}))
 
 def insert_author_response(request):
 
