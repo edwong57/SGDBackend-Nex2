@@ -64,7 +64,7 @@ def insert_allele(curator_session, CREATED_BY, source_id, allele):
 
     a = curator_session.query(Allele).filter_by(display_name=allele).one_or_none()
     if a is not None:
-        returna. allele_id
+        return a.allele_id
 
     isSuccess = False
     returnValue = ""
