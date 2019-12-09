@@ -1,9 +1,6 @@
 import sys
 import os
 from datetime import datetime
-import importlib
-importlib.reload(sys)  # Reload does the trick!
-sys.setdefaultencoding('UTF8')
 from src.models import Dataset, Filedbentity, DatasetFile, Referencedbentity, DatasetReference, \
                    Obi, Keyword, DatasetKeyword, DatasetUrl, Datasetlab, Datasetsample, \
                    Datasettrack, Colleague, Source
@@ -15,7 +12,7 @@ CREATED_BY = os.environ['DEFAULT_USER']
 
 log_file = "scripts/loading/dataset/logs/load_dataset.log"
 
-files_to_load = ["scripts/loading/dataset/data/dataset_metadata_20190419.tsv"]
+files_to_load = ["scripts/loading/dataset/data/GEO-datasetstoload.tsv"]
 
 def load_data():
 
@@ -63,7 +60,7 @@ def load_data():
                 if format_name in format_name_to_id:
                     old_datasets.append(format_name)
                 
-                obj_url = pieces[18].strip()
+                obj_url = pieces[20].strip()
                 display_name = pieces[1].strip()
                 source = pieces[2].strip()
                 if source == 'lab website':
@@ -75,13 +72,13 @@ def load_data():
                     print("The source: ", source, " is not in the database")
                     continue
 
-                if pieces[9] == '' or pieces[10] == '' or pieces[11] == '':
+                if pieces[11] == '' or pieces[12] == '' or pieces[13] == '':
                     print("\nMISSING sample_count or is_in_spell or is_in_browser data for the following line: \n", line, "\n")
                     continue
 
-                sample_count = int(pieces[9].strip())
-                is_in_spell = pieces[10].strip()
-                is_in_browser = pieces[11].strip()
+                sample_count = int(pieces[11].strip())
+                is_in_spell = pieces[12].strip()
+                is_in_browser = pieces[13].strip()
                 if sample_count is None:
                     print("The sample_count column is None:", line)
                     continue
@@ -99,21 +96,25 @@ def load_data():
                 # no date provided
                 date_public = str(datetime.now()).split(" ")[0]
                 channel_count = None
-                if pieces[8]:
-                    channel_count = int(pieces[8].strip())
+                if pieces[10]:
+                    channel_count = int(pieces[10].strip())
 
                 file_id = None
-                if pieces[17]:
-                    file_id = file_to_id.get(pieces[17].strip())
+                if pieces[19]:
+                    file_id = file_to_id.get(pieces[19].strip())
                     if file_id is None:
-                        print("The file display_name: ", pieces[17], " is not in the database")
+                        print("The file display_name: ", pieces[19], " is not in the database")
                         continue
 
-                description = pieces[12]
+                description = pieces[14]
+                if len(description) > 500:
+                    desc = description[0:496].split(' ')
+                    del desc[-1]
+                    description = " ".join(desc) + "..."
 
-                assay_id = obi_name_to_id.get(pieces[6])
+                assay_id = obi_name_to_id.get(pieces[8].split('|')[0])
                 if assay_id is None:
-                    print("The OBI format_name: ", pieces[6], " is not in the database")
+                    print("The OBI format_name: ", pieces[8], " is not in the database")
                     continue
 
                 row =  { "source_id": source_id,
@@ -129,13 +130,13 @@ def load_data():
                          "date_public": date_public,
                          "channel_count": channel_count,
                          "description": description,
-                         "lab_name": pieces[13].strip(),
-                         "lab_location": pieces[14].strip(),
-                         "keywords": pieces[15].strip(),
-                         "pmids": pieces[16].strip(),
+                         "lab_name": pieces[15].strip(),
+                         "lab_location": pieces[16].strip(),
+                         "keywords": pieces[17].strip(),
+                         "pmids": pieces[18].strip(),
                          "file_id": file_id,
                          "obj_url": obj_url,
-                         "url_type": pieces[19].strip() }
+                         "url_type": pieces[21].strip() }
 
                 data.append(row)
                 
@@ -149,8 +150,8 @@ def load_data():
 
     fw.close()
 
-    # nex_session.rollback()
-    nex_session.commit()
+    nex_session.rollback()
+    # nex_session.commit()
 
 
 def delete_old_datasets(nex_session, fw, old_datasets, format_name_to_id):
