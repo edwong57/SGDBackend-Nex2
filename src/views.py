@@ -851,6 +851,8 @@ def analyze(request):
 def dataset(request):
     id = extract_id_request(request, 'dataset')
 
+    return id
+
     dataset = DBSession.query(Dataset).filter_by(dataset_id=id).one_or_none()
     if dataset:
         return dataset.to_dict(add_conditions=True, add_resources=True)
