@@ -48,7 +48,7 @@ def load_data():
                 if len(pieces) < 14:
                     print("MISSING INFO: ", line)
                     continue
-                           
+
                 format_name = pieces[0].strip()
                 if format_name in found:
                     continue
@@ -59,8 +59,19 @@ def load_data():
 
                 if format_name in format_name_to_id:
                     old_datasets.append(format_name)
-                
-                obj_url = pieces[20].strip()
+
+                dbxref_id = pieces[3]
+
+                if dbxref_id != format_name and len(dbxref_id) > 40:
+                    dbxref_id = format_name
+                    
+                obj_url = None
+                url_type = None 
+                if len(pieces) > 20:
+                    obj_url = pieces[20].strip()
+                if len(pieces) > 21:                     
+                    obj_type = pieces[21].strip()
+  
                 display_name = pieces[1].strip()
                 source = pieces[2].strip()
                 if source == 'lab website':
@@ -100,22 +111,28 @@ def load_data():
                     channel_count = int(pieces[10].strip())
 
                 file_id = None
-                if pieces[19]:
+                if len(pieces) > 19 and pieces[19]:
                     file_id = file_to_id.get(pieces[19].strip())
                     if file_id is None:
                         print("The file display_name: ", pieces[19], " is not in the database")
                         continue
 
                 description = pieces[14]
-                if len(description) > 500:
-                    desc = description[0:496].split(' ')
-                    del desc[-1]
-                    description = " ".join(desc) + "..."
+                if len(description) > 4000:
+                    print ("desc is too long. length=", len(description))
+                    continue
 
                 assay_id = obi_name_to_id.get(pieces[8].split('|')[0])
                 if assay_id is None:
                     print("The OBI format_name: ", pieces[8], " is not in the database")
                     continue
+
+                pmids = ''
+                if len(pieces) > 18:
+                    pmidStr = pieces[18].strip()
+                    pmidStr = pmidStr.replace('|', '')
+                    if pmidStr.isdigit():
+                        pmids = pieces[18].strip()
 
                 row =  { "source_id": source_id,
                          "format_name": format_name,
@@ -125,7 +142,7 @@ def load_data():
                          "assay_id": assay_id,
                          "is_in_spell": is_in_spell,
                          "is_in_browser": is_in_browser,
-                         "dbxref_id": pieces[3],
+                         "dbxref_id": dbxref_id,
                          "dbxref_type": pieces[4],
                          "date_public": date_public,
                          "channel_count": channel_count,
@@ -133,10 +150,10 @@ def load_data():
                          "lab_name": pieces[15].strip(),
                          "lab_location": pieces[16].strip(),
                          "keywords": pieces[17].strip(),
-                         "pmids": pieces[18].strip(),
+                         "pmids": pmids,
                          "file_id": file_id,
                          "obj_url": obj_url,
-                         "url_type": pieces[21].strip() }
+                         "url_type": url_type }
 
                 data.append(row)
                 
@@ -150,9 +167,10 @@ def load_data():
 
     fw.close()
 
-    nex_session.rollback()
-    # nex_session.commit()
+    # nex_session.rollback()
+    nex_session.commit()
 
+    print ("DONE loading")
 
 def delete_old_datasets(nex_session, fw, old_datasets, format_name_to_id):
     

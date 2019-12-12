@@ -1,8 +1,5 @@
 import os
 import sys
-import importlib
-importlib.reload(sys)  # Reload does the trick!
-sys.setdefaultencoding('UTF8')
 from src.models import Dataset, Datasetsample, Taxonomy, Source
 from scripts.loading.database_session import get_session
 
