@@ -104,8 +104,10 @@ def load_data():
                 elif int(is_in_browser) > 1:
                     is_in_browser = '1'
 
-                # no date provided
-                date_public = str(datetime.now()).split(" ")[0]
+                date_public = pieces[5]
+                if date_public == '':
+                    # no date provided
+                    date_public = str(datetime.now()).split(" ")[0]
                 channel_count = None
                 if pieces[10]:
                     channel_count = int(pieces[10].strip())
