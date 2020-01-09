@@ -104,7 +104,7 @@ def dump_data():
             
         sgdid = dbentity_id_to_sgdid[x.dbentity_id]
 
-        row = { "primaryId": "SGD:SGD:" + sgdid,
+        row = { "primaryId": "SGD:" + sgdid,
                 "taxonId": taxonId,
                 "symbol": name }
         
