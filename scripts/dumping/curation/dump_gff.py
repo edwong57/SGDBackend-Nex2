@@ -179,7 +179,7 @@ def dump_data():
             if x.dbentity_id in locus_id_to_goids:
                 goids = sorted(locus_id_to_goids[x.dbentity_id])
                 goid_list = ",".join(goids)
-                fw.write(";Ontology_term=" + goid_list + ";" + gene_soid)
+                fw.write(";Ontology_term=" + goid_list + "," + gene_soid)
             if description:
                 fw.write(";Note=" + do_escape(description))
             if headline:
@@ -409,7 +409,7 @@ def update_database_load_file_to_s3(nex_session, gff_file, gzip_file, source_to_
 def write_header(fw, datestamp):
     
     fw.write("##gff-version 3\n")
-    fw.write("#date-produced " + datestamp.split(".")[0] + "\n")
+    fw.write("#!date-produced " + datestamp.split(".")[0] + "\n")
     fw.write("#!data-source SGD\n")
     fw.write("#!assembly R64-2-1\n")
     fw.write("#\n")
