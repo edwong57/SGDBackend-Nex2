@@ -147,14 +147,13 @@ def load_go_annotations(gpad_file, noctua_gpad_file, gpi_file, annotation_type, 
         log.info(str(datetime.now()))
         log.info("Uploading GPAD/GPI files to AWS...")
 
-        ENGINE_CREATED = 0
-
+        ENGINE_CREATED = 1
         update_database_load_file_to_s3(nex_session, gpad_file, source_to_id, 
                                         edam_to_id, ENGINE_CREATED)
-
+        ENGINE_CREATED = 1
         update_database_load_file_to_s3(nex_session, gpi_file, source_to_id,
                                         edam_to_id, ENGINE_CREATED)
-
+        ENGINE_CREATED = 1
         update_database_load_file_to_s3(nex_session, noctua_gpad_file, source_to_id, 
                                         edam_to_id, ENGINE_CREATED)
 
@@ -608,7 +607,12 @@ def update_database_load_file_to_s3(nex_session, go_file, source_to_id, edam_to_
     
     log.info("Adding " + go_file + " to the database.\n")
 
-    nex_session.query(Dbentity).filter_by(display_name=go_file, dbentity_status='Active').update({"dbentity_status": 'Archived'})
+    if "gp_association" in go_file:
+        nex_session.query(Dbentity).filter(Dbentity.display_name.like('gp_association.559292_sgd%')).filter(Dbentity.dbentity_status=='Active').update({"dbentity_status":'Archived'}, synchronize_session='fetch')
+    elif "gp_information" in go_file:
+        nex_session.query(Dbentity).filter(Dbentity.display_name.like('information.559292_sgd%')).filter(Dbentity.dbentity_status=='Active').update({"dbentity_status":'Archived'}, synchronize_session='fetch')
+    elif "noctua_sgd.gpad" in go_file:
+        nex_session.query(Dbentity).filter(Dbentity.display_name.like('noctua_sgd.gpad%')).filter(Dbentity.dbentity_status=='Active').update({"dbentity_status":'Archived'}, synchronize_session='fetch')
     nex_session.commit()
 
     data_id = edam_to_id.get('EDAM:2353')   ## data:2353 Ontology data
@@ -620,8 +624,7 @@ def update_database_load_file_to_s3(nex_session, go_file, source_to_id, edam_to_
         from src.models import DBSession
         engine = create_engine(os.environ['NEX2_URI'], pool_recycle=3600)
         DBSession.configure(bind=engine)
-        ENGINE_CREATED = 1
-
+        
     if go_row is None:
         upload_file(CREATED_BY, go_local_file,
                     filename=go_file,
