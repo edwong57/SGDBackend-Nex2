@@ -619,11 +619,11 @@ def update_database_load_file_to_s3(nex_session, go_file, source_to_id, edam_to_
     topic_id = edam_to_id.get('EDAM:0089')  ## topic:0089 Ontology and terminology
     format_id = edam_to_id.get('EDAM:3475') ## format:3475 TSV
 
-    if ENGINE_CREATED == 0:
-        from sqlalchemy import create_engine
-        from src.models import DBSession
-        engine = create_engine(os.environ['NEX2_URI'], pool_recycle=3600)
-        DBSession.configure(bind=engine)
+    # if ENGINE_CREATED == 0:
+    from sqlalchemy import create_engine
+    from src.models import DBSession
+    engine = create_engine(os.environ['NEX2_URI'], pool_recycle=3600)
+    DBSession.configure(bind=engine)
         
     if go_row is None:
         upload_file(CREATED_BY, go_local_file,
@@ -684,9 +684,9 @@ if __name__ == "__main__":
 
     url_path = 'ftp://ftp.ebi.ac.uk/pub/contrib/goa/'
     gpad_file = 'gp_association.559292_sgd.gz'
-    dated_gpad_file = 'gp_association.559292_sgd_' + datestamp + '.gz' 
+    dated_gpad_file = 'gp_association.559292_sgd_' + datestamp + '.gpad.gz' 
     gpi_file = 'gp_information.559292_sgd.gz'
-    dated_gpi_file = 'gp_information.559292_sgd_' + datestamp + '.gz'
+    dated_gpi_file = 'gp_information.559292_sgd_' + datestamp + '.gpi.gz'
     urllib.request.urlretrieve(url_path + gpad_file, dated_gpad_file)
     urllib.request.urlcleanup()
     urllib.request.urlretrieve(url_path + gpi_file, dated_gpi_file)
