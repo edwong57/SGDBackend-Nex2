@@ -20,7 +20,6 @@
 # For more information see the manual pages of crontab(5) and cron(8)
 # 
 # m h  dom mon dow   command
-MAILTO="sysadmin@genome.stanford.edu,m3z4p8q9i3y4y6v6@yeastgenome.slack.com"
 #Comment restart every hour as it is internal.
 #0 * * * * /bin/bash /data/www/SGDBackend-NEX2/current/system_config/cron/restart.sh | echo 'Backend restarted on curation - prod'
 0 0 * * * /bin/bash /data/www/SGDBackend-NEX2/current/system_config/cron/index_disambiguation.sh
