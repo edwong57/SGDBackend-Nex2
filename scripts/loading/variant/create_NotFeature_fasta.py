@@ -41,7 +41,7 @@ def create_seqs(strain):
     prevRow = None
     prevContigId = None
     contig_id_to_seq = {}
-    contig_id_to_format_name = {}
+    contig_id_to_display_name = {}
     defline_to_seq = {}
     for x in nex_session.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all():
         name = dbentity_id_to_name[x.dbentity_id]        
@@ -51,7 +51,7 @@ def create_seqs(strain):
             continue
 
         (prevName, prevStart, prevEnd) = prevRow
-
+        
         if x.start_index >= prevStart and x.end_index <= prevEnd:
             continue
 
@@ -62,6 +62,13 @@ def create_seqs(strain):
             prevRow = (name, x.start_index, x.end_index)
             prevContigId = x.contig_id
             continue
+
+        if prevName[0:2] == name[0:2] and prevName[2] != name[2]:
+            print (name, prevName)
+            # eg YAL002W and YAR002W
+            prevRow = (name, x.start_index, x.end_index)
+            prevContigId = x.contig_id
+            continue
     
         if x.contig_id not in contig_id_to_seq:
             contig = nex_session.query(Contig).filter_by(contig_id=x.contig_id).one_or_none()
@@ -69,7 +76,7 @@ def create_seqs(strain):
                 print ("The contig_id=", x.contig_id, " is not in the database.")
                 exit() 
             contig_id_to_seq[x.contig_id] = contig.residues;
-            contig_id_to_format_name[x.contig_id] = contig.format_name;
+            contig_id_to_display_name[x.contig_id] = contig.display_name;
         seq = contig_id_to_seq[x.contig_id][start-1:end]
         seqID = prevName + "|" + name + "|" + strain
         
@@ -82,7 +89,10 @@ def create_seqs(strain):
             print ("The seqID is already in the file.", seqID)
             continue
         found[seqID] = 1
-        defline = ">"+seqID + " " + "from " + str(start) + " to " + str(end) + " in " + contig_id_to_format_name[x.contig_id]
+        defline = ">"+seqID + " " + contig_id_to_display_name[x.contig_id] + " " + "from " + str(start) + "-" + str(end)
+        if strain == 'S288C':
+            defline = defline + ", Genome Release 64-2-1,"
+        defline = defline + " between " + seqID.split('|')[0] + " and " + seqID.split('|')[1]    
         if strain == 'S288C':
             fw.write(defline + "\n")
             fw.write(seq + "\n")
