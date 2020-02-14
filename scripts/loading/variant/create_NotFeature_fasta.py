@@ -3,7 +3,7 @@ from src.models import Locusdbentity, Dnasequenceannotation, Taxonomy, Contig
 from scripts.loading.database_session import get_session
 from scripts.loading.util import get_strain_taxid_mapping
 
-dataDir = "data/not_feature_fasta/"
+dataDir = "scripts/loading/variant/data/not_feature_fasta/"
 refFile = dataDir + "not_feature_S288C.fsa"
 
 def create_seqs(strain):
