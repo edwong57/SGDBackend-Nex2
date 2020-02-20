@@ -164,6 +164,7 @@ def insert_update_disease_annotations(request):
             try:
                 print(annotation_id + "....");
                 y = None
+                date_created = datetime.now()
                 y = Diseaseannotation(dbentity_id = dbentity_id,
                                     source_id = source_id,
                                     taxonomy_id = taxonomy_id,
@@ -241,7 +242,7 @@ def get_diseases_by_filters(request):
                 reference_dbentity_id = reference_dbentity_id.dbentity_id
                 diseases_in_db = diseases_in_db.filter_by(reference_id=reference_dbentity_id)
         
-        diseases = diseases_in_db.options(joinedload(Diseaseannotation.eco), joinedload(Diseaseannotation.do), joinedload(\.taxonomy)
+        diseases = diseases_in_db.options(joinedload(Diseaseannotation.eco), joinedload(Diseaseannotation.do), joinedload(taxonomy)
                                                 , joinedload(Diseaseannotation.reference), joinedload(Diseaseannotation.dbentity)).order_by(Diseaseannotation.annotation_id.asc()).all()
         console.log(diseases);
         list_of_diseases = []

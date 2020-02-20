@@ -119,6 +119,7 @@ class DiseaseForm extends Component {
       association_type: disease.association_type,
       with_ortholog: disease.with_ortholog,
       annotation_type: disease.annotation_type,
+      date_assigned: disease.date_assigned
     };
     this.props.dispatch(setDisease(currentDisease));
     this.setState({currentIndex:index});
@@ -135,6 +136,7 @@ class DiseaseForm extends Component {
       disease_id: '',
       with_ortholog: '',
       annotation_type: '',
+      date_assigned: ''
     };
     this.props.dispatch(setDisease(currentDisease));
   }
@@ -417,6 +419,19 @@ class DiseaseForm extends Component {
               </div>
               <div className='row'>
                 <DataList options={this.state.list_of_eco} id='eco_id' value1='display_name' value2='format_name' selectedIdName='eco_id' onOptionChange={this.handleChange} selectedId={this.props.disease.eco_id} />
+              </div>
+            </div>
+          </div>
+
+          <div className='row'>
+            <div className='columns medium-12'>
+              <div className='row'>
+                <div className='columns medium-12'>
+                  <label> Date Assigned </label>
+                </div>
+              </div>
+              <div className='row'>
+                <input type='date' name='date_assigned' onChange={this.handleChange} value={this.props.disease.date_assigned.format("DD-MMM-YYYY")} />
               </div>
             </div>
           </div>
