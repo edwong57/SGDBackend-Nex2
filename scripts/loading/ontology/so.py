@@ -99,7 +99,7 @@ def load_new_data(nex_session, data, source_to_id, soid_to_so, ro_id, so_id_to_a
                 print("UPDATED: ", y.soid, y.display_name, x['term'])
             if y.term_name is None or x['term_orig'] != y.term_name.strip():
                 ## update term
-                fw.write("The term_name for " + x['id'] + " has been updated from " + y.term_name + " to " + x['term_orig'] + "\n")
+                fw.write("The term_name for " + x['id'] + " has been updated from " + str(y.term_name) + " to " + x['term_orig'] + "\n")
                 y.term_name = x['term_orig']
                 nex_session.add(y)
                 nex_session.flush()
