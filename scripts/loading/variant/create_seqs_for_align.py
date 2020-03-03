@@ -18,6 +18,13 @@ so_id_to_type = dict([(x.so_id, x.display_name) for x in nex_session.query(So).a
 
 taxonomy_id_list = []
 taxonomy_id_to_strain = {}
+
+mapping_file = dataDir + 'name_to_contig_mapping.txt'
+
+fw_mapping = open(mapping_file, "w")
+
+fw_mapping.write("sequence_name\tcontig_id\tstart_index\tend_index\n")
+
 for strain in strain_to_id:
     taxon = strain_to_taxid[strain]
     taxonomy_id_list.append(taxon_to_taxonomy_id[taxon])
@@ -44,7 +51,11 @@ for x in nex_session.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC').
         fw.write(x.residues + "\n")
         fw.close()
         filename_to_count[filename] = filename_to_count.get(filename, 0) + 1
-    
+
+        fw_mapping.write(seqID + "\t" + str(x.contig_id) + "\t" + str(x.start_index) + "\t" + str(x.end_index) + "\n") 
+
+fw_mapping.close()
+
 for filename in filename_to_count:
     if filename_to_count[filename] == 1:
         remove(filename)
