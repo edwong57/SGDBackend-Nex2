@@ -3,8 +3,11 @@ from src.models import Locusdbentity, Dnasequenceannotation, Taxonomy, Contig
 from scripts.loading.database_session import get_session
 from scripts.loading.util import get_strain_taxid_mapping
 
-dataDir = "scripts/loading/variant/data/not_feature_fasta/"
-refFile = dataDir + "not_feature_S288C.fsa"
+dataDir = "scripts/loading/variant/data/"
+refFile = dataDir + "not_feature_fasta/not_feature_S288C.fsa"
+
+mapping_file =dataDir + "name_to_contig4intergenic_mapping.txt"
+fw_mapping = open(mapping_file, "a")
 
 def create_seqs(strain):
 
@@ -90,6 +93,9 @@ def create_seqs(strain):
             continue
         found[seqID] = 1
         defline = ">"+seqID + " " + contig_id_to_display_name[x.contig_id] + " " + "from " + str(start) + "-" + str(end)
+
+        fw_mapping.write(seqID + "\t" + str(x.contig_id) + "\t" + str(start) + "\t" + str(end) + "\n")
+
         if strain == 'S288C':
             defline = defline + ", Genome Release 64-2-1,"
         defline = defline + " between " + seqID.split('|')[0] + " and " + seqID.split('|')[1]    
@@ -108,6 +114,7 @@ def create_seqs(strain):
             fw.write(defline_to_seq[defline] + "\n")
 
     fw.close()
+    fw_mapping.close()
 
 def reverse_complement(seq):
 

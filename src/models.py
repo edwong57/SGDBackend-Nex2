@@ -6270,7 +6270,7 @@ class Dnasubsequence(Base):
 class Dnasequencealignment(Base):
     __tablename__ = 'dnasequencealignment'
     __table_args__ = (
-        UniqueConstraint('locus_id', 'dna_type', 'aligned_order'),
+        UniqueConstraint('locus_id', 'display_name', 'dna_type'),
         {'schema': 'nex'}
     )
 
@@ -6285,13 +6285,44 @@ class Dnasequencealignment(Base):
     contig_end_index = Column(Integer, nullable=False)
     aligned_sequence = Column(String(500000), nullable=False)
     snp_sequence = Column(String(500000), nullable=False)
-    aligned_order = Column(Integer, nullable=False)
     date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
     created_by = Column(String(12), nullable=False)
 
     contig = relationship('Contig')
     locus = relationship('Locusdbentity')
 
+
+class Proteinsequencealignment(Base):
+    __tablename__ = 'proteinsequencealignment'
+    __table_args__ = (
+        UniqueConstraint('display_name'),
+        {'schema': 'nex'}
+    )
+
+    alignment_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.annotation_seq'::regclass)"))
+    locus_id = Column(ForeignKey('nex.locusdbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    display_name = Column(String(500), nullable=False)
+    aligned_sequence = Column(String(50000), nullable=False)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+class Sequencevariant(Base):
+    __tablename__ = 'sequencevariant'
+    __table_args__ = (
+        UniqueConstraint('locus_id', 'seq_type', 'snp_type', 'start_index', 'end_index'),
+        {'schema': 'nex'}
+    )
+
+    variant_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.annotation_seq'::regclass)"))
+    locus_id = Column(ForeignKey('nex.locusdbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    seq_type = Column(String(50), nullable=False)
+    score = Column(Integer, nullable=False)
+    variant_type = Column(String(100), nullable=False)
+    snp_type = Column(String(100), nullable=False)
+    start_index = Column(Integer, nullable=False)
+    end_index = Column(Integer, nullable=False)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
     
 class Ec(Base):
     __tablename__ = 'ec'
