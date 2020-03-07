@@ -50,8 +50,9 @@ def get_variant_data(request):
 
     go_terms = []
     for x in DBSession.query(Goannotation).filter_by(dbentity_id=locus_id).all():
-        go_terms.append(x.go.display_name)
-    data['go_terms'] = go_terms
+        if x.go.display_name not in go_terms:
+            go_terms.append(x.go.display_name)
+    data['go_terms'] = go_terms.sort()
 
     domains = []
     for x in DBSession.query(Proteindomainannotation).filter_by(dbentity_id=locus_id).all():
