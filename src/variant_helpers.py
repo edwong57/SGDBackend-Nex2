@@ -57,13 +57,13 @@ def get_variant_data(request):
 
     domains = []
     for x in DBSession.query(Proteindomainannotation).filter_by(dbentity_id=locus_id).all():
-        row = { "id": x.annotation_id,
+        row = { "id": x.proteindomain.proteindomain_id,
                 "start": x.start_index,
                 "end": x.end_index,
                 "sourceName": x.proteindomain.source.display_name,
                 "sourceId": x.proteindomain.source_id,
                 "name": x.proteindomain.display_name,
-                "href": x.proteindomain.obj_url
+                "href": x.proteindomain.obj_url + '/overview'
         }
         domains.append(row)
     data['protein_domains'] = domains,
