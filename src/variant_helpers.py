@@ -38,7 +38,7 @@ def get_variant_data(request):
     data['chrom_end'] = dnaseqannot.end_index
     data['dna_length'] = len(dnaseqannot.residues)
     
-    contig = DBSession.query(Contig).filter_by(contig_id=dnaseqannot.contig_id).one_or_nome()
+    contig = DBSession.query(Contig).filter_by(contig_id=dnaseqannot.contig_id).one_or_none()
 
     data['contig_name'] = contig.display_name
     data['contig_href'] = contig.obj_url
