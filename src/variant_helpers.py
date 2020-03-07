@@ -25,8 +25,8 @@ def get_variant_data(request):
              'name': dbentity.display_name,
              'format_name': dbentity.systematic_name,
              'category': dbentity.subclass.lower(),
-             'url': dbentity.obj_url,
-             'href': dbentity.obj_url,
+             'url': dbentity.obj_url + '/overview',
+             'href': dbentity.obj_url + '/overview',
              'description': dbentity.headline
     }
     
