@@ -42,7 +42,7 @@ def get_variant_data(request):
     contig = DBSession.query(Contig).filter_by(contig_id=dnaseqannot.contig_id).one_or_none()
 
     data['contig_name'] = contig.display_name
-    data['contig_href'] = contig.obj_url
+    data['contig_href'] = contig.obj_url + '/overview'
 
     protseqannot = DBSession.query(Proteinsequenceannotation).filter_by(dbentity_id=locus_id, taxonomy_id=taxonomy_id).one_or_none()
 
