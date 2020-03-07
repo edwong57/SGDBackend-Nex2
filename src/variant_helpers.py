@@ -2,7 +2,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPOk
 import json
 from src.models import DBSession, Locusdbentity, Dnasequencealignment, \
      Proteinsequencealignment, Sequencevariant, Taxonomy, Goannotation,\
-     Proteindomainannotation, Dnasequenceannotation
+     Proteindomainannotation, Dnasequenceannotation, Contig
 from src.curation_helpers import get_curator_session
 from scripts.loading.util import strain_order
 
