@@ -125,6 +125,6 @@ def get_variant_data(request):
     data['variant_data_dna'] = variant_dna
     data['variant_data_protein'] = variant_protein
     
-
+    return data
  
     
