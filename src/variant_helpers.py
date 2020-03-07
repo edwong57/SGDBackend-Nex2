@@ -55,13 +55,13 @@ def get_variant_data(request):
 
     domains = []
     for x in DBSession.query(Proteindomainannotation).filter_by(dbentity_id=locus_id).all():
-        row = { id: x.annotation_id,
-                start: x.start_index,
-                end: x.end_index,
-                sourceName: x.proteindomain.source.display_name,
-                sourceId: x.proteindomain.source_id,
-                name: x.proteindomain.display_name,
-                href: x.proteindomain.obj_url
+        row = { "id": x.annotation_id,
+                "start": x.start_index,
+                "end": x.end_index,
+                "sourceName": x.proteindomain.source.display_name,
+                "sourceId": x.proteindomain.source_id,
+                "name": x.proteindomain.display_name,
+                "href": x.proteindomain.obj_url
         }
         domains.append(row)
     data['protein_domains'] = domains,
@@ -78,15 +78,15 @@ def get_variant_data(request):
         if strain == 'S288C':
             data['block_sizes'] = x.block_sizes.split(',')
             data['block_starts'] = x.block_starts.split(',')
-        row = { strain_display_name: strain,
-                strain_link: "/strain/" + strain.replace(".", "") + "/overview",
-                strain_id: strain_to_id[strain],
-                sequence: x.aligned_sequence
+        row = { "strain_display_name": strain,
+                "strain_link": "/strain/" + strain.replace(".", "") + "/overview",
+                "strain_id": strain_to_id[strain],
+                "sequence": x.aligned_sequence
         }
         dna_seqs.append(row)
-        snp_row = { snp_sequence: x.snp_sequence,
-                    name: strain,
-                    id:  strain_to_id[strain]
+        snp_row = { "snp_sequence": x.snp_sequence,
+                    "name": strain,
+                    "id":  strain_to_id[strain]
         }
         snp_seqs.append(snp_row)
     data['aligned_dna_sequences'] = dna_seqs
@@ -95,10 +95,10 @@ def get_variant_data(request):
     protein_seqs = []
     for x in DBSession.query(Proteinsequencealignment).filter_by(locus_id=locus_id).all():
         [name, strain] = x.display_name.split('_')
-        row = { strain_display_name: strain,
-                strain_link: "/strain/"	+ strain.replace(".", "") + "/overview",
-                strain_id: strain_to_id[strain],
-                sequence: x.aligned_sequence
+        row = { "strain_display_name": strain,
+                "strain_link": "/strain/"	+ strain.replace(".", "") + "/overview",
+                "strain_id": strain_to_id[strain],
+                "sequence": x.aligned_sequence
         }
         protein_seqs.append(row)
     data['aligned_protein_sequences'] = protein_seqs
@@ -107,18 +107,18 @@ def get_variant_data(request):
     variant_protein = []
     for x in DBSession.query(Sequencevariant).filter_by(locus_id=locus_id).all():
         if x.seq_type == 'DNA':
-            dna_row = { start: x.start_index,
-                        end: x.end_index,
-                        score: x.score,
-                        variant_type: x.variant_type }
+            dna_row = { "start": x.start_index,
+                        "end": x.end_index,
+                        "score": x.score,
+                        "variant_type": x.variant_type }
             if variant_type not in ['Insertion', 'Deletion']:
                 dna_row['snp_type'] = x.snp_type.capitalize()
             variant_dna.append(dna_row)    
         if x.seq_type == 'protein':
-            protein_row = { start: x.start_index,
-                            end: x.end_index,
-                            score: x.score,
-                            variant_type: x.variant_type }
+            protein_row = { "start": x.start_index,
+                            "end": x.end_index,
+                            "score": x.score,
+                            "variant_type": x.variant_type }
             if variant_type not	in ['Insertion', 'Deletion']:
                 protein_row['snp_type'] = x.snp_type.capitalize()
             variant_protein.append(protein_row)
