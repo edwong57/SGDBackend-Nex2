@@ -75,6 +75,7 @@ def get_variant_data(request):
     strain_to_id = strain_order()
     dna_seqs = []
     snp_seqs = []
+    
     for x in DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic', locus_id=locus_id).all():
         [name, strain] = x.display_name.split('_')
         if strain == 'S288C':
@@ -121,8 +122,8 @@ def get_variant_data(request):
                             "end": x.end_index,
                             "score": x.score,
                             "variant_type": x.variant_type }
-            if x.snp_type:
-                protein_row['snp_type'] = x.snp_type.capitalize()
+            if x.variant_type not in ['Insertion', 'Deletion']:
+                protein_row['snp_type'] = ""
             variant_protein.append(protein_row)
     data['variant_data_dna'] = variant_dna
     data['variant_data_protein'] = variant_protein
