@@ -121,7 +121,7 @@ def get_variant_data(request):
                             "end": x.end_index,
                             "score": x.score,
                             "variant_type": x.variant_type }
-            if x.variant_type not in ['Insertion', 'Deletion']:
+            if x.variant_type not in ['Insertion', 'Deletion'] and x.variant_type is not None:
                 protein_row['snp_type'] = x.snp_type.capitalize()
             variant_protein.append(protein_row)
     data['variant_data_dna'] = variant_dna
