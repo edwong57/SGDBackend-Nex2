@@ -113,7 +113,7 @@ def get_variant_data(request):
                         "end": x.end_index,
                         "score": x.score,
                         "variant_type": x.variant_type }
-            if x.variant_type not in ['Insertion', 'Deletion']:
+            if x.snp_type:
                 dna_row['snp_type'] = x.snp_type.capitalize()
             variant_dna.append(dna_row)    
         if x.seq_type == 'protein':
@@ -121,7 +121,7 @@ def get_variant_data(request):
                             "end": x.end_index,
                             "score": x.score,
                             "variant_type": x.variant_type }
-            if x.variant_type and x.variant_type not in ['Insertion', 'Deletion']:
+            if x.snp_type:
                 protein_row['snp_type'] = x.snp_type.capitalize()
             variant_protein.append(protein_row)
     data['variant_data_dna'] = variant_dna
