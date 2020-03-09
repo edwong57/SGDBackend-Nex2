@@ -75,34 +75,34 @@ def get_variant_data(request):
     strain_to_id = strain_order()
     dna_seqs = []
     snp_seqs = []
-    #for x in DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic', locus_id=locus_id).all():
-    #    [name, strain] = x.display_name.split('_')
-    #    if strain == 'S288C':
-    #        data['block_sizes'] = x.block_sizes.split(',')
-    #        data['block_starts'] = x.block_starts.split(',')
-    #    row = { "strain_display_name": strain,
-    #            "strain_link": "/strain/" + strain.replace(".", "") + "/overview",
-    #            "strain_id": strain_to_id[strain],
-    #            "sequence": x.aligned_sequence
-    #    }
-    #    dna_seqs.append(row)
-    #    snp_row = { "snp_sequence": x.snp_sequence,
-    #                "name": strain,
-    #                "id":  strain_to_id[strain]
-    #    }
-    #    snp_seqs.append(snp_row)
+    for x in DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic', locus_id=locus_id).all():
+        [name, strain] = x.display_name.split('_')
+        if strain == 'S288C':
+            data['block_sizes'] = x.block_sizes.split(',')
+            data['block_starts'] = x.block_starts.split(',')
+        row = { "strain_display_name": strain,
+                "strain_link": "/strain/" + strain.replace(".", "") + "/overview",
+                "strain_id": strain_to_id[strain],
+                "sequence": x.aligned_sequence
+        }
+        dna_seqs.append(row)
+        snp_row = { "snp_sequence": x.snp_sequence,
+                    "name": strain,
+                    "id":  strain_to_id[strain]
+        }
+        snp_seqs.append(snp_row)
     data['aligned_dna_sequences'] = dna_seqs
     data['snp_seqs'] = snp_seqs
     
     protein_seqs = []
-    # for x in DBSession.query(Proteinsequencealignment).filter_by(locus_id=locus_id).all():
-    #    [name, strain] = x.display_name.split('_')
-    #    row = { "strain_display_name": strain,
-    #            "strain_link": "/strain/"	+ strain.replace(".", "") + "/overview",
-    #            "strain_id": strain_to_id[strain],
-    #            "sequence": x.aligned_sequence
-    #    }
-    #    protein_seqs.append(row)
+    for x in DBSession.query(Proteinsequencealignment).filter_by(locus_id=locus_id).all():
+        [name, strain] = x.display_name.split('_')
+        row = { "strain_display_name": strain,
+                "strain_link": "/strain/"	+ strain.replace(".", "") + "/overview",
+                "strain_id": strain_to_id[strain],
+                "sequence": x.aligned_sequence
+        }
+        protein_seqs.append(row)
     data['aligned_protein_sequences'] = protein_seqs
 
     variant_dna = []
