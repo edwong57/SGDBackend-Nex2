@@ -140,7 +140,7 @@ def get_variant_data(request):
                 insertion_index = insertion_index + 1
             elif x.variant_type == 'Deletion':
                 (dna_start, dna_end) = dna_deletion_positions[deletion_index]
-		deletion_index = deletion_index + 1
+                deletion_index = deletion_index + 1
             elif x.variant_type == 'SNP':
                 (dna_start, dna_end) = dna_snp_positions[snp_index]
                 snp_index = snp_index + 1
