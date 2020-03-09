@@ -75,7 +75,6 @@ def get_variant_data(request):
     strain_to_id = strain_order()
     dna_seqs = []
     snp_seqs = []
-    
     for x in DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic', locus_id=locus_id).all():
         [name, strain] = x.display_name.split('_')
         if strain == 'S288C':
@@ -108,7 +107,13 @@ def get_variant_data(request):
 
     variant_dna = []
     variant_protein = []
-    for x in DBSession.query(Sequencevariant).filter_by(locus_id=locus_id).all():
+    dna_snp_positions = []
+    dna_deletion_positions = []
+    dna_insertion_positions = []
+    insertion_index = 0
+    deletion_index = 0
+    snp_index = 0
+    for x in DBSession.query(Sequencevariant).filter_by(locus_id=locus_id).order_by(Sequencevariant.seq_type, Sequencevariant.variant_type, Sequencevariant.snp_type, Sequencevariant.start_index, Sequencevariant.end_index).all():
         if x.seq_type == 'DNA':
             dna_row = { "start": x.start_index,
                         "end": x.end_index,
@@ -116,15 +121,41 @@ def get_variant_data(request):
                         "variant_type": x.variant_type }
             if x.snp_type:
                 dna_row['snp_type'] = x.snp_type.capitalize()
-            variant_dna.append(dna_row)    
+            variant_dna.append(dna_row)
+
+            ### 
+            if x.variant_type == 'Insertion':
+                dna_insertion_positions.append((x.start_index, x.end_index))
+            elif x.variant_type == 'Deletion':
+                dna_insertion_positions.append((x.start_index, x.end_index))
+            elif x.variant_type == 'SNP' and x.snp_type == 'nonsynonymous':
+                dna_snp_positions.append((x.start_index, x.end_index))
+                
         if x.seq_type == 'protein':
+            
+            dna_start = 0
+            dna_end = 0
+            if x.variant_type == 'Insertion':
+                (dna_start, dna_end) = dna_insertion_positions[insertion_index]
+                insertion_index = insertion_index + 1
+            elif x.variant_type == 'Deletion':
+                (dna_start, dna_end) = dna_deletion_positions[deletion_index]
+		deletion_index = deletion_index + 1
+            elif x.variant_type == 'SNP':
+                (dna_start, dna_end) = dna_snp_positions[snp_index]
+                snp_index = snp_index + 1
+                
             protein_row = { "start": x.start_index,
                             "end": x.end_index,
                             "score": x.score,
-                            "variant_type": x.variant_type }
+                            "variant_type": x.variant_type,
+                            "dna_start": dna_start,
+                            "dna_end": dna_end }
             if x.variant_type not in ['Insertion', 'Deletion']:
                 protein_row['snp_type'] = ""
+
             variant_protein.append(protein_row)
+            
     data['variant_data_dna'] = variant_dna
     data['variant_data_protein'] = variant_protein
     
