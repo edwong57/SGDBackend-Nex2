@@ -143,7 +143,7 @@ def get_variant_data(request):
                     if x.start_index == 1:
                         dna_start = 1
                         dna_end = x.end_index*3
-		    else:
+                    else:
                         (dna_start, dna_end) = (x.start_index*3, x.end_index*3)
             elif x.variant_type == 'Deletion':
                 if len(dna_deletion_positions) > deletion_index:
@@ -153,7 +153,7 @@ def get_variant_data(request):
                     if x.start_index == 1:
                         dna_start = 1
                         dna_end = x.end_index*3
-		    else:
+	            else:
                         (dna_start, dna_end) = (x.start_index*3, x.end_index*3)
             elif x.variant_type == 'SNP':
                 if len(dna_snp_positions) > snp_index:
