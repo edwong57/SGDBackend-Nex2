@@ -127,7 +127,7 @@ def get_variant_data(request):
             if x.variant_type == 'Insertion':
                 dna_insertion_positions.append((x.start_index, x.end_index))
             elif x.variant_type == 'Deletion':
-                dna_insertion_positions.append((x.start_index, x.end_index))
+                dna_deletion_positions.append((x.start_index, x.end_index))
             elif x.variant_type == 'SNP' and x.snp_type == 'nonsynonymous':
                 dna_snp_positions.append((x.start_index, x.end_index))
                 
