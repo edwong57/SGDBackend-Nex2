@@ -136,14 +136,17 @@ def get_variant_data(request):
             dna_start = 0
             dna_end = 0
             if x.variant_type == 'Insertion':
-                (dna_start, dna_end) = dna_insertion_positions[insertion_index]
-                insertion_index = insertion_index + 1
+                if len(dna_insertion_positions) > insertion_index:
+                    (dna_sart, dna_end) = dna_insertion_positions[insertion_index]
+                    insertion_index = insertion_index + 1
             elif x.variant_type == 'Deletion':
-                (dna_start, dna_end) = dna_deletion_positions[deletion_index]
-                deletion_index = deletion_index + 1
+                if len(dna_deletion_positions) > deletion_index:
+                    (dna_start, dna_end) = dna_deletion_positions[deletion_index]
+                    deletion_index = deletion_index + 1
             elif x.variant_type == 'SNP':
-                (dna_start, dna_end) = dna_snp_positions[snp_index]
-                snp_index = snp_index + 1
+                if len(dna_snp_positions) > snp_index:
+                    (dna_start, dna_end) = dna_snp_positions[snp_index]
+                    snp_index = snp_index + 1
                 
             protein_row = { "start": x.start_index,
                             "end": x.end_index,
