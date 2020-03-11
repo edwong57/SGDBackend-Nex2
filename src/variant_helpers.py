@@ -55,7 +55,8 @@ def get_variant_data(request):
     go_terms.sort()
     data['go_terms'] = go_terms
 
-    domains = []
+    data['protein_domains'] = []
+    # domains = []
     for x in DBSession.query(Proteindomainannotation).filter_by(dbentity_id=locus_id).all():
         row = { "id": x.proteindomain.proteindomain_id,
                 "start": x.start_index,
@@ -65,8 +66,9 @@ def get_variant_data(request):
                 "name": x.proteindomain.display_name,
                 "href": x.proteindomain.obj_url + '/overview'
         }
-        domains.append(row)
-    data['protein_domains'] = domains,
+        # domains.append(row)
+        data['protein_domains'].append(row)
+    # data['protein_domains'] = domains,
 
     # absolute_genetic_start = 3522089??   
     # 'dna_scores': locus['dna_scores'],
