@@ -16,8 +16,8 @@ def load_data():
     nex_session = get_session()
 
     load_dna_data(nex_session)
-    load_protein_data(nex_session)
-    load_intergenic_data(nex_session)
+    # load_protein_data(nex_session)
+    # load_intergenic_data(nex_session)
 
 def add_row(nex_session, seqID, locus_id, seq_type, variant_type, score, start_index, end_index, snp_type=None):
 

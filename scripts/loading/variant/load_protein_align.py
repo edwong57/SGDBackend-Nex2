@@ -35,12 +35,12 @@ def load_data():
                     
         i = i + 1
         if i > 500:
-            # nex_session.commit()
-            nex_session.rollback()
+            nex_session.commit()
+            # nex_session.rollback()
             i = 0
         
-    # nex_session.commit()
-    nex_session.rollback()
+    nex_session.commit()
+    # nex_session.rollback()
 
 if __name__ == "__main__":
         
