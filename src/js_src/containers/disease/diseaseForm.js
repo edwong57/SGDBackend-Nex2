@@ -13,7 +13,7 @@ const GET_RO = '/ro';
 const DISEASES = '/disease';
 const GET_STRAINS = '/get_strains';
 const GET_DISEASES = 'get_diseases';
-const ANNOTATION_TYPES = [null,'computational', 'high throughput', 'manually curated'];
+const ANNOTATION_TYPES = [null,'computational', 'high-throughput', 'manually curated'];
 const SKIP = 5;
 const TIMEOUT = 120000;
 
@@ -431,7 +431,7 @@ class DiseaseForm extends Component {
                 </div>
               </div>
               <div className='row'>
-                <input type='date' name='date_assigned' onChange={this.handleChange} value={this.props.disease.date_assigned.format("DD-MMM-YYYY")} />
+                <input type='date' name='date_assigned' onChange={this.handleChange} value={this.props.disease.date_assigned} />
               </div>
             </div>
           </div>
