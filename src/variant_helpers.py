@@ -56,7 +56,6 @@ def get_variant_data(request):
     data['go_terms'] = go_terms
 
     data['protein_domains'] = []
-    # domains = []
     for x in DBSession.query(Proteindomainannotation).filter_by(dbentity_id=locus_id).all():
         row = { "id": x.proteindomain.proteindomain_id,
                 "start": x.start_index,
@@ -66,10 +65,8 @@ def get_variant_data(request):
                 "name": x.proteindomain.display_name,
                 "href": x.proteindomain.obj_url + '/overview'
         }
-        # domains.append(row)
         data['protein_domains'].append(row)
-    # data['protein_domains'] = domains,
-
+    
     # absolute_genetic_start = 3522089??   
     # 'dna_scores': locus['dna_scores'],
     # 'protein_scores': locus['protein_scores'],
@@ -90,10 +87,14 @@ def get_variant_data(request):
         }
         dna_seqs.append(row)
         i = strain_to_id[strain] - 1
-        snp_seqs[i] = { "snp_sequence": x.snp_sequence,
-                        "name": strain,
-                        "id":  strain_to_id[strain] }
-        
+        strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
+                                  "name": strain,
+                                  "id":  strain_to_id[strain] }
+
+    for strain in sorted(strain_to_id, key=strain_to_id.get):
+        if strain in strain_to_snp:
+            snp_seqs.append(strain_to_snp[strain])
+    
     data['aligned_dna_sequences'] = dna_seqs
     data['snp_seqs'] = snp_seqs
     
