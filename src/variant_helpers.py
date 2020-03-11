@@ -101,14 +101,17 @@ def get_variant_data(request):
     data['snp_seqs'] = snp_seqs
     
     protein_seqs = []
+    strain_to_protein = {}
     for x in DBSession.query(Proteinsequencealignment).filter_by(locus_id=locus_id).all():
         [name, strain] = x.display_name.split('_')
-        row = { "strain_display_name": strain,
-                "strain_link": "/strain/"	+ strain.replace(".", "") + "/overview",
-                "strain_id": strain_to_id[strain],
-                "sequence": x.aligned_sequence
+        strain_to_protein[strain] = { "strain_display_name": strain,
+                                      "strain_link": "/strain/"	+ strain.replace(".", "") + "/overview",
+                                      "strain_id": strain_to_id[strain],
+                                      "sequence": x.aligned_sequence
         }
-        protein_seqs.append(row)
+    for strain in sorted(strain_to_id, key=strain_to_id.get):
+        if strain in strain_to_protein:
+            protein_seqs.append(strain_to_protein[strain])
     data['aligned_protein_sequences'] = protein_seqs
 
     variant_dna = []
