@@ -75,17 +75,17 @@ def get_variant_data(request):
     dna_seqs = []
     snp_seqs = []
     strain_to_snp = {}
+    strain_to_dna = {}
     for x in DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic', locus_id=locus_id).all():
         [name, strain] = x.display_name.split('_')
         if strain == 'S288C':
             data['block_sizes'] = x.block_sizes.split(',')
             data['block_starts'] = x.block_starts.split(',')
-        row = { "strain_display_name": strain,
-                "strain_link": "/strain/" + strain.replace(".", "") + "/overview",
-                "strain_id": strain_to_id[strain],
-                "sequence": x.aligned_sequence
+        strain_to_dna[strain] = { "strain_display_name": strain,
+                                  "strain_link": "/strain/" + strain.replace(".", "") + "/overview",
+                                  "strain_id": strain_to_id[strain],
+                                  "sequence": x.aligned_sequence
         }
-        dna_seqs.append(row)
         i = strain_to_id[strain] - 1
         strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
                                   "name": strain,
@@ -94,7 +94,9 @@ def get_variant_data(request):
     for strain in sorted(strain_to_id, key=strain_to_id.get):
         if strain in strain_to_snp:
             snp_seqs.append(strain_to_snp[strain])
-    
+        if strain in strain_to_dna:
+            dna_seqs.append(strain_to_dna[strain])
+            
     data['aligned_dna_sequences'] = dna_seqs
     data['snp_seqs'] = snp_seqs
     
