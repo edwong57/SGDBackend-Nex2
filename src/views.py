@@ -1459,11 +1459,11 @@ def healthcheck(request):
             DBSession.rollback()
             DBSession.remove()
             attempts += 1
-        except Exception as e:
-            log.exception('DB rolled back from exception.')
-            DBSession.rollback()
-            DBSession.remove()
-            attempts += 1
+        # except Exception as e:
+        #     log.exception('DB rolled back from exception.')
+        #     DBSession.rollback()
+        #     DBSession.remove()
+        #     attempts += 1
     return ldict
 
 # api portal with swagger
