@@ -1464,6 +1464,7 @@ def healthcheck(request):
         #     DBSession.rollback()
         #     DBSession.remove()
         #     attempts += 1
+    log.info('logging the attempts = '+ str(attempts))
     return ldict
 
 # api portal with swagger
