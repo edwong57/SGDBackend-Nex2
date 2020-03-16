@@ -1443,29 +1443,33 @@ def healthcheck(request):
     MAX_QUERY_ATTEMPTS = 3
     attempts = 0
     ldict = None
+    errorMessage = None
     while attempts < MAX_QUERY_ATTEMPTS:
         try:
             locus = get_locus_by_id(1268789)
             ldict = locus.to_dict()
-            break
+            return HTTPOk(body=json.dumps(ldict),content_type='text/json')
         except DetachedInstanceError:
             traceback.print_exc()
-            log.info('DB session closed from detached instance state.')
+            log.exception('DB session closed from detached instance state.')
             DBSession.remove()
             attempts += 1
+            errorMessage = 'detached instance state.'
         except IntegrityError:
             traceback.print_exc()
-            log.info('DB rolled back from integrity error.')
+            log.exception('DB rolled back from integrity error.')
             DBSession.rollback()
             DBSession.remove()
             attempts += 1
-        # except Exception as e:
-        #     log.exception('DB rolled back from exception.')
-        #     DBSession.rollback()
-        #     DBSession.remove()
-        #     attempts += 1
-    log.info('logging the attempts = '+ str(attempts))
-    return ldict
+            errorMessage = 'integrity error'
+        except Exception as e:
+            log.exception('DB rolled back from exception.')
+            DBSession.rollback()
+            DBSession.remove()
+            attempts += 1
+            errorMessage = str(e)
+
+    return HTTPBadRequest(body=json.dumps({'error':errorMessage}),content_type='text/json')
 
 # api portal with swagger
 @view_config(route_name='api_portal', renderer='json')

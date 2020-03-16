@@ -94,17 +94,17 @@ def dbentity_safe_query(id, entity_class):
         # close connection that has idle-in-transaction
         except InternalError:
             traceback.print_exc()
-            log.info(
-                'DB error corrected. Closing idle-in-transaction DB connection.'
-            )
+            log.exception('DB error corrected. Closing idle-in-transaction DB connection.')
             DBSession.close()
             attempts += 1
         # rollback a connection blocked by previous invalid transaction
         except (StatementError, IntegrityError):
             traceback.print_exc()
-            log.info(
-                'DB error corrected. Rollingback previous error in db connection'
-            )
+            log.exception('DB error corrected. Rollingback previous error in db connection')
+            DBSession.rollback()
+            attempts += 1
+        except Exception as e:
+            log.exception('DB error corrected. Rollingback previous error in db connection')
             DBSession.rollback()
             attempts += 1
     return dbentity
