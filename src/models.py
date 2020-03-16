@@ -1644,21 +1644,21 @@ class CurationLocus(Base):
 class CurationReference(Base):
     __tablename__ = 'curation_reference'
     __table_args__ = (
-        UniqueConstraint('reference_id', 'curation_tag', 'locus_id'),
+        UniqueConstraint('reference_id', 'curation_tag', 'dbentity_id'),
         {'schema': 'nex'}
     )
 
     curation_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.curation_seq'::regclass)"))
     reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), index=True)
     source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
-    locus_id = Column(ForeignKey('nex.locusdbentity.dbentity_id', ondelete='CASCADE'), index=True)
+    dbentity_id = Column(ForeignKey('nex.dbentity.dbentity_id', ondelete='CASCADE'), index=True)
     curation_tag = Column(String(40), nullable=False)
     date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
     created_by = Column(String(12), nullable=False)
     curator_comment = Column(String(2000))
     json = Column(Text)
 
-    locus = relationship('Locusdbentity', foreign_keys=[locus_id])
+    dbentity = relationship('Dbentity')
     reference = relationship('Referencedbentity', foreign_keys=[reference_id])
     source = relationship('Source')
 
@@ -1692,7 +1692,7 @@ class CurationReference(Base):
         return CurationReference(
             reference_id=reference_id,
             source_id=source_id,
-            locus_id=dbentity_id,
+            dbentity_id=dbentity_id,
             curation_tag=CurationReference.acceptable_tags[tag],
             created_by=created_by,
             curator_comment=comment,
@@ -2423,14 +2423,27 @@ class Referencedbentity(Dbentity):
                         if g_id == '':
                             continue
                         upper_g_id = g_id.upper()
+
+                        ## check for gene name/systematc name
                         gene_dbentity_id = curator_session.query(Locusdbentity.dbentity_id).filter(or_(Locusdbentity.display_name == upper_g_id, Locusdbentity.format_name == g_id)).one_or_none()[0]
+
+                        ## check for complex ID
+                        if gene_dbentity_id is None:
+                            gene_dbentity_id = curator_session.query(Dbentity.dbentity_id).filter_by(format_name=upper_g_id, subclass='COMPLEX').one_or_none()
+
+                        ## check for pathway ID
+                        if gene_dbentity_id is None:
+                            gene_dbentity_id = curator_session.query(Pathwaydbentity.dbentity_id).filter_by(biocyc_id=upper_g_id).one_or_none()
+                            
                         # ignore duplicates
                         if gene_dbentity_id in tag_dbentity_ids:
                             continue
                         tag_dbentity_ids.append(gene_dbentity_id)
+                        
                         curation_ref = CurationReference.factory(self.dbentity_id, name, comment, gene_dbentity_id, username)
                         if curation_ref:
                             curator_session.add(curation_ref)
+                            
                         # add primary lit annotation
                         lit_annotation = Literatureannotation.factory(self.dbentity_id, name, gene_dbentity_id, username)
                         if lit_annotation:
