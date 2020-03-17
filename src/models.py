@@ -10964,18 +10964,37 @@ def validate_tags(tags):
     # validate that all genes are proper identifiers
     valid_genes = DBSession.query(Locusdbentity.gene_name, Locusdbentity.systematic_name).filter(or_(Locusdbentity.display_name.in_(all_keys), (Locusdbentity.format_name.in_(all_keys)))).all()
     num_valid_genes = len(valid_genes)
+    
+    valid_identifiers = []
+    for x in valid_genes:
+        valid_identifiers.append(x[0])
+        valid_identifiers.append(x[1])
+
+    ## adding the following part to check if any dbentity is a complex or pathway
+    complex_pathway_count = 0
+    for x in all_keys:
+        if x not in valid_identifiers:
+            complex = DBSession.query(Complex).filter_by(format_name=x).one_or_none()
+            if complex is None:
+                pathway = DBSession.query(Pathwaydbentity).filter_by(biocyc_ide=x).one_or_none()
+                if pathway is not None:
+                    valid_identifiers.append(x)
+                    complex_pathway_count = complex_pathway_count + 1
+            else:
+                valid_identifiers.append(x)
+                complex_pathway_count = complex_pathway_count + 1
+                
+    num_valid_genes = num_valid_genes + complex_pathway_count
+    
     if num_valid_genes != len(all_keys):
         # get invalid gene identifiers
         try:
-            valid_identifiers = []
-            for x in valid_genes:
-                valid_identifiers.append(x[0])
-                valid_identifiers.append(x[1])
             invalid_identifiers = [x for x in all_keys if x not in valid_identifiers]
             invalid_identifiers = ', '.join(invalid_identifiers)
         except:
             invalid_identifiers = ''
-        raise ValueError('Genes must be a space-separated list of valid genes by standard name or systematic name. Invalid identifier(s): ' + invalid_identifiers)
+        raise ValueError('Dbentites must be a space-separated list of valid genes (standard name or systematic name), complex IDs or PATHWAY biocyc IDs. Invalid identifier(s): ' + invalid_identifiers)
+
     # maybe modify "extra" tags: if homology/disease, PTM, or regulation for a gene and no public top for that gene, then add to additional information
     new_additional_genes = []
     for x in extra_keys:
