@@ -10974,9 +10974,9 @@ def validate_tags(tags):
     complex_pathway_count = 0
     for x in all_keys:
         if x not in valid_identifiers:
-            complex = DBSession.query(Complex).filter_by(format_name=x).one_or_none()
+            complex = DBSession.query(Dbentity).filter_by(subclass='COMPLEX', format_name=x).one_or_none()
             if complex is None:
-                pathway = DBSession.query(Pathwaydbentity).filter_by(biocyc_ide=x).one_or_none()
+                pathway = DBSession.query(Pathwaydbentity).filter_by(biocyc_id=x).one_or_none()
                 if pathway is not None:
                     valid_identifiers.append(x)
                     complex_pathway_count = complex_pathway_count + 1
