@@ -10964,13 +10964,30 @@ def validate_tags(tags):
     # validate that all genes are proper identifiers
     valid_genes = DBSession.query(Locusdbentity.gene_name, Locusdbentity.systematic_name).filter(or_(Locusdbentity.display_name.in_(all_keys), (Locusdbentity.format_name.in_(all_keys)))).all()
     num_valid_genes = len(valid_genes)
+    
+    valid_identifiers = []
+    for x in valid_genes:
+        valid_identifiers.append(x[0])
+        valid_identifiers.append(x[1])
+
+    added = 0
+    for x in all_keys:
+        if x not in valid_identifiers:
+            complex = DBSession.query(Dbentity).filter_by(subclass='COMPLEX', format_name=x).one_or_none()
+            if complex is None:
+                pathway = DBSession.query(Pathwaydbentity).filter_by(biocyc_id=x).one_or_none()
+                if pathway is not None:
+                    valid_identifiers.append(x)
+                    added = added + 1
+            else:
+                valid_identifiers.append(x)
+                added = added + 1
+                
+    num_valid_genes = num_valid_genes + added
+    
     if num_valid_genes != len(all_keys):
         # get invalid gene identifiers
         try:
-            valid_identifiers = []
-            for x in valid_genes:
-                valid_identifiers.append(x[0])
-                valid_identifiers.append(x[1])
             invalid_identifiers = [x for x in all_keys if x not in valid_identifiers]
             invalid_identifiers = ', '.join(invalid_identifiers)
         except:
