@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
 const GET_ECO = '/eco';
 const GET_DO = '/do';
 const GET_RO = '/ro';
-
 const DISEASES = '/disease';
 const GET_STRAINS = '/get_strains';
 const GET_DISEASES = 'get_diseases';
@@ -111,7 +110,7 @@ class DiseaseForm extends Component {
     var disease = this.state.list_of_diseases[index];
     var currentDisease = {
       annotation_id: disease.id,
-      dbentity_id: disease.dbentity_id,
+      dbentity_id: disease.dbentity_id.id,
       taxonomy_id: disease.taxonomy_id,
       reference_id: disease.reference_id,
       disease_id: disease.disease_id,
