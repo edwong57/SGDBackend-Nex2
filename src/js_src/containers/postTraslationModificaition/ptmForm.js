@@ -369,7 +369,9 @@ class PtmForm extends Component {
                 </div>
               </div>
               <div className='row'>
-                <DataList dev={true} setNewValue={false} options={this.state.psimods} id='psimod_id' left='display_name' right='format_name'  selectedIdName='psimod_id' onOptionChange={this.handleChange} selectedId={this.props.ptm.psimod_id} />
+                <div className='columns medium-12'>
+                  <DataList dev={true} setNewValue={false} options={this.state.psimods} id='psimod_id' left='display_name' right='format_name' selectedIdName='psimod_id' onOptionChange={this.handleChange} selectedId={this.props.ptm.psimod_id} />
+                </div>
               </div>
             </div>
           </div>
