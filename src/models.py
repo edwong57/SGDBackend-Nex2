@@ -2327,7 +2327,10 @@ class Referencedbentity(Dbentity):
         return [url1]
 
     def get_tags(self):
+
         tags = []
+
+        ## for gene names vs CurationReferenc
         curation_refs = DBSession.query(CurationReference, Locusdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Locusdbentity).all()
         for x in curation_refs:
             locus_name = None
@@ -2340,6 +2343,36 @@ class Referencedbentity(Dbentity):
                 'comment': x.CurationReference.curator_comment
             }
             tags.append(obj)
+
+        ## for complex vs CurationReferenc
+        curation_refs = DBSession.query(CurationReference, Complexdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Complexdbentity).all()
+        for x in curation_refs:
+            name = None
+            complex = x.Complexdbentity
+            if complex:
+                name = complex.format_name
+            obj = {
+                'name': x.CurationReference.get_name(),
+                'locus_name': name,
+                'comment': x.CurationReference.curator_comment
+            }
+            tags.append(obj)
+
+        ## for pathway vs CurationReferenc
+        curation_refs = DBSession.query(CurationReference, Pathwaydbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Pathwaydbentity).all()
+        for x in curation_refs:
+            name = None
+            pathway = x.Pathwaydbentity
+            if pathway:
+                name = pathway.biocyc_id
+            obj = {
+                'name': x.CurationReference.get_name(),
+                'locus_name': name,
+                'comment': x.CurationReference.curator_comment
+            }
+            tags.append(obj)
+
+        ## genes vs Literatureannotation
         lit_annotations = DBSession.query(Literatureannotation, Locusdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Locusdbentity).all()
         for x in lit_annotations:
             locus_name = None
