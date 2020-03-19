@@ -2330,7 +2330,7 @@ class Referencedbentity(Dbentity):
 
         tags = []
 
-        ## for gene names vs CurationReferenc
+        ## for gene names vs CurationReference
         curation_refs = DBSession.query(CurationReference, Locusdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Locusdbentity).all()
         for x in curation_refs:
             locus_name = None
@@ -2339,48 +2339,71 @@ class Referencedbentity(Dbentity):
                 locus_name = locus.get_name()
             obj = {
                 'name': x.CurationReference.get_name(),
-                'locus_name': locus_name,
+                'dbentity_name': locus_name,
                 'comment': x.CurationReference.curator_comment
             }
             tags.append(obj)
 
-        ## for complex vs CurationReferenc
+        ## for complex vs CurationReference
         curation_refs = DBSession.query(CurationReference, Complexdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Complexdbentity).all()
         for x in curation_refs:
-            name = None
+            complex_name = None
             complex = x.Complexdbentity
             if complex:
-                name = complex.format_name
+                complex_name = complex.format_name
             obj = {
                 'name': x.CurationReference.get_name(),
-                'locus_name': name,
+                'dbentity_name': complex_name,
                 'comment': x.CurationReference.curator_comment
             }
             tags.append(obj)
 
-        ## for pathway vs CurationReferenc
+        ## for pathway vs CurationReference
         curation_refs = DBSession.query(CurationReference, Pathwaydbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Pathwaydbentity).all()
         for x in curation_refs:
-            name = None
+            pathway_name = None
             pathway = x.Pathwaydbentity
             if pathway:
-                name = pathway.biocyc_id
+                pathway_name = pathway.biocyc_id
             obj = {
                 'name': x.CurationReference.get_name(),
-                'locus_name': name,
+                'dbentity_name': pathway_name,
                 'comment': x.CurationReference.curator_comment
             }
             tags.append(obj)
 
-        ## genes vs Literatureannotation
+        
+        ## Literatureannotation
+        items = []
         lit_annotations = DBSession.query(Literatureannotation, Locusdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Locusdbentity).all()
         for x in lit_annotations:
             locus_name = None
             locus = x.Locusdbentity
             if locus:
                 locus_name = locus.get_name()
-
             name = x.Literatureannotation.get_name()
+            items.append((name, locus_name))
+
+        lit_annotations = DBSession.query(Literatureannotation, Complexdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Complexdbentity).all()
+        for x in lit_annotations:
+            complex_name = None
+            complex = x.Complexdbentity
+            if complex:
+                complex_name = complex.format_name
+            name = x.Literatureannotation.get_name()
+            items.append((name, complex_name))
+
+        lit_annotations = DBSession.query(Literatureannotation, Pathwaydbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Pathwaydbentity).all()
+        for x in lit_annotations:
+            pathway_name = None
+            pathway= x.Pathwaydbentity
+            if pathway:
+                pathway_name = pathway.biocyc_id
+            name = x.Literatureannotation.get_name()
+            items.append((name, pathway_name))
+
+
+        for (name, dbentity_name) in items:
             # ignore omics tags bc already have internal   
             if name in ['non_phenotype_htp', 'htp_phenotype']:
                 continue
@@ -2388,38 +2411,38 @@ class Referencedbentity(Dbentity):
             if name in ['other_primary', 'go', 'classical_phenotype', 'headline_information']:
                 found = 0
                 for tag in tags:
-                    if tag['name'] in ['go', 'classical_phenotype', 'headline_information'] and tag['locus_name'] == locus_name:
+                    if tag['name'] in ['go', 'classical_phenotype', 'headline_information'] and tag['dbentity_name'] == dbentity_name:
                         found = 1
                         break
                 if found == 0:
                     # it is a other_primary tag since it is not one of ['go', 'classical_phenotype', 'headline_information']
                     tags.append(
                         { 'name':  'other_primary',
-                          'locus_name': locus_name,
+                          'dbentity_name': dbentity_name,
                           'comment': None
                     })
             else:
                 tags.append(
                     { 'name':  name,
-                      'locus_name': locus_name,
+                      'dbentity_name': dbentity_name,
                       'comment': None
                     })
-
-
+                
+        ###################################################
         tag_list = []
         for k, g in groupby(tags, lambda x: x['name']):
             g_tags = list(g)
             name = g_tags[0]['name']
             comment = g_tags[0]['comment']
-            gene_names = []
+            dbentity_names = []
             for x in g_tags:
-                if x['locus_name']:
-                    gene_names.append(x['locus_name'])
-            gene_names = list(set(gene_names))
-            gene_str = SEPARATOR.join(gene_names)
+                if x['dbentity_name']:
+                    dbentity_names.append(x['dbentity_name'])
+            dbentity_names = list(set(dbentity_names))
+            dbentity_str = SEPARATOR.join(dbentity_names)
             tag_list.append({
                 'name': name,
-                'genes': gene_str,
+                'genes': dbentity_str,
                 'comment': comment
             })
         return tag_list
