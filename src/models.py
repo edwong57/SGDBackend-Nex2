@@ -2371,7 +2371,6 @@ class Referencedbentity(Dbentity):
                 'comment': x.CurationReference.curator_comment
             }
             tags.append(obj)
-
         
         ## Literatureannotation
         items = []
