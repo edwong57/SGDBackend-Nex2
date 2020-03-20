@@ -109,8 +109,8 @@ class DiseaseForm extends Component {
   handleSelectDisease(index){
     var disease = this.state.list_of_diseases[index];
     var currentDisease = {
-      annotation_id: disease.id,
-      dbentity_id: disease.dbentity_id.id,
+      annotation_id: disease['annotation_id'],
+      dbentity_id: disease.dbentity_id['id'],
       taxonomy_id: disease.taxonomy_id,
       reference_id: disease.reference_id,
       disease_id: disease.disease_id,
@@ -120,6 +120,7 @@ class DiseaseForm extends Component {
       annotation_type: disease.annotation_type,
       date_assigned: disease.date_assigned
     };
+
     this.props.dispatch(setDisease(currentDisease));
     this.setState({currentIndex:index});
   }
@@ -274,7 +275,7 @@ class DiseaseForm extends Component {
 
         <form ref='form' onSubmit={this.handleSubmit}>
 
-          <input name='annotation_id' className="hide" value={this.props.disease.annotation_id} />
+          <input name='annotation_id' className="hide" value={this.props.disease.annotation_id} readOnly/>
 
           {this.state.isUpdate &&
             <ul>
