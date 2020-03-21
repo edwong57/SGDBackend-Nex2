@@ -2238,12 +2238,30 @@ class Referencedbentity(Dbentity):
 
         annotations = DBSession.query(Literatureannotation).filter_by(reference_id=self.dbentity_id).all()
 
+        loci = []
+        complexes = []
+        pathways = []
         for annotation in annotations:
             annotation_dict = annotation.to_dict()
             if annotation_dict["locus"] is not None:
-                obj.append(annotation.to_dict())
+                locus = annotation_dict["locus"]
+                if 'complex' in locus["link"]:
+                    complexes.append(annotation.to_dict())
+                elif 'pathway' in locus["link"]:
+                    pathways.append(annotation.to_dict())
+                else:
+                    loci.append(annotation.to_dict())
 
-        return obj
+        sortedLoci = []
+        sortedComplexes = []
+        sortedPathways = []
+        if len(loci) > 0:
+            sortedLoci = sorted(loci, key=lambda c: c['display_name'])
+        if len(complexes) > 0:
+            sortedComplexes = sorted(complexes, key=lambda c: c['display_name'])
+        if len(pathways) > 0:
+            sortedPathways = sorted(pathways, key=lambda c: c['display_name'])
+        return sortedLoci + sortedComplexes + sortedPathways
 
     def annotations_summary_to_dict(self):
         preview_url = '/reference/' + self.sgdid
@@ -7625,7 +7643,7 @@ class Literatureannotation(Base):
         }
 
         entity = self.dbentity
-                    
+
         if entity:
             link = entity.obj_url
             if entity.subclass == 'COMPLEX':
