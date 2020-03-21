@@ -7625,15 +7625,18 @@ class Literatureannotation(Base):
         }
 
         entity = self.dbentity
-
-        link = entity.obj_url 
-        if entity.subclass == 'COMPLEX':
-            link = '/complex/' + entity.format_name
-        elif entity.subclass == 'PATHWAY':
-            pathway = DBSession.query(Pathwaydbentity).filter_by(dbentity_id=entity.dbentity_id).one_or_none()
-            link = 'https://pathway.yeastgenome.org/YEAST/new-image?type=PATHWAY&object=' + pathway.biocyc_id + '&detail-level=2'
-            
+                    
         if entity:
+            link = entity.obj_url
+            if entity.subclass == 'COMPLEX':
+                link = '/complex/' + entity.format_name
+            elif entity.subclass == 'PATHWAY':
+                pathway = DBSession.query(Pathwaydbentity).filter_by(dbentity_id=entity.dbentity_id).one_or_none()
+                link = 'https://pathway.yeastgenome.org/YEAST/new-image?type=PATHWAY&object=' + pathway.biocyc_id + '&detail-level=2'
+
+
+            link = "stanford.edu"
+            
             obj["locus"] = {
                 "display_name": entity.display_name,
                 "link": link
