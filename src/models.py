@@ -2252,7 +2252,7 @@ class Referencedbentity(Dbentity):
                 else:
                     loci.append(annotation.to_dict())
                     
-        return loci
+        return loci + complexes + pathways
         
         sortedLoci = []
         sortedComplexes = []
