@@ -2234,8 +2234,7 @@ class Referencedbentity(Dbentity):
         return obj
 
     def annotations_to_dict(self):
-        obj = []
-
+        
         annotations = DBSession.query(Literatureannotation).filter_by(reference_id=self.dbentity_id).all()
 
         loci = []
@@ -2251,18 +2250,9 @@ class Referencedbentity(Dbentity):
                     pathways.append(annotation.to_dict())
                 else:
                     loci.append(annotation.to_dict())
-                            
-        sortedLoci = []
-        sortedComplexes = []
-        sortedPathways = []
-        if len(loci) > 0:
-            sortedLoci = sorted(loci, key=lambda c: c['display_name'])
-        if len(complexes) > 0:
-            sortedComplexes = sorted(complexes, key=lambda c: c['display_name'])
-        if len(pathways) > 0:
-            sortedPathways = sorted(pathways, key=lambda c: c['display_name'])
-        return sortedLoci + sortedComplexes + sortedPathways
 
+        return loci + complexes + pathways
+    
     def annotations_summary_to_dict(self):
         preview_url = '/reference/' + self.sgdid
         return {
