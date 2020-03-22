@@ -26,6 +26,11 @@ def group_papers(curationObjs):
         
         if dbentity is not None:
             name = dbentity.display_name
+            if dbentity.subclass == 'COMPLEX':
+                name = dbentity.format_name
+            elif dbentity.subclass == 'PATHWAY':
+                pathway = DBSession.query(Pathwaydbentity).filter_by(dbentity_id=dbentity.dbentity_id).one_or_none()
+                name = pathway.biocyc_id
             name = name + '|' + str(x.curation_id) + '|' + str(annotation_id)
 
             genelist = []
