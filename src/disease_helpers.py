@@ -5,12 +5,16 @@ from sqlalchemy.orm import scoped_session, sessionmaker, joinedload
 from datetime import datetime
 import transaction
 import json
+import pandas as pd
+from .models_helpers import ModelsHelper
+import logging
 
 
 from src.models import DBSession, Diseaseannotation, Disease, Source, Dbentity, Locusdbentity, Referencedbentity,\
      Straindbentity, Ro, Eco
 from src.curation_helpers import get_curator_session
 
+models_helper = ModelsHelper()
 
 def insert_update_disease_annotations(request):
     try:
@@ -83,8 +87,7 @@ def insert_update_disease_annotations(request):
         
         isSuccess = False
         returnValue = ''
-        diseases_in_db = []
-        print("annotation ID is ..." + annotation_id)
+        disease_in_db = []
 
         if(int(annotation_id) > 0):
             try:
@@ -98,12 +101,32 @@ def insert_update_disease_annotations(request):
                                     'disease_id': disease_id
                                     }
 
-                curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == id).update(update_disease)
+                curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == annotation_id).update(update_disease)
                 transaction.commit()
                 isSuccess = True
                 returnValue = 'Record updated successfully.'
-                diseases = disease_helper.get_all_diseases_by_dbentity(dbentity_id)
-                diseases_in_db = get_list_of_ptms(ptms)
+                
+                disease = curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == annotation_id).one_or_none()
+                disease_in_db = {
+                    'id': disease.annotation_id,
+                    'dbentity_id': {
+                        'id': disease.dbentity.format_name,
+                        'display_name': disease.dbentity.display_name
+                    },
+                    'taxonomy_id': '',
+                    'reference_id': disease.reference.pmid,
+                    'eco_id': disease.eco_id,
+                    'association_type': disease.association_type,
+                    'source_id': disease.source_id,
+                    'with_ortholog': '',
+                    'annotation_type': disease.annotation_type,
+                }
+                if disease.eco:
+                    disease_in_db['eco_id'] = str(disease.eco.eco_id)
+
+                if disease.taxonomy:
+                    disease_in_db['taxonomy_id'] = disease.taxonomy.taxonomy_id
+
             except IntegrityError as e:
                 transaction.abort()
                 if curator_session:
@@ -176,7 +199,7 @@ def insert_update_disease_annotations(request):
                     curator_session.close()
 
         if isSuccess:
-            return HTTPOk(body=json.dumps({'success': returnValue,'disease':diseases_in_db}), content_type='text/json')
+            return HTTPOk(body=json.dumps({'success': returnValue,'disease':disease_in_db}), content_type='text/json')
 
         return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
 
@@ -267,13 +290,13 @@ def delete_disease_annotation(request):
                 curator_session.delete(disease_in_db)
                 transaction.commit()
                 isSuccess = True
-                returnValue = 'Diseaseannot successfully deleted.'
+                returnValue = 'Diseaseannotation successfully deleted.'
             except Exception as e:
                 transaction.abort()
                 if curator_session:
                     curator_session.rollback()
                 isSuccess = False
-                returnValue = 'Error occurred deleting diseaseannot: ' + str(e.message)
+                returnValue = 'Error occurred deleting diseaseannotation: ' + str(e.message)
             finally:
                 if curator_session:
                     curator_session.close()
@@ -299,20 +322,20 @@ def upload_disease_file(request):
         list_of_sheets = xl.sheet_names
 
         COLUMNS = {
+            'taxonomy': 'Taxon',
             'gene': 'Gene',
-            'reference': 'Reference',
-            'taxonomy': 'Taxonomy',
-            'eco': 'Eco',
-            'disease ID': 'Disease ID',
             'association_type': 'Association type',
-            'direction':'Direction',
+            'disease_id': 'DOID',
             'with_ortholog':'With Ortholog',
-            'annotation_type':'Annotation type'
+            'eco': 'Evidence Code',
+            'reference': 'DB:Reference',
+            'date_assigned': 'Date Assigned',
+            'assigned_by': 'Assigned By',    
         }
 
         SOURCE_ID = 834
-        SEPARATOR = '|'
-        HIGH_THROUGHPUT = 'high-throughput'
+        SEPARATOR = ','
+        ANNOTATION_TYPE = 'high-throughput'
 
         list_of_diseases = []
         list_of_diseases_errors = []
@@ -333,218 +356,131 @@ def upload_disease_file(request):
         sgd_id_to_dbentity_id, systematic_name_to_dbentity_id = models_helper.get_dbentity_by_subclass(['LOCUS', 'REFERENCE'])
         strain_to_taxonomy_id = models_helper.get_common_strains()
         eco_displayname_to_id = models_helper.get_all_eco_mapping()
-        happensduring_to_id = models_helper.get_all_go_mapping()
+        doid_to_disease_id = models_helper.get_all_do_mapping()
         pubmed_id_to_reference, reference_to_dbentity_id = models_helper.get_references_all()
-        list_of_regulator_types = ['chromatin modifier','transcription factor','protein modifier','RNA-binding protein','RNA modifier']
-        list_of_regulation_types = ['transcription','protein activity','protein stability','RNA activity','RNA stability']
-        list_of_directions = ['positive','negative']
 
         for index_row,row in df.iterrows():
             index  = index_row + 2;
             column = ''
             try:
-                regulation_existing = {
-                    'target_id': '',
-                    'regulator_id': '',
+                disease_existing = {
+                    'dbentity_id': '',
                     'source_id':SOURCE_ID,
                     'taxonomy_id': '',
                     'reference_id': '',
                     'eco_id': '',
-                    'regulator_type': '',
-                    'regulation_type': '',
-                    'direction': None,
-                    'happens_during': '',
-                    'annotation_type': HIGH_THROUGHPUT
+                    'association_type': '',
+                    'with_ortholog': None,
+                    'disease_id': '',
+                    'assigned_by': '',
+                    'date_assigned': '',
+                    'annotation_type': ANNOTATION_TYPE
                 }
-                regulation_update = {
-                    'annotation_type': HIGH_THROUGHPUT
+                disease_update = {
+                    'annotation_type': ANNOTATION_TYPE
                 }
 
-                column = COLUMNS['target']
-                target = row[column]
-                target_current = str(target.split(SEPARATOR)[0]).strip()
-                key = (target_current,'LOCUS')
+                column = COLUMNS['gene']
+                gene = row[column]
+                gene_current = str(gene.strip())
+                
+                key = (gene_current,'LOCUS')
                 if key in sgd_id_to_dbentity_id:
-                    regulation_existing['target_id'] = sgd_id_to_dbentity_id[key]
+                    disease_existing['dbentity_id'] = sgd_id_to_dbentity_id[key]
                 elif(key in systematic_name_to_dbentity_id):
-                    regulation_existing['target_id'] = systematic_name_to_dbentity_id[key]
+                    disease_existing['dbentity_id'] = systematic_name_to_dbentity_id[key]
                 else:
-                    list_of_regulations_errors.append('Error in target gene on row ' + str(index)+ ', column ' + column)
+                    list_of_diseases_errors.append('Error in gene on row ' + str(index)+ ', column ' + column)
                     continue
-                                
-                if SEPARATOR in target:
-                    target_new = str(target.split(SEPARATOR)[1]).strip()
-                    key = (target_new,'LOCUS')
-                
-                    if key in sgd_id_to_dbentity_id:
-                        regulation_update['target_id'] = sgd_id_to_dbentity_id[key]
-                    elif(key in systematic_name_to_dbentity_id):
-                        regulation_update['target_id'] = systematic_name_to_dbentity_id[key]
-                    else:
-                        list_of_regulations_errors.append('Error in target gene on row ' + str(index)+ ', column ' + column)
-                        continue
-                
-                column = COLUMNS['regulator_gene']
-                regulator_gene = row[column]
-                regulator_gene_current = str(regulator_gene.split(SEPARATOR)[0]).strip()
-                key = (regulator_gene_current,'LOCUS')
-                if key in sgd_id_to_dbentity_id:
-                    regulation_existing['regulator_id'] = sgd_id_to_dbentity_id[key]
-                elif(key in systematic_name_to_dbentity_id):
-                    regulation_existing['regulator_id'] = systematic_name_to_dbentity_id[key]
-                else:
-                    list_of_regulations_errors.append('Error in regulator gene on row ' + str(index)+ ', column ' + column)
-                    continue
-                
-                if SEPARATOR in regulator_gene:
-                    regulator_gene_new = str(regulator_gene.split(SEPARATOR)[1]).strip()
-                    key = (regulator_gene_new,'LOCUS')
-                    if key in sgd_id_to_dbentity_id:
-                        regulation_update['regulator_id'] = sgd_id_to_dbentity_id[key]
-                    elif(key in systematic_name_to_dbentity_id):
-                        regulation_update['regulator_id'] = systematic_name_to_dbentity_id[key]
-                    else:
-                        list_of_regulations_errors.append('Error in regulator gene on row ' + str(index)+ ', column ' + column)
-                        continue
+                                       
                 
                 column = COLUMNS['reference']
                 reference = row[column]
-                reference_current = str(reference).split(SEPARATOR)[0]
+                reference_current = str(reference)
                 key = (reference_current,'REFERENCE')
                 if(key in sgd_id_to_dbentity_id):
-                    regulation_existing['reference_id'] = sgd_id_to_dbentity_id[key]
+                    disease_existing['reference_id'] = sgd_id_to_dbentity_id[key]
                 elif(reference_current in pubmed_id_to_reference):
-                    regulation_existing['reference_id'] = pubmed_id_to_reference[reference_current]
+                    disease_existing['reference_id'] = pubmed_id_to_reference[reference_current]
                 elif(reference_current in reference_to_dbentity_id):
-                    regulation_existing['reference_id'] = int(reference_current)
+                    disease_existing['reference_id'] = int(reference_current)
                 else:
-                    list_of_regulations_errors.append('Error in reference on row ' + str(index) + ', column ' + column)
+                    list_of_diseases_errors.append('Error in reference on row ' + str(index) + ', column ' + column)
                     continue
-                
-                if SEPARATOR in str(reference):
-                    reference_new = str(reference).split(SEPARATOR)[1]
-                    key = (reference_new,'REFERENCE')
-                    if(key in sgd_id_to_dbentity_id):
-                        regulation_update['reference_id'] = sgd_id_to_dbentity_id[key]
-                    elif(reference_new in pubmed_id_to_reference):
-                        regulation_update['reference_id'] = pubmed_id_to_reference[reference_new]
-                    elif(reference_new in reference_to_dbentity_id):
-                        regulation_update['reference_id'] = int(reference_new)
-                    else:
-                        list_of_regulations_errors.append('Error in reference on row ' + str(index) + ', column ' + column)
-                        continue
                  
                 column = COLUMNS['taxonomy']
                 taxonomy = row[column]
-                taxonomy_current = str(taxonomy).upper().split(SEPARATOR)[0]
+                taxonomy_current = str(taxonomy)
+                print(taxonomy_current)
                 if taxonomy_current in strain_to_taxonomy_id:
-                    regulation_existing['taxonomy_id'] = strain_to_taxonomy_id[taxonomy_current]
+                    disease_existing['taxonomy_id'] = strain_to_taxonomy_id[taxonomy_current]
                 else:
-                    list_of_regulations_errors.append('Error in taxonomy on row ' + str(index) + ', column ' + column)
+                    list_of_diseases_errors.append('Error in taxonomy on row ' + str(index) + ', column ' + column)
                     continue
-                
-                if SEPARATOR in taxonomy:
-                    taxonomy_new = str(taxonomy).upper().split(SEPARATOR)[1]
-                    if taxonomy_new in strain_to_taxonomy_id:
-                        regulation_update['taxonomy_id'] = strain_to_taxonomy_id[taxonomy_new]
-                    else:
-                        list_of_regulations_errors.append('Error in taxonomy on row ' + str(index) + ', column ' + column)
-                        continue
                     
                 column = COLUMNS['eco']
                 eco = row[column]
-                eco_current = str(eco).split(SEPARATOR)[0]
+                eco_current = str(eco)
                 if eco_current in eco_displayname_to_id:
-                    regulation_existing['eco_id'] = eco_displayname_to_id[eco_current]
+                    disease_existing['eco_id'] = eco_displayname_to_id[eco_current]
                 else:
-                    list_of_regulations_errors.append('Error in eco on row ' + str(index) + ', column ' + column)
+                    list_of_diseases_errors.append('Error in eco on row ' + str(index) + ', column ' + column)
                     continue
-                
-                if SEPARATOR in eco:
-                    eco_new = str(eco).split(SEPARATOR)[1]
-                    if eco_new in eco_displayname_to_id:
-                        regulation_update['eco_id'] = eco_displayname_to_id[eco_new]
-                    else:
-                        list_of_regulations_errors.append('Error in eco on row ' + str(index) + ', column ' + column)
-                        continue
                     
 
-                column = COLUMNS['regulator_type']
-                regulator_type = row[column]
-                regulator_type_current = str(regulator_type).split(SEPARATOR)[0]
-                if regulator_type_current in list_of_regulator_types:
-                    regulation_existing['regulator_type'] = regulator_type_current
+                column = COLUMNS['disease_id']
+                disease_id = row[column]
+                disease_id_current = str(disease_id)
+                if disease_id_current in doid_to_disease_id:
+                    disease_existing['disease_id'] = disease_id_current
                 else:
-                    list_of_regulations_errors.append('Error in regulator type on row ' + str(index) + ', column ' + column)
+                    list_of_diseases_errors.append('Error in disease_id on row ' + str(index) + ', column ' + column)
                     continue
                 
-                if SEPARATOR in regulator_type:
-                    regulator_type_new = str(regulator_type).split(SEPARATOR)[1]
-                    if regulator_type_new in list_of_regulator_types:
-                        regulation_update['regulator_type'] = regulator_type_new
-                    else:
-                        list_of_regulations_errors.append('Error in regulator type on row ' + str(index) + ', column ' + column)
-                        continue
-                    
-                column = COLUMNS['regulation_type']
-                regulation_type = row[column]
-                regulation_type_current = str(regulation_type).split(SEPARATOR)[0]
-                if regulation_type_current in list_of_regulation_types:
-                    regulation_existing['regulation_type'] = regulation_type_current
-                else:
-                    list_of_regulations_errors.append('Error in regulation type on row ' + str(index) + ', column ' + column)
-                    continue
                 
-                if SEPARATOR in regulation_type:
-                    regulation_type_new = str(regulation_type).split(SEPARATOR)[1]
-                    if regulation_type_new in list_of_regulation_types:
-                        regulation_update['regulation_type'] = regulation_type_new
-                    else:
-                        list_of_regulations_errors.append('Error in regulation type on row ' + str(index) + ', column ' + column)
-                        continue
-                
-                column = COLUMNS['direction']
-                direction = row[column]
-                direction_current = None if pd.isnull(direction) else None if not str(direction).split(SEPARATOR)[0] else str(direction).split(SEPARATOR)[0]
-                if direction_current and direction_current not in list_of_directions:
-                    list_of_regulations_errors.append('Error in direction on row ' + str(index) + ', column ' + column)
-                    continue
-                else:
-                    regulation_existing['direction'] = direction_current
+                column = COLUMNS['with_ortholog']
+                with_ortholog = row[column]
+                with_ortholog_current = None if pd.isnull(with_ortholog) else None if not str(with_ortholog) else str(with_ortholog)
+                #if with_ortholog_current and with_ortholog_current not in list_of_with_orthologs:
+                    #list_of_diseases_errors.append('Error in with_ortholog on row ' + str(index) + ', column ' + column)
+                    #continue
+                #else:
+                disease_existing['with_ortholog'] = with_ortholog_current
 
-                if not pd.isnull(direction) and SEPARATOR in direction:
-                    direction_new = None if pd.isnull(direction) else None if not str(direction).split(SEPARATOR)[1] else str(direction).split(SEPARATOR)[1]
-                    if direction_new and direction_new not in list_of_directions:
-                        list_of_regulations_errors.append('Error in direction on row ' + str(index) + ', column ' + column)
-                        continue
-                    else:
-                        regulation_update['direction'] = direction_new
+                if not pd.isnull(with_ortholog):
+                    with_ortholog_new = None if pd.isnull(with_ortholog) else None if not str(with_ortholog) else str(with_ortholog)
+                    #if with_ortholog_new and with_ortholog_new not in list_of_with_orthologs:
+                        #list_of_diseases_errors.append('Error in with_ortholog on row ' + str(index) + ', column ' + column)
+                        #continue
+                    #else:
+                    disease_update['with_ortholog'] = with_ortholog_new
                         
-                column = COLUMNS['happens_during']
-                happens_during = row[column]
-                happens_during_current = None if pd.isnull(happens_during) else None if not str(happens_during).split(SEPARATOR)[0] else str(happens_during).split(SEPARATOR)[0]
-                if happens_during_current and happens_during_current not in happensduring_to_id:
-                    list_of_regulations_errors.append('Error in direction on row ' + str(index) + ', column ' + column)
+                column = COLUMNS['date_assigned']
+                date_assigned = row[column]
+                date_assigned_current = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
+                if date_assigned_current:
+                    list_of_diseases_errors.append('Error in date_assigned on row ' + str(index) + ', column ' + column)
                 else:
-                    regulation_existing['happens_during'] = None if happens_during_current == None else happensduring_to_id[happens_during_current]
+                    disease_existing['date_assigned'] = None if date_assigned_current == None else date_assigned_current == date_assigned_current
                 
-                if not pd.isnull(happens_during) and SEPARATOR in happens_during:
-                    happens_during_new = None if pd.isnull(happens_during) else None if not str(happens_during).split(SEPARATOR)[1] else str(happens_during).split(SEPARATOR)[1]
-                    if happens_during_new and happens_during_new not in happensduring_to_id:
-                        list_of_regulations_errors.append('Error in happens during on row ' + str(index) + ', column ' + column)
+                if not pd.isnull(date_assigned):
+                    date_assigned_new = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
+                    if date_assigned_new:
+                        list_of_diseases_errors.append('Error in date assigned on row ' + str(index) + ', column ' + column)
                     else:
-                        regulation_update['happens_during'] = None if happens_during_new == None else  happensduring_to_id[happens_during_new]
+                        disease_update['date_assigned'] = None if date_assigned_new == None else  date_assigned_new == date_assigned_new
 
 
-                list_of_regulations.append([regulation_existing,regulation_update])
+                list_of_diseases.append([disease_existing,disease_update])
             
             except Exception as e:
-                list_of_regulations_errors.append('Error in on row ' + str(index) + ', column ' + column + ' ' + e.message)
+                list_of_diseases_errors.append('Error in on row ' + str(index) + ', column ' + column + ' ' + str(e))
         
 
-        if list_of_regulations_errors:
-            err = [e + '\n' for e in list_of_regulations_errors]
-            return HTTPBadRequest(body=json.dumps({"error":list_of_regulations_errors}),content_type='text/json')
+        if list_of_diseases_errors:
+            err = [e + '\n' for e in list_of_diseases_errors]
+            logging.debug('Error in list_of_diseases_errors')
+            return HTTPBadRequest(body=json.dumps({"error":list_of_diseases_errors}),content_type='text/json')
         
         INSERT = 0
         UPDATE = 0
@@ -552,54 +488,53 @@ def upload_disease_file(request):
         isSuccess = False
         returnValue = ''
         
-        if list_of_regulations:
-            for item in list_of_regulations:
-                regulation,update_regulation = item
-                if (len(update_regulation)>1):
-                    regulation_in_db = curator_session.query(Regulationannotation).filter(and_(
-                        Regulationannotation.target_id == regulation['target_id'],
-                        Regulationannotation.regulator_id == regulation['regulator_id'],
-                        Regulationannotation.taxonomy_id == regulation['taxonomy_id'],
-                        Regulationannotation.reference_id == regulation['reference_id'],
-                        Regulationannotation.eco_id == regulation['eco_id'],
-                        Regulationannotation.regulator_type == regulation['regulator_type'],
-                        Regulationannotation.regulation_type == regulation['regulation_type'],
-                        Regulationannotation.happens_during == regulation['happens_during']
+        if list_of_diseases:
+            for item in list_of_diseases:
+                disease,update_disease = item
+                if (len(update_disease)>1):
+                    disease_in_db = curator_session.query(Diseaseannotation).filter(and_(
+                        Diseaseannotation.dbentity_id == disease['dbentity_id'],
+                        Diseaseannotation.disease_id == disease['disease_id'],
+                        Diseaseannotation.taxonomy_id == disease['taxonomy_id'],
+                        Diseaseannotation.reference_id == disease['reference_id'],
+                        Diseaseannotation.eco_id == disease['eco_id'],
+                        Diseaseannotation.association_type == disease['association_type'],
+                        Diseaseannotation.date_assigned == disease['date_assigned'],
+                        Diseaseannotation.assigned_by == disease['assigned_by']
                         )).one_or_none()
-                    if regulation_in_db is not None:
-                        curator_session.query(Regulationannotation).filter(and_(
-                        Regulationannotation.target_id == regulation['target_id'],
-                        Regulationannotation.regulator_id == regulation['regulator_id'],
-                        Regulationannotation.taxonomy_id == regulation['taxonomy_id'],
-                        Regulationannotation.reference_id == regulation['reference_id'],
-                        Regulationannotation.eco_id == regulation['eco_id'],
-                        Regulationannotation.regulator_type == regulation['regulator_type'],
-                        Regulationannotation.regulation_type == regulation['regulation_type'],
-                        Regulationannotation.happens_during == regulation['happens_during']
-                        )).update(update_regulation)
+                    if disease_in_db is not None:
+                        curator_session.query(Diseaseannotation).filter(and_(
+                        Diseaseannotation.dbentity_id == disease['dbentity_id'],
+                        Diseaseannotation.disease_id == disease['disease_id'],
+                        Diseaseannotation.taxonomy_id == disease['taxonomy_id'],
+                        Diseaseannotation.reference_id == disease['reference_id'],
+                        Diseaseannotation.eco_id == disease['eco_id'],
+                        Diseaseannotation.association_type == disease['association_type'],
+                        Diseaseannotation.date_assigned == disease['date_assigned'],
+                        Diseaseannotation.assigned_by == disease['assigned_by']
+                        )).update(update_disease)
                         UPDATE  = UPDATE + 1
 
                 else:    
-                    r = Regulationannotation(
-                        target_id = regulation['target_id'],
-                        regulator_id = regulation['regulator_id'], 
+                    r = Diseaseannotation(
+                        dbentity_id = disease['dbentity_id'],
+                        disease_id = disease['disease_id'], 
                         source_id = SOURCE_ID,
-                        taxonomy_id = regulation['taxonomy_id'],
-                        reference_id = regulation['reference_id'], 
-                        eco_id = regulation['eco_id'],
-                        regulator_type = regulation['regulator_type'],
-                        regulation_type= regulation['regulation_type'],
-                        direction = regulation['direction'],
-                        happens_during = regulation['happens_during'],
+                        taxonomy_id = disease['taxonomy_id'],
+                        reference_id = disease['reference_id'], 
+                        eco_id = disease['eco_id'],
+                        association_type = disease['association_type'],
+                        date_assigned = disease['date_assigned'],
+                        with_ortholog = disease['with_ortholog'],
                         created_by = CREATED_BY,
-                        annotation_type = regulation['annotation_type']
+                        annotation_type = disease['annotation_type']
                     )
                     curator_session.add(r)
                     INSERT = INSERT + 1
             
             try:
                 transaction.commit()
-                err = '\n'.join(list_of_regulations_errors)
+                err = '\n'.join(list_of_diseases_errors)
                 isSuccess = True    
                 returnValue = 'Inserted:  ' + str(INSERT) + ' <br />Updated: ' + str(UPDATE) + '<br />Errors: ' + err
             except IntegrityError as e:

@@ -412,10 +412,11 @@ class ModelsHelper(object):
         strains_in_db = self.get_all_strains()
         filtered_strains = list([strain for strain in strains_in_db if strain.strain_type == 'Alternative Reference' or strain.strain_type =='Reference' or strain.dbentity_id == 1364635])
         
-        for  s in filtered_strains:
+        for s in filtered_strains:
             strain_to_taxonomy_id[s.display_name.upper()] = s.taxonomy_id
         
         return strain_to_taxonomy_id
+
 
     def get_psimod_all(self):
         psimod_to_id = {}
@@ -518,12 +519,12 @@ class ModelsHelper(object):
         '''
         Get all DO data as dictionary with key as display_name
         ''' 
-        do_displayname_to_Id = {}
+        do_formatname_to_id = {}
         do_in_db = self.get_all_do()
         for do in do_in_db:
-            do_displayname_to_Id[do.display_name] = do.disease_id
+            do_formatname_to_id[do.format_name] = do.disease_id
         
-        return do_displayname_to_Id
+        return do_formatname_to_id
     
     def get_all_ro(self):
         '''
