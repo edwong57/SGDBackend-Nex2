@@ -6,9 +6,11 @@ import searchReducer from './searchReducer';
 import ptmReducer from './ptmReducer';
 import newsLetterReducer from './newsLetterReducer';
 import regulationReducer from './regulationReducer';
+import diseaseReducer from './diseaseReducer';
 import phenotypeReducer from './phenotypeReducer';
 import authorResponseReducer from './authorResponseReducer';
 import litguideReducer from './litguideReducer';
+
 
 export default {
   auth: authReducer,
@@ -18,8 +20,9 @@ export default {
   search: searchReducer,
   ptm:ptmReducer,
   newsLetter:newsLetterReducer,
-  regulation:regulationReducer,
+  regulation: regulationReducer,
+  disease: diseaseReducer,
   phenotype:phenotypeReducer,
   authorResponse:authorResponseReducer,
-  litguide:litguideReducer
+  litguide: litguideReducer,
 };
