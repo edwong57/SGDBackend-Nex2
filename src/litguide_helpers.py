@@ -2,8 +2,9 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPOk
 from sqlalchemy.exc import IntegrityError, DataError
 import transaction
 import json
-from src.models import DBSession, CurationReference, Literatureannotation, Locusdbentity,\
-                       Referencedbentity, Pathwaydbentity, Source, Taxonomy
+from src.models import DBSession, Dbentity, CurationReference, Literatureannotation, \
+                       Locusdbentity, Referencedbentity, Pathwaydbentity, Source, \
+                       Taxonomy
 from src.curation_helpers import get_curator_session
 
 TAXON = 'TAX:4932'
