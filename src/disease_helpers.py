@@ -94,7 +94,7 @@ def insert_update_disease_annotations(request):
         disease_in_db = []
 
         if (int(annotation_id) > 0):
-
+            
             try:
                 update_disease = {'dbentity_id': dbentity_id,
                                     'source_id': source_id,
@@ -438,7 +438,6 @@ def upload_disease_file(request):
                 column = COLUMNS['eco_id']
                 eco = row[column]
                 eco_current = str(eco)
-
                 # if eco_current in eco_displayname_to_id:
                 #     disease_existing['eco_id'] = eco_displayname_to_id[eco_current]
                 # else:
