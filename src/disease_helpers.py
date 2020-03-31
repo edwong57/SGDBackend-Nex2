@@ -94,8 +94,7 @@ def insert_update_disease_annotations(request):
         disease_in_db = []
 
         if (int(annotation_id) > 0):
-            print('In update annotation id > 0')
-            print(with_ortholog)
+
             try:
                 update_disease = {'dbentity_id': dbentity_id,
                                     'source_id': source_id,
@@ -106,8 +105,8 @@ def insert_update_disease_annotations(request):
                                     'annotation_type': annotation_type,
                                     'disease_id': disease_id
                                     }
-                update_dse = {'dbxref_id': with_ortholog, 'obj_url': OBJ_URL +with_ortholog}
-
+                update_dse = {'dbxref_id': with_ortholog,
+                               'obj_url': OBJ_URL + with_ortholog}
                 curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == annotation_id).update(update_disease)
                 curator_session.query(Diseasesupportingevidence).filter(Diseasesupportingevidence.annotation_id == annotation_id).update(update_dse)
                 curator_session.flush()
@@ -116,10 +115,9 @@ def insert_update_disease_annotations(request):
                 isSuccess = True
                 returnValue = 'Record updated successfully.'
                 
-                print(annotation_id)
                 disease = curator_session.query(Diseaseannotation).filter(Diseaseannotation.annotation_id == annotation_id).one_or_none()
                 dse = curator_session.query(Diseasesupportingevidence).filter(Diseasesupportingevidence.annotation_id == annotation_id).one_or_none()
-                print(dse.dbxref_id)
+
                 disease_in_db = {
                     'id': disease.annotation_id,
                     'dbentity_id': {
@@ -267,7 +265,6 @@ def get_diseases_by_filters(request):
 
         list_of_diseases = []
         for disease in diseases:
-            print(disease)
             dse = DBSession.query(Diseasesupportingevidence).filter(Diseasesupportingevidence.annotation_id == disease.annotation_id).one_or_none()
             currentDisease = {
                 'annotation_id': disease.annotation_id,
@@ -432,7 +429,6 @@ def upload_disease_file(request):
                 column = COLUMNS['taxonomy']
                 taxonomy = row[column]
                 taxonomy_current = str(taxonomy)
-                print(taxonomy_current)
                 if taxonomy_current in strain_to_taxonomy_id:
                     disease_existing['taxonomy_id'] = strain_to_taxonomy_id[taxonomy_current]
                 else:
@@ -442,7 +438,7 @@ def upload_disease_file(request):
                 column = COLUMNS['eco_id']
                 eco = row[column]
                 eco_current = str(eco)
-                print (eco_current)
+
                 # if eco_current in eco_displayname_to_id:
                 #     disease_existing['eco_id'] = eco_displayname_to_id[eco_current]
                 # else:
@@ -463,8 +459,6 @@ def upload_disease_file(request):
                 disease_id = row[column]
                 disease_id_current = str(disease_id).strip()
                 if disease_id_current in doid_to_disease_id:
-                    print(disease_id_current)
-                    print(doid_to_disease_id[disease_id_current])
                     disease_existing['disease_id'] = doid_to_disease_id[disease_id_current]
                 else:
                     list_of_diseases_errors.append('Error in disease_id on row ' + str(index) + ', column ' + column)
@@ -509,10 +503,7 @@ def upload_disease_file(request):
         
         if list_of_diseases:
             for item in list_of_diseases:
-                disease, update_disease, update_dse = item
-                print(disease)
-                print(update_disease)
-                print(len(update_disease))
+                disease, update_disease = item
                 
                 if (len(update_disease)>1):
                     disease_in_db = curator_session.query(Diseaseannotation).filter(and_(
@@ -536,18 +527,18 @@ def upload_disease_file(request):
                         Diseaseannotation.date_assigned == datetime.now(),
                         Diseaseannotation.created_by == disease['created_by']
                         )).update(update_disease)
+                        curator_session.flush()
+                        curator_session.query(Diseasesupportingevidence).filter(and_(
+                        Diseasesupportingevidence.annotation_id == disease_in_db['annotation_id'],
+                        )).update({'dbxref_id': disease['with_ortholog'], 'obj_url': OBJ_URL+disease['with_ortholog']})                      
                         UPDATE  = UPDATE + 1
                 else:
-                    print('In else condition..')
                     codes = eco_current.split(';')
                     for code in codes:
                         code = code.strip()
-                        print(code)
                         if code in eco_displayname_to_id:
                             eco_id = eco_displayname_to_id[code]
-                            print(eco_id)
                             disease['eco_id'] = eco_id
-
                             r = Diseaseannotation(
                                 dbentity_id = disease['dbentity_id'],
                                 disease_id = disease['disease_id'], 
@@ -563,7 +554,6 @@ def upload_disease_file(request):
                             curator_session.add(r)
                             curator_session.flush()
                             annotation_id = r.annotation_id
-
                             daf_evidence_row = Diseasesupportingevidence(
                                 annotation_id=annotation_id,
                                 group_id = GROUP_ID,
@@ -575,11 +565,7 @@ def upload_disease_file(request):
                         curator_session.add(daf_evidence_row)
                         transaction.commit()
                         curator_session.flush()
-                        INSERT = INSERT + 1
-
-                    #curator_session.add(r)
-                    
-            
+                        INSERT = INSERT + 1            
             try:
                 transaction.commit()
                 err = '\n'.join(list_of_diseases_errors)
