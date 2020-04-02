@@ -3,8 +3,7 @@ from sqlalchemy.exc import IntegrityError, DataError
 import transaction
 import json
 from src.models import DBSession, Dbentity, CurationReference, Literatureannotation, \
-                       Locusdbentity, Referencedbentity, Pathwaydbentity, Source, \
-                       Taxonomy
+                       Locusdbentity, Referencedbentity, Pathwaydbentity, Source, Taxonomy
 from src.curation_helpers import get_curator_session
 
 TAXON = 'TAX:4932'
@@ -27,6 +26,11 @@ def group_papers(curationObjs):
         
         if dbentity is not None:
             name = dbentity.display_name
+            if dbentity.subclass == 'COMPLEX':
+                name = dbentity.format_name
+            elif dbentity.subclass == 'PATHWAY':
+                pathway = DBSession.query(Pathwaydbentity).filter_by(dbentity_id=dbentity.dbentity_id).one_or_none()
+                name = pathway.biocyc_id
             name = name + '|' + str(x.curation_id) + '|' + str(annotation_id)
 
             genelist = []
