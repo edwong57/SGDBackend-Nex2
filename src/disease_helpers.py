@@ -17,6 +17,7 @@ from src.curation_helpers import get_curator_session
 GROUP_ID = 1
 OBJ_URL = 'http://www.alliancegenome.org/gene/'
 EVIDENCE_TYPE = 'with'
+RO_ID = '1968075'
 
 models_helper = ModelsHelper()
 
@@ -44,11 +45,7 @@ def insert_update_disease_annotations(request):
         
         disease_id = request.params.get('disease_id')
         if not disease_id:
-            return HTTPBadRequest(body=json.dumps({'error': "disease_id is blank"}), content_type='text/json')
-        
-        association_type = request.params.get('association_type')
-        if not association_type:
-            return HTTPBadRequest(body=json.dumps({'error': "association type is blank"}), content_type='text/json')
+            return HTTPBadRequest(body=json.dumps({'error': "disease_id is blank"}), content_type='text/json')       
 
         annotation_type = request.params.get('annotation_type')
         if not annotation_type:
@@ -100,7 +97,7 @@ def insert_update_disease_annotations(request):
                                     'taxonomy_id': taxonomy_id,
                                     'reference_id': reference_id,
                                     'eco_id': eco_id,
-                                    'association_type': association_type,
+                                    'association_type': RO_ID,
                                     'annotation_type': annotation_type,
                                     'disease_id': disease_id
                                     }
@@ -169,7 +166,7 @@ def insert_update_disease_annotations(request):
                                     reference_id = reference_id,
                                     eco_id = eco_id,
                                     disease_id = disease_id,
-                                    association_type = int(association_type),
+                                    association_type = RO_ID,
                                     annotation_type = annotation_type,
                                     created_by = CREATED_BY,
                                     date_assigned = date_created)
@@ -320,12 +317,12 @@ def upload_disease_file(request):
         COLUMNS = {
             'taxonomy': 'Taxon',
             'gene': 'Gene',
-            'association_type': 'Association type',
+            #'association_type': 'Association type',
             'disease_id': 'DOID',
             'with_ortholog':'With Ortholog',
             'eco_id': 'Evidence Code',
             'reference': 'DB:Reference',
-            'date_assigned': 'Date Assigned',
+            # 'date_assigned': 'Date Assigned',
             'created_by': 'Assigned By',    
         }
 
@@ -352,7 +349,7 @@ def upload_disease_file(request):
         sgd_id_to_dbentity_id, systematic_name_to_dbentity_id = models_helper.get_dbentity_by_subclass(['LOCUS', 'REFERENCE'])
         strain_to_taxonomy_id = models_helper.get_common_strains()
         eco_displayname_to_id = models_helper.get_all_eco_mapping()
-        ro_displayname_to_id = models_helper.get_all_ro_mapping()
+        # ro_displayname_to_id = models_helper.get_all_ro_mapping()
         doid_to_disease_id = models_helper.get_all_do_mapping()
         pubmed_id_to_reference, reference_to_dbentity_id = models_helper.get_references_all()
 
@@ -370,7 +367,7 @@ def upload_disease_file(request):
                     'with_ortholog': None,
                     'disease_id': '',
                     'created_by': '',
-                    'date_assigned': '',
+                    # 'date_assigned': '',
                     'annotation_type': ANNOTATION_TYPE
                 }
                 disease_update = {
@@ -419,14 +416,14 @@ def upload_disease_file(request):
                 eco = row[column]
                 eco_current = str(eco)
 
-                column = COLUMNS['association_type']
-                association_type = row[column]
-                association_type_current = str(association_type)
-                if association_type_current in ro_displayname_to_id:
-                    disease_existing['association_type'] = ro_displayname_to_id[association_type_current]
-                else:
-                    list_of_diseases_errors.append('Error in association_type on row ' + str(index) + ', column ' + column)
-                    continue
+                # column = COLUMNS['association_type']
+                # association_type = row[column]
+                # association_type_current = str(association_type)
+                # if association_type_current in ro_displayname_to_id:
+                #     disease_existing['association_type'] = ro_displayname_to_id[association_type_current]
+                # else:
+                #     list_of_diseases_errors.append('Error in association_type on row ' + str(index) + ', column ' + column)
+                #     continue
                     
 
                 column = COLUMNS['disease_id']
@@ -448,14 +445,14 @@ def upload_disease_file(request):
                     with_ortholog_new = None if pd.isnull(with_ortholog) else None if not str(with_ortholog) else str(with_ortholog)
                     disease_existing['with_ortholog'] = with_ortholog_new
                         
-                column = COLUMNS['date_assigned']
-                date_assigned = row[column]
-                date_assigned_current = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
-                disease_existing['date_assigned'] = date_assigned_current
+                # column = COLUMNS['date_assigned']
+                # date_assigned = row[column]
+                # date_assigned_current = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
+                # disease_existing['date_assigned'] = date_assigned_current
 
-                if not pd.isnull(date_assigned):
-                    date_assigned_new = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
-                    disease_existing['date_assigned'] =  date_assigned_new
+                # if not pd.isnull(date_assigned):
+                #     date_assigned_new = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
+                #     disease_existing['date_assigned'] =  date_assigned_new
 
 
                 list_of_diseases.append([disease_existing,disease_update])
@@ -486,7 +483,7 @@ def upload_disease_file(request):
                         Diseaseannotation.taxonomy_id == disease['taxonomy_id'],
                         Diseaseannotation.reference_id == disease['reference_id'],
                         Diseaseannotation.eco_id == disease['eco_id'],
-                        Diseaseannotation.association_type == disease['association_type'],
+                        Diseaseannotation.association_type == RO_ID,
                         Diseaseannotation.date_assigned == datetime.now(),
                         Diseaseannotation.created_by == disease['created_by']
                         )).one_or_none()
@@ -497,7 +494,7 @@ def upload_disease_file(request):
                         Diseaseannotation.taxonomy_id == disease['taxonomy_id'],
                         Diseaseannotation.reference_id == disease['reference_id'],
                         Diseaseannotation.eco_id == disease['eco_id'],
-                        Diseaseannotation.association_type == disease['association_type'],
+                        Diseaseannotation.association_type == RO_ID,
                         Diseaseannotation.date_assigned == datetime.now(),
                         Diseaseannotation.created_by == disease['created_by']
                         )).update(update_disease)
