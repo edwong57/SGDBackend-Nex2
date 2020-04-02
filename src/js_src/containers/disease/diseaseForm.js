@@ -8,13 +8,14 @@ import Loader from '../../components/loader';
 import PropTypes from 'prop-types';
 const GET_ECO = '/eco';
 const GET_DO = '/do';
-const GET_RO = '/ro';
+//const GET_RO = '/ro';
 const DISEASES = '/disease';
 const GET_STRAINS = '/get_strains';
 const GET_DISEASES = 'get_diseases';
 const ANNOTATION_TYPES = [null,'computational', 'high-throughput', 'manually curated'];
 const SKIP = 5;
 const TIMEOUT = 120000;
+
 
 class DiseaseForm extends Component {
   constructor(props) {
@@ -33,7 +34,7 @@ class DiseaseForm extends Component {
     this.state = {
       list_of_eco:[],
       list_of_do: [],
-      list_of_ro: [],
+      //list_of_ro: [],
       list_of_taxonomy:[],
       isUpdate:false,
       pageIndex:0,
@@ -44,7 +45,7 @@ class DiseaseForm extends Component {
 
     this.getEco();
     this.getDo();
-    this.getRo();
+    //this.getRo();
     this.getTaxonomy();
   }
 
@@ -64,13 +65,13 @@ class DiseaseForm extends Component {
       .catch((err) => this.props.dispatch(setError(err.message)));
   }
 
-  getRo() {
-    fetchData(GET_RO, { type: 'GET' })
-      .then((data) => {
-        this.setState({ list_of_ro: data.success });
-      })
-      .catch((err) => this.props.dispatch(setError(err.message)));
-  }
+  // getRo() {
+  //   fetchData(GET_RO, { type: 'GET' })
+  //     .then((data) => {
+  //       this.setState({ list_of_ro: data.success });
+  //     })
+  //     .catch((err) => this.props.dispatch(setError(err.message)));
+  // }
 
   getTaxonomy() {
     fetchData(GET_STRAINS, {
@@ -115,7 +116,7 @@ class DiseaseForm extends Component {
       reference_id: disease.reference_id,
       disease_id: disease.disease_id,
       eco_id: disease.eco_id,
-      association_type: disease.association_type,
+      //association_type: disease.association_type,
       with_ortholog: disease.with_ortholog,
       annotation_type: disease.annotation_type,
       date_assigned: disease.date_assigned
@@ -132,7 +133,7 @@ class DiseaseForm extends Component {
       taxonomy_id: '',
       reference_id: '',
       eco_id: '',
-      association_type: '',
+      //association_type: '',
       disease_id: '',
       with_ortholog: '',
       annotation_type: '',
@@ -377,7 +378,7 @@ class DiseaseForm extends Component {
         </div>
 
 
-         <div className='row'>
+         {/* <div className='row'>
             <div className='columns medium-12'>
               <div className='row'>
                 <div className='columns medium-12'>
@@ -390,7 +391,7 @@ class DiseaseForm extends Component {
                 }
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Direction */}
           <div className='row'>
@@ -423,7 +424,7 @@ class DiseaseForm extends Component {
             </div>
           </div>
 
-          <div className='row'>
+          {/* <div className='row'>
             <div className='columns medium-12'>
               <div className='row'>
                 <div className='columns medium-12'>
@@ -434,7 +435,7 @@ class DiseaseForm extends Component {
                 <input type='date' name='date_assigned' onChange={this.handleChange} value={this.props.disease.date_assigned} />
               </div>
             </div>
-          </div>
+          </div> */}
 
           {this.renderActions()}
 
