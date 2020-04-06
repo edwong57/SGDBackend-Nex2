@@ -34,7 +34,6 @@ class DiseaseForm extends Component {
     this.state = {
       list_of_eco:[],
       list_of_do: [],
-      //list_of_ro: [],
       list_of_taxonomy:[],
       isUpdate:false,
       pageIndex:0,
@@ -45,7 +44,6 @@ class DiseaseForm extends Component {
 
     this.getEco();
     this.getDo();
-    //this.getRo();
     this.getTaxonomy();
   }
 
@@ -64,14 +62,6 @@ class DiseaseForm extends Component {
       })
       .catch((err) => this.props.dispatch(setError(err.message)));
   }
-
-  // getRo() {
-  //   fetchData(GET_RO, { type: 'GET' })
-  //     .then((data) => {
-  //       this.setState({ list_of_ro: data.success });
-  //     })
-  //     .catch((err) => this.props.dispatch(setError(err.message)));
-  // }
 
   getTaxonomy() {
     fetchData(GET_STRAINS, {
@@ -116,7 +106,6 @@ class DiseaseForm extends Component {
       reference_id: disease.reference_id,
       disease_id: disease.disease_id,
       eco_id: disease.eco_id,
-      //association_type: disease.association_type,
       with_ortholog: disease.with_ortholog,
       annotation_type: disease.annotation_type,
       date_assigned: disease.date_assigned
@@ -133,7 +122,6 @@ class DiseaseForm extends Component {
       taxonomy_id: '',
       reference_id: '',
       eco_id: '',
-      //association_type: '',
       disease_id: '',
       with_ortholog: '',
       annotation_type: '',
@@ -377,24 +365,7 @@ class DiseaseForm extends Component {
             </div>
         </div>
 
-
-         {/* <div className='row'>
-            <div className='columns medium-12'>
-              <div className='row'>
-                <div className='columns medium-12'>
-                  <label> Association Type </label>
-                </div>
-              </div>
-              <div className='row'>
-                {(this.state.list_of_ro.length > 0) &&
-                  <DataList options={this.state.list_of_ro} id='ro_id' value1='display_name' value2='format_name' selectedIdName='association_type' onOptionChange={this.handleChange} selectedId={this.props.disease.association_type} />
-                }
-              </div>
-            </div>
-          </div> */}
-
-          {/* Direction */}
-          <div className='row'>
+        <div className='row'>
             <div className='columns medium-12'>
               <div className='row'>
                 <div className='columns medium-12'>
@@ -423,19 +394,6 @@ class DiseaseForm extends Component {
               </div>
             </div>
           </div>
-
-          {/* <div className='row'>
-            <div className='columns medium-12'>
-              <div className='row'>
-                <div className='columns medium-12'>
-                  <label> Date Assigned </label>
-                </div>
-              </div>
-              <div className='row'>
-                <input type='date' name='date_assigned' onChange={this.handleChange} value={this.props.disease.date_assigned} />
-              </div>
-            </div>
-          </div> */}
 
           {this.renderActions()}
 

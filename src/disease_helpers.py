@@ -317,12 +317,10 @@ def upload_disease_file(request):
         COLUMNS = {
             'taxonomy': 'Taxon',
             'gene': 'Gene',
-            #'association_type': 'Association type',
             'disease_id': 'DOID',
             'with_ortholog':'With Ortholog',
             'eco_id': 'Evidence Code',
             'reference': 'DB:Reference',
-            # 'date_assigned': 'Date Assigned',
             'created_by': 'Assigned By',    
         }
 
@@ -349,7 +347,6 @@ def upload_disease_file(request):
         sgd_id_to_dbentity_id, systematic_name_to_dbentity_id = models_helper.get_dbentity_by_subclass(['LOCUS', 'REFERENCE'])
         strain_to_taxonomy_id = models_helper.get_common_strains()
         eco_displayname_to_id = models_helper.get_all_eco_mapping()
-        # ro_displayname_to_id = models_helper.get_all_ro_mapping()
         doid_to_disease_id = models_helper.get_all_do_mapping()
         pubmed_id_to_reference, reference_to_dbentity_id = models_helper.get_references_all()
 
@@ -415,6 +412,7 @@ def upload_disease_file(request):
                 column = COLUMNS['eco_id']
                 eco = row[column]
                 eco_current = str(eco)
+<<<<<<< HEAD
 
                 # column = COLUMNS['association_type']
                 # association_type = row[column]
@@ -424,6 +422,8 @@ def upload_disease_file(request):
                 # else:
                 #     list_of_diseases_errors.append('Error in association_type on row ' + str(index) + ', column ' + column)
                 #     continue
+=======
+>>>>>>> remove commented sections
                     
 
                 column = COLUMNS['disease_id']
@@ -443,17 +443,7 @@ def upload_disease_file(request):
 
                 if not pd.isnull(with_ortholog):
                     with_ortholog_new = None if pd.isnull(with_ortholog) else None if not str(with_ortholog) else str(with_ortholog)
-                    disease_existing['with_ortholog'] = with_ortholog_new
-                        
-                # column = COLUMNS['date_assigned']
-                # date_assigned = row[column]
-                # date_assigned_current = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
-                # disease_existing['date_assigned'] = date_assigned_current
-
-                # if not pd.isnull(date_assigned):
-                #     date_assigned_new = None if pd.isnull(date_assigned) else None if not str(date_assigned) else str(date_assigned)
-                #     disease_existing['date_assigned'] =  date_assigned_new
-
+                    disease_existing['with_ortholog'] = with_ortholog_new                       
 
                 list_of_diseases.append([disease_existing,disease_update])
             
