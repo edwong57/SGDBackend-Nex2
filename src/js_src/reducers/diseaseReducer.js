@@ -5,7 +5,6 @@ const DEFAULT_STATE = {
     taxonomy_id: '',
     reference_id: '',
     eco_id: '',
-    association_type: '',
     disease_id: '',
     with_ortholog: '',
     annotation_type: '',
