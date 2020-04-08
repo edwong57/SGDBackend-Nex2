@@ -4036,6 +4036,21 @@ class Locusdbentity(Dbentity):
             "edges": edges
         }
 
+    def get_main_strain(self, type=None):
+        main_strain_list = ["S288C", "W303", "Sigma1278b", "SK1", "SEY6210", "X2180-1A", "CEN.PK", "D273-10B", "JK9-3d", "FL100", "Y55", "RM11-1a"]
+        main_strain = None
+        for strain in main_strain_list:
+            x = DBSession.query(Straindbentity).filter_by(display_name=strain, subclass='STRAIN').one_or_none()
+            y = DBSession.query(Dnasequenceannotation).filter_by(taxonomy_id=x.taxonomy_id, dbentity_id=self.dbentity_id, dna_type='GENOMIC').one_or_none()
+            if y is not None:
+                main_strain = strain
+                TAXON_ID = x.taxonomy_id
+                break
+        if type == 'taxonomy_id':
+            return TAXON_ID
+        else:
+            return main_strain
+
     def phenotype_graph(self):
         main_gene_phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(dbentity_id=self.dbentity_id).all()
         main_gene_phenotype_ids = [a.phenotype_id for a in main_gene_phenotype_annotations]
@@ -4226,6 +4241,8 @@ class Locusdbentity(Dbentity):
             "disease_overview": self.disease_overview_to_dict(),
             "ecnumbers": []
         }
+
+        obj['main_strain'] = self.get_main_strain()
 
         if self.genetic_position:
             obj["genetic_position"] = self.genetic_position
@@ -4480,7 +4497,8 @@ class Locusdbentity(Dbentity):
             "median_abs_dev_value": None
         }
 
-        protein = DBSession.query(Proteinsequenceannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=274901).one_or_none()
+        taxonomy_id = self.get_main_strain('taxonomy_id')
+        protein = DBSession.query(Proteinsequenceannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=taxonomy_id).one_or_none()
         if protein:
             protein_sequence = DBSession.query(ProteinsequenceDetail).filter_by(annotation_id=protein.annotation_id).one_or_none()
             if protein_sequence:

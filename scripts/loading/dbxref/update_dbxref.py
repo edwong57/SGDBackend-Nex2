@@ -6,7 +6,7 @@ from datetime import datetime
 import logging
 import importlib
 importlib.reload(sys)  # Reload does the trick!
-from src.models import Dbentity, LocusAlias, Source, Filedbentity, Edam
+from src.models import Dbentity, LocusAlias, Locusdbentity, Source, Filedbentity, Edam
 from src.helpers import upload_file
 from scripts.loading.database_session import get_session
 
@@ -55,6 +55,8 @@ def update_data(infile):
 
     edam_to_id = dict([(x.format_name, x.edam_id) for x in nex_session.query(Edam).all()])
     
+    locus_id_to_name = dict([(x.dbentity_id, x.systematic_name) for x in nex_session.query(Locusdbentity).all()])
+    
     id_to_source = {}
     source_to_id = {}
 
@@ -87,6 +89,14 @@ def update_data(infile):
 
     for x in all_aliases:
 
+
+        ## ignore all NISS genes for now
+        systematic_name = locus_id_to_name[x.locus_id]
+        if systematic_name in ['YAR070W-A', 'YAR069W-A', 'ENA6', 'IMI1', 'KHR1', 'MPR1', 'RTM1']:
+            continue
+
+
+
         this_key = (x.alias_type, id_to_source[x.source_id])
         if this_key not in alias_type_src_list:
             continue
@@ -95,7 +105,7 @@ def update_data(infile):
         uniprot_id = sgdid_to_uniprot_id.get(sgdid)
         if uniprot_id is None:
             continue
-
+                
         if x.alias_type == "UniProtKB ID":
             if x.display_name != uniprot_id:
                 # print "NEW:", uniprot_id
