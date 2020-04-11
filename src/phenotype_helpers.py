@@ -892,6 +892,13 @@ def update_phenotype_annotations(request):
         if experiment_id != paRow.experiment_id:
             updateParams['experiment_id'] = experiment_id
             paUpdatedCols.append('experiment_id')
+            
+
+
+        return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')
+
+
+
         ## mutant_type
         mutant_id = request.params.get('mutant_id')
         if mutant_id == '':
@@ -900,7 +907,7 @@ def update_phenotype_annotations(request):
 
 
 
-        return HTTPBadRequest(body=json.dumps({'error': "TEST - mutant_id=" + str(mutant_id)}), content_type='text/json')
+        # return HTTPBadRequest(body=json.dumps({'error': "TEST - mutant_id=" + str(mutant_id)}), content_type='text/json')
 
 
 
