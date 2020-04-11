@@ -847,7 +847,7 @@ def update_phenotype_annotations(request):
             [gene, id] = gene_id.split('|')
             if gene_name is None:
                 names = gene.split('/')
-                if len(names):
+                if len(names) >= 2:
                     gene_name = names[1]
                 else:
                     gene_name = names[0]
