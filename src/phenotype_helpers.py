@@ -885,6 +885,11 @@ def update_phenotype_annotations(request):
             paUpdatedCols.append('reference_id')
         ## experiment_type
         experiment_id = request.params.get('experiment_id')
+
+
+        return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')  
+
+
         if experiment_id == '':
             return HTTPBadRequest(body=json.dumps({'error': "experiment_type field is blank"}), content_type='text/json')
         experiment_id = int(experiment_id)
@@ -895,7 +900,7 @@ def update_phenotype_annotations(request):
             
 
 
-        return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')
+        # return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')
 
 
 
