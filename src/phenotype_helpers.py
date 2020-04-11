@@ -346,9 +346,6 @@ def check_allele(allele, gene_count, gene_name):
     if gene_count > 1:
         return HTTPBadRequest(body=json.dumps({'error': "Make sure no allele provided since you have entered the multiple genes."}), content_type='text/json')
 
-    if gene_name is None:
-        return HTTPBadRequest(body=json.dumps({'error': "Make sure no allele provided since there is no standard gene name for this feature."}), content_type='text/json')
-
     if str(allele).isdigit():
         allele_obj = DBSession.query(Allele).filter_by(allele_id=int(allele)).one_or_none()
         if allele_obj is None:
@@ -848,8 +845,12 @@ def update_phenotype_annotations(request):
         gene_name = None
         for gene_id in gene_ids:
             [gene, id] = gene_id.split('|')
-            if gene_name is None and '/' in gene:
-                gene_name = gene.split('/')[1]
+            if gene_name is None:
+                [name1, name2] = gene.split('/')
+                if name2:
+                    gene_name = name2
+                else:
+                    gene_name = name1
             annotation_id = int(id)
             annotation_ids.append(annotation_id)
             annotation_id_to_gene[annotation_id] = gene
