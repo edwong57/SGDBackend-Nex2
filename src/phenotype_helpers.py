@@ -854,12 +854,6 @@ def update_phenotype_annotations(request):
             annotation_id = int(id)
             annotation_ids.append(annotation_id)
             annotation_id_to_gene[annotation_id] = gene
-
-
-
-        return HTTPBadRequest(body=json.dumps({'error': "TEST - gene_name="+str(gene_name)}), content_type='text/json')  
-
-
         
         update_all = request.params.get('update_all')
 
