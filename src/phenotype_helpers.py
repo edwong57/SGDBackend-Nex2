@@ -346,6 +346,9 @@ def check_allele(allele, gene_count, gene_name):
     if gene_count > 1:
         return HTTPBadRequest(body=json.dumps({'error': "Make sure no allele provided since you have entered the multiple genes."}), content_type='text/json')
 
+    if gene_name is None:
+        return HTTPBadRequest(body=json.dumps({'error': "Make sure no allele provided since there is no standard gene name for this feature."}), content_type='text/json')
+
     if str(allele).isdigit():
         allele_obj = DBSession.query(Allele).filter_by(allele_id=int(allele)).one_or_none()
         if allele_obj is None:
@@ -835,12 +838,6 @@ def update_phenotype_annotations(request):
 
         gene_id_list = request.params.get('gene_id_list', '')
 
-
-
-        return HTTPBadRequest(body=json.dumps({'error': "TEST - gene_id_list=" + gene_id_list}), content_type='text/json') 
-
-
-
         if gene_id_list == '':
             return HTTPBadRequest(body=json.dumps({'error': "Please choose one or more genes from the pulldown menu."}), content_type='text/json')
 
@@ -851,7 +848,7 @@ def update_phenotype_annotations(request):
         gene_name = None
         for gene_id in gene_ids:
             [gene, id] = gene_id.split('|')
-            if gene_name is None:
+            if gene_name is None and '/' in gene:
                 gene_name = gene.split('/')[1]
             annotation_id = int(id)
             annotation_ids.append(annotation_id)
@@ -891,11 +888,6 @@ def update_phenotype_annotations(request):
             paUpdatedCols.append('reference_id')
         ## experiment_type
         experiment_id = request.params.get('experiment_id')
-
-
-        # return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')  
-
-
         if experiment_id == '':
             return HTTPBadRequest(body=json.dumps({'error': "experiment_type field is blank"}), content_type='text/json')
         experiment_id = int(experiment_id)
@@ -903,24 +895,11 @@ def update_phenotype_annotations(request):
         if experiment_id != paRow.experiment_id:
             updateParams['experiment_id'] = experiment_id
             paUpdatedCols.append('experiment_id')
-            
-
-
-        # return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')
-
-
-
         ## mutant_type
         mutant_id = request.params.get('mutant_id')
         if mutant_id == '':
             return HTTPBadRequest(body=json.dumps({'error': "mutant_type field is blank"}), content_type='text/json')
         mutant_id = int(mutant_id)
-
-
-
-        # return HTTPBadRequest(body=json.dumps({'error': "TEST - mutant_id=" + str(mutant_id)}), content_type='text/json')
-
-
 
         if mutant_id != paRow.mutant_id:
             updateParams['mutant_id'] = mutant_id
@@ -932,7 +911,9 @@ def update_phenotype_annotations(request):
         observable_id = int(observable_id)
 
 
+
         # return HTTPBadRequest(body=json.dumps({'error': "TEST - observable"}), content_type='text/json')
+
 
 
         ## qualifier
