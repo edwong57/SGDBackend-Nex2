@@ -909,7 +909,9 @@ def update_phenotype_annotations(request):
 
 
 
-        # return HTTPBadRequest(body=json.dumps({'error': "TEST - observable"}), content_type='text/json')
+
+        return HTTPBadRequest(body=json.dumps({'error': "TEST - observable"}), content_type='text/json')
+
 
 
 
