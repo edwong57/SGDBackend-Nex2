@@ -898,6 +898,12 @@ def update_phenotype_annotations(request):
             return HTTPBadRequest(body=json.dumps({'error': "mutant_type field is blank"}), content_type='text/json')
         mutant_id = int(mutant_id)
 
+
+
+        return HTTPBadRequest(body=json.dumps({'error': "TEST - mutant_id=" + str(mutant_id)}), content_type='text/json')
+
+
+
         if mutant_id != paRow.mutant_id:
             updateParams['mutant_id'] = mutant_id
             paUpdatedCols.append('mutant_id')
@@ -908,11 +914,7 @@ def update_phenotype_annotations(request):
         observable_id = int(observable_id)
 
 
-
-
-        return HTTPBadRequest(body=json.dumps({'error': "TEST - observable"}), content_type='text/json')
-
-
+        # return HTTPBadRequest(body=json.dumps({'error': "TEST - observable"}), content_type='text/json')
 
 
         ## qualifier
