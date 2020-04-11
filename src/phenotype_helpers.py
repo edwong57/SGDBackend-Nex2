@@ -846,11 +846,11 @@ def update_phenotype_annotations(request):
         for gene_id in gene_ids:
             [gene, id] = gene_id.split('|')
             if gene_name is None:
-                [name1, name2] = gene.split('/')
-                if name2:
-                    gene_name = name2
+                names = gene.split('/')
+                if len(names):
+                    gene_name = names[1]
                 else:
-                    gene_name = name1
+                    gene_name = names[0]
             annotation_id = int(id)
             annotation_ids.append(annotation_id)
             annotation_id_to_gene[annotation_id] = gene
