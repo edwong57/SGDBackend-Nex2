@@ -835,6 +835,12 @@ def update_phenotype_annotations(request):
 
         gene_id_list = request.params.get('gene_id_list', '')
 
+
+
+        return HTTPBadRequest(body=json.dumps({'error': "TEST - gene_id_list=" + gene_id_list}), content_type='text/json') 
+
+
+
         if gene_id_list == '':
             return HTTPBadRequest(body=json.dumps({'error': "Please choose one or more genes from the pulldown menu."}), content_type='text/json')
 
@@ -887,7 +893,7 @@ def update_phenotype_annotations(request):
         experiment_id = request.params.get('experiment_id')
 
 
-        return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')  
+        # return HTTPBadRequest(body=json.dumps({'error': "TEST - expt_id=" + str(experiment_id)}), content_type='text/json')  
 
 
         if experiment_id == '':
