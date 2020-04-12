@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  sgd-db:
+    image: "postgres:10"
+    container_name: "sgd-db"
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    ports:
+      - "3001:5432"
+    volumes:
+      - sgd_dbdata:/var/lib/postgresql/data
+
+  sgd-redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - sgd_redis_data:/data
+
+#  sgd-elasticsearch:
+#    image:
+#  api:
+#    image:
+volumes:
+  sgd_dbdata:
+  sgd_redis_data:
+
+  

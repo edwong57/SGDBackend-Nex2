@@ -17,7 +17,7 @@
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.26",
     "prop-types": "^15.7.2",
-    "query-string": "^5.1.1",
+    "query-string": "^6.12.1",
     "react": "^16.9.0",
     "react-autosuggest": "^9.4.3",
     "react-bootstrap": "^0.30.5",

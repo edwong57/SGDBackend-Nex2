@@ -89,4 +89,20 @@ load-files:
 tests-dev:
 	source dev_variables.sh && python test/test_dev.py
 
+# Docker 
+docker_build:
+	docker build -t "sgd:api" --file ./docker_config/api/Dockerfile .
 
+build-api:
+	pip install --user -r requirements.txt
+	python setup.py develop
+
+build-client:
+	npm config set strict-ssl false
+	npm install --loglevel error
+	npm run build
+
+build-app: build-api run
+
+run-api:
+	docker run -it sgd:api
