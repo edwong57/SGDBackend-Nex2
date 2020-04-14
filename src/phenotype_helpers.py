@@ -885,7 +885,7 @@ def update_annotation_to_existing_one(curator_session, request, CREATED_BY, anno
                                                                      cond_name, cond_value, cond_unit)
                 if str(returnVal).isdigit is False:
                     return [0, HTTPBadRequest(body=json.dumps({'error': returnVal}), content_type='text/json')]
-                curr_group_id = curr_group_id + 1
+            curr_group_id = curr_group_id + 1
             
         ## associate the updated condition group with existing_annotation_id
         if newConditionSet not in existingCondSet2groupId:
@@ -897,7 +897,7 @@ def update_annotation_to_existing_one(curator_session, request, CREATED_BY, anno
                                                                      cond_name, cond_value, cond_unit)
                 if str(returnVal).isdigit is False:
                     return [0, HTTPBadRequest(body=json.dumps({'error': returnVal}), content_type='text/json')]
-                curr_group_id = curr_group_id + 1
+            curr_group_id = curr_group_id + 1
                 
         ## delete the annotation row and its associated conditions for annotation_id   
         paRow = curator_session.query(Phenotypeannotation).filter_by(annotation_id=annotation_id).one_or_none()
@@ -917,7 +917,7 @@ def update_annotation_to_existing_one(curator_session, request, CREATED_BY, anno
                                                                          cond_name, cond_value, cond_unit)
                     if str(returnVal).isdigit is False:
                         return [0, HTTPBadRequest(body=json.dumps({'error': returnVal}), content_type='text/json')]
-                    curr_group_id = curr_group_id + 1
+                curr_group_id = curr_group_id + 1
                     
             ## delete the annotation row for annotation_id
             paRow = curator_session.query(Phenotypeannotation).filter_by(annotation_id=annotation_id).one_or_none()
@@ -935,7 +935,7 @@ def update_annotation_to_existing_one(curator_session, request, CREATED_BY, anno
                                                                              cond_name, cond_value, cond_unit)
                         if str(returnVal).isdigit is False:
                             return [0, HTTPBadRequest(body=json.dumps({'error': returnVal}), content_type='text/json')]
-                        curr_group_id = curr_group_id + 1
+                    curr_group_id = curr_group_id + 1
                 ## delete the annotation row and its associated condition for annotation_id
                 paRow = curator_session.query(Phenotypeannotation).filter_by(annotation_id=annotation_id).one_or_none()
                 curator_session.delete(paRow)
@@ -952,7 +952,7 @@ def update_annotation_to_existing_one(curator_session, request, CREATED_BY, anno
                                                                          cond_name, cond_value, cond_unit)
                     if str(returnVal).isdigit is False:
                         return [0, HTTPBadRequest(body=json.dumps({'error': returnVal}), content_type='text/json')]
-                    curr_group_id = curr_group_id + 1 
+                curr_group_id = curr_group_id + 1 
             ## delete the given group (group_id) of conditions for annotation_id
             if group_id > 0:
                 paCondRows = curator_session.query(PhenotypeannotationCond).filter_by(annotation_id=annotation_id, group_id=group_id).all()
