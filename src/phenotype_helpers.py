@@ -847,7 +847,7 @@ def get_condition_sets(all_conds):
         existingCondSet2groupId[":".join(conds)] = g_id
 
     return [max_existing_group_id, existingCondSet2groupId]
-
+                                                                             
 def update_annotation_to_existing_one(curator_session, request, CREATED_BY, annotation_id, gene_name, group_id, existing_annotation_id, all_conds, unique_group_id_list, update_all, observable_id, qualifier_id, reporter_id):
 
     newConditions = []
@@ -904,7 +904,7 @@ def update_annotation_to_existing_one(curator_session, request, CREATED_BY, anno
         curator_session.delete(paRow)
         
     else:
-        if len(allConds) == 0:
+        if len(all_conds) == 0:
             if group_id != 0:
                 return [0, HTTPBadRequest(body=json.dumps({'error': 'There is no condition associated with annotation_id='+str(annotation_id) + ' for gene ' + gene_name + ', but a condition group_id=' + str(group_id) + ' is passed in.'}), content_type='text/json')]
             elif newConditionSet not in existingCondSet2groupId:
