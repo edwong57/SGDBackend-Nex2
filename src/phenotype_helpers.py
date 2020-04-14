@@ -848,7 +848,7 @@ def get_condition_sets(all_conds):
 
     return [max_existing_group_id, existingCondSet2groupId]
 
-def update_annotation_to_existing_one(curator_session, CREATED_BY, annotation_id, gene_name, group_id, existing_annotation_id, all_conds, unique_group_id_list, update_all):
+def update_annotation_to_existing_one(curator_session, request, CREATED_BY, annotation_id, gene_name, group_id, existing_annotation_id, all_conds, unique_group_id_list, update_all):
 
     newConditions = []
     [status, data] = parse_conditions(request, observable_id, qualifier_id, reporter_id)
@@ -1195,9 +1195,10 @@ def update_phenotype_annotations(request):
 
             if paRow2 is not None and paRow2.annotation_id != annotation_id:
                 existing_annotation_id = paRow2.annotation_id
-                [status, update_message] = update_annotation_to_existing_one(curator_session, CREATED_BY,
-                                                                             annotation_id, gene_name,
-                                                                             group_id, existing_annotation_id,
+                [status, update_message] = update_annotation_to_existing_one(curator_session, request,
+                                                                             CREATED_BY, annotation_id,
+                                                                             gene_name, group_id,
+                                                                             existing_annotation_id,
                                                                              allConds, unique_group_id_list,
                                                                              update_all)
                 if status == 0:
