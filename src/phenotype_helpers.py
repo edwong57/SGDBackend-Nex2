@@ -848,7 +848,6 @@ def get_condition_sets(all_conds):
 
     return [max_existing_group_id, existingCondSet2groupId]
 
-
 def update_annotation_to_existing_one(curator_session, CREATED_BY, annotation_id, gene_name, group_id, existing_annotation_id, all_conds, unique_group_id_list, update_all):
 
     newConditions = []
@@ -1199,7 +1198,7 @@ def update_phenotype_annotations(request):
                 [status, update_message] = update_annotation_to_existing_one(curator_session, CREATED_BY,
                                                                              annotation_id, gene_name,
                                                                              group_id, existing_annotation_id,
-                                                                             all_conds, unique_group_id_list,
+                                                                             allConds, unique_group_id_list,
                                                                              update_all)
                 if status == 0:
                     return update_message
