@@ -1192,7 +1192,7 @@ def update_phenotype_annotations(request):
                     unique_group_id_list.append(x.group_id)
                     
             ### check to see if the updated row is already in the database                                                           
-            paRow2 = curator_session.query(Phenotypeannotation).filter_by(dbentity_id=paRow.dbentity_id, reference_id=reference_id, experiment_id=experiment_id, mutant_id=mutant_id, phenotype_id=phenotype_id, taxonomy_id=taxonomy_id, strain_name=strain_name, experiment_comment=experiment_comment, details=details, allele_id=allele_id, allele_comment=allele_comment, reporter_id=reporter_id, reporter_comment=reporter_comment, assay_id=assay_id).one_or_none()
+            paRow2 = curator_session.query(Phenotypeannotation).filter_by(dbentity_id=paRow.dbentity_id, reference_id=reference_id, experiment_id=experiment_id, mutant_id=mutant_id, phenotype_id=phenotype_id, taxonomy_id=taxonomy_id, strain_name=strain_name, experiment_comment=experiment_comment, details=details, allele_id=allele_id, allele_comment=allele_comment, reporter_id=reporter_id, reporter_comment=reporter_comment).one_or_none()
 
             if paRow2 is not None and paRow2.annotation_id != annotation_id:
                 existing_annotation_id = paRow2.annotation_id
