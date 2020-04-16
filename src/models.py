@@ -4199,8 +4199,9 @@ class Locusdbentity(Dbentity):
             "link": self.obj_url
         }
 
-
-        query = "SELECT display_name FROM nex.so where so_id IN (SELECT so_id FROM nex.dnasequenceannotation WHERE dbentity_id = " + str(self.dbentity_id) + " GROUP BY so_id)"
+        taxonomy_id = self.get_main_strain('taxonomy_id')
+        
+        query = "SELECT display_name FROM nex.so where so_id IN (SELECT so_id FROM nex.dnasequenceannotation WHERE dbentity_id = " + str(self.dbentity_id) + " and taxonomy_id =" + str(taxonomy_id) + " GROUP BY so_id)"
 
         locus_type = []
         so_display_names = DBSession.execute(query)
