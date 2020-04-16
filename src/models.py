@@ -4327,13 +4327,11 @@ class Locusdbentity(Dbentity):
             obj["aliases"].append(alias_obj)
 
         # URLs (resources)
-        sos = DBSession.query(Dnasequenceannotation.so_id).filter(
-            Dnasequenceannotation.dbentity_id == self.dbentity_id,Dnasequenceannotation.taxonomy_id == TAXON_ID).group_by(
-                    Dnasequenceannotation.so_id).all()
-            
         # sos = DBSession.query(Dnasequenceannotation.so_id).filter(
-        #    Dnasequenceannotation.dbentity_id == self.dbentity_id,Dnasequenceannotation.taxonomy_id == taxonomy_id).group_by(
+        #    Dnasequenceannotation.dbentity_id == self.dbentity_id,Dnasequenceannotation.taxonomy_id == TAXON_ID).group_by(
         #            Dnasequenceannotation.so_id).all()
+            
+        sos = DBSession.query(Dnasequenceannotation.so_id).filter(Dnasequenceannotation.dbentity_id == self.dbentity_id,Dnasequenceannotation.taxonomy_id == taxonomy_id).group_by(Dnasequenceannotation.so_id).all()
         locus_type = DBSession.query(So.display_name).filter(So.so_id.in_([so[0] for so in sos])).all()
         obj["locus_type"] = ",".join([l[0] for l in locus_type])
         urls = DBSession.query(LocusUrl).filter_by(locus_id=self.dbentity_id).all()
