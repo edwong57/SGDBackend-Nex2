@@ -4050,7 +4050,7 @@ class Locusdbentity(Dbentity):
         if type == 'taxonomy_id':
             return TAXON_ID
         else:
-            return main_strain
+            return [main_strain, TAXON_ID]
 
     def phenotype_graph(self):
         main_gene_phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(dbentity_id=self.dbentity_id).all()
@@ -4244,8 +4244,9 @@ class Locusdbentity(Dbentity):
             "ecnumbers": []
         }
 
-        obj['main_strain'] = self.get_main_strain()
-
+        [main_strain, taxonomy_id] = self.get_main_strain()
+        obj['main_strain'] = main_strain
+        
         if self.genetic_position:
             obj["genetic_position"] = self.genetic_position
 
@@ -4332,6 +4333,7 @@ class Locusdbentity(Dbentity):
         #            Dnasequenceannotation.so_id).all()
             
         sos = DBSession.query(Dnasequenceannotation.so_id).filter(Dnasequenceannotation.dbentity_id == self.dbentity_id,Dnasequenceannotation.taxonomy_id == taxonomy_id).group_by(Dnasequenceannotation.so_id).all()
+        
         locus_type = DBSession.query(So.display_name).filter(So.so_id.in_([so[0] for so in sos])).all()
         obj["locus_type"] = ",".join([l[0] for l in locus_type])
         urls = DBSession.query(LocusUrl).filter_by(locus_id=self.dbentity_id).all()
