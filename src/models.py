@@ -4049,7 +4049,7 @@ class Locusdbentity(Dbentity):
                 main_strain = strain
                 TAXON_ID = x.taxonomy_id
             z = DBSession.query(Proteindomainannotation).filter_by(taxonomy_id=x.taxonomy_id, dbentity_id=self.dbentity_id).all()
-            if z is not None:
+            if len(z) > 0:
                 main_strain = strain
                 TAXON_ID = x.taxonomy_id
                 break
