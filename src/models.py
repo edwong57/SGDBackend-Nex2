@@ -2942,7 +2942,7 @@ class Locusdbentity(Dbentity):
 
 
     def protein_domain_details(self):
-        annotations = DBSession.query(Proteindomainannotation).filter_by(dbentity_id=self.dbentity_id).all()
+        annotations = DBSession.query(Proteindomainannotation).filter_by(dbentity_id=self.dbentity_id, taxonomy_id=TAXON_ID).all()
 
         return [a.to_dict(locus=self) for a in annotations]
 
