@@ -970,13 +970,25 @@ def update_phenotype_annotations(request):
         sgd = DBSession.query(Source).filter_by(display_name='SGD').one_or_none()
         source_id = sgd.source_id
 
+        
         gene_id_list = request.params.get('gene_id_list', '')
 
+
+
+        
+        return HTTPBadRequest(body=json.dumps({'error': "gene_id_list=" + gene_id_list}), content_type='text/json')
+
+
+
+
+    
+    
         if gene_id_list == '':
             return HTTPBadRequest(body=json.dumps({'error': "Please choose one or more genes from the pulldown menu."}), content_type='text/json')
 
         gene_ids = gene_id_list.split(' ')
 
+        
         annotation_ids = []
         annotation_id_to_gene = {}
         gene_name = None
@@ -1109,12 +1121,7 @@ def update_phenotype_annotations(request):
             paUpdatedCols.append('details')
 
         ## allele
-        allele = request.params.get('allele_id', '')
-
-
-        return HTTPBadRequest(body=json.dumps({'error': "Allele=" + allele + "!"}), content_type='text/json')
-    
-        
+        allele = request.params.get('allele_id', '')        
         if allele == 'null':
             allele = ''
         allele_id = None
