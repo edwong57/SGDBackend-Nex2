@@ -1110,6 +1110,11 @@ def update_phenotype_annotations(request):
 
         ## allele
         allele = request.params.get('allele_id', '')
+
+
+        return HTTPBadRequest(body=json.dumps({'error': "Allele=" + allele + "!"}), content_type='text/json')
+    
+        
         if allele == 'null':
             allele = ''
         allele_id = None
