@@ -2441,7 +2441,7 @@ class Referencedbentity(Dbentity):
                 tag_list.append({
                     'name': name,
                     'genes': dbentity_str,
-                    'comment': comment + ' Hello'
+                    'comment': str(comment) + ' Hello'
                 })
         return tag_list
 
