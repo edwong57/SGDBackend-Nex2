@@ -2399,7 +2399,8 @@ class Referencedbentity(Dbentity):
             name = x.Literatureannotation.get_name()
             items.append((name, pathway_name))
 
-            for (name, dbentity_name) in items:
+
+        for (name, dbentity_name) in items:
             # ignore omics tags bc already have internal   
             if name in ['non_phenotype_htp', 'htp_phenotype']:
                 continue
@@ -2416,7 +2417,7 @@ class Referencedbentity(Dbentity):
                         { 'name':  'other_primary',
                           'dbentity_name': dbentity_name,
                           'comment': None
-                     })                    
+                    })
             else:
                 tags.append(
                     { 'name':  name,
@@ -2440,7 +2441,7 @@ class Referencedbentity(Dbentity):
                 tag_list.append({
                     'name': name,
                     'genes': dbentity_str,
-                    'comment': comment + "HELLO"
+                    'comment': comment + ' Hello'
                 })
         return tag_list
 
