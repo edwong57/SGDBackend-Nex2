@@ -40,7 +40,7 @@ def read_data_and_update_database(nex_session, fw):
 
     key_to_annotation = {}
     for x in nex_session.query(Proteindomainannotation).all():
-        key = (x.dbentity_id, x.proteindomain_id, x.start_index, x.end_index)
+        key = (x.dbentity_id, x.proteindomain_id, x.start_index, x.end_index, x.taxonomy_id)
         key_to_annotation[key] = x
 
     f = open(domain_file)
@@ -75,7 +75,7 @@ def read_data_and_update_database(nex_session, fw):
         end = int(items[7])
         run_time = items[10].split('-')
         run_date = run_time[2] + '-' + run_time[1] + '-' + run_time[0]
-        key = (dbentity_id, proteindomain_id, start, end)
+        key = (dbentity_id, proteindomain_id, start, end, taxonomy_id)
         if key not in key_to_annotation and key not in found:
             i = i + 1
             insert_annotation(nex_session, fw, dbentity_id, proteindomain_id,
