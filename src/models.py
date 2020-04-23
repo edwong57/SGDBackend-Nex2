@@ -2437,11 +2437,12 @@ class Referencedbentity(Dbentity):
                     dbentity_names.append(x['dbentity_name'])
             dbentity_names = list(set(dbentity_names))
             dbentity_str = SEPARATOR.join(dbentity_names)
-            tag_list.append({
-                'name': name,
-                'genes': dbentity_str,
-                'comment': comment
-            })
+            if genes != '':
+                tag_list.append({
+                    'name': name,
+                    'genes': dbentity_str,
+                    'comment': comment
+                })
         return tag_list
 
     def update_tags(self, tags, username):
