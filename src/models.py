@@ -2426,22 +2426,38 @@ class Referencedbentity(Dbentity):
                     })
                 
         ###################################################
-        tag_list = []
-        for k, g in groupby(tags, lambda x: x['name']):
-            g_tags = list(g)
-            name = g_tags[0]['name']
-            comment = g_tags[0]['comment']
+        tag2dbentityNames = {}
+        tag2comments = {}
+        for x in tags:
+            tag = x['name']
+            dbentity_name = x['dbentity_name']
+            comment = x['comment']
             dbentity_names = []
-            for x in g_tags:
-                if x['dbentity_name']:
-                    dbentity_names.append(x['dbentity_name'])
+            if tag in tag2dbentityNames:
+                dbentity_names = tag2dbentityNames[tag]
+            if dbentity_name != '':
+                dbentity_names.append(dbentity_name)
+            tag2dbentityNames[tag] = dbentity_names
+            comments = []
+            if tag in tag2comments:
+                comments = tag2comments[tag]
+            if comment:
+                comments.append(comment)
+            tag2comments[tag] = comments
+
+        tag_list = []    
+        for tag in tag2dbentityNames:
+            dbentity_names = tag2dbentityNames[tag]
+            comments = tag2comments[tag]
             dbentity_names = list(set(dbentity_names))
+            comments = list(set(comments))
             dbentity_str = SEPARATOR.join(dbentity_names)
+            comments = "; ".join(comments)
             if dbentity_str != '':
                 tag_list.append({
-                    'name': name,
+                    'name': tag,
                     'genes': dbentity_str,
-                    'comment': str(comment) + ' Hello'
+                    'comment': comments
                 })
         return tag_list
 
