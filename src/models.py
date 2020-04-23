@@ -2435,13 +2435,13 @@ class Referencedbentity(Dbentity):
             dbentity_names = []
             if tag in tag2dbentityNames:
                 dbentity_names = tag2dbentityNames[tag]
-            if dbentity_name != '':
+            if dbentity_name and dbentity_name not in dbentity_names:
                 dbentity_names.append(dbentity_name)
             tag2dbentityNames[tag] = dbentity_names
             comments = []
             if tag in tag2comments:
                 comments = tag2comments[tag]
-            if comment:
+            if comment and comment not in comments:
                 comments.append(comment)
             tag2comments[tag] = comments
 
@@ -2449,15 +2449,13 @@ class Referencedbentity(Dbentity):
         for tag in tag2dbentityNames:
             dbentity_names = tag2dbentityNames[tag]
             comments = tag2comments[tag]
-            dbentity_names = list(set(dbentity_names))
-            comments = list(set(comments))
             dbentity_str = SEPARATOR.join(dbentity_names)
-            comments = "; ".join(comments)
+            comment_str = "; ".join(comments)
             if dbentity_str != '':
                 tag_list.append({
                     'name': tag,
                     'genes': dbentity_str,
-                    'comment': comments
+                    'comment': comment_str
                 })
         return tag_list
 
