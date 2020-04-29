@@ -808,6 +808,14 @@ class Chebi(Base):
 
         return obj
 
+    def proteinabundnace_to_dict(self):
+
+        pa_annotations = DBSession.query(Proteinabundanceannotation).filter_by(chemical_id=self.chebi_id).all()
+        obj = []
+        for annotation in pa_annotations:
+            obj += annotation.to_dict()
+        return obj
+
     def complex_to_dict(self):
 
         interactors = DBSession.query(Interactor.interactor_id).filter_by(format_name=self.chebiid).all()
@@ -831,6 +839,7 @@ class Chebi(Base):
 
         return complexes
 
+    
     def chemical_network(self):
         
         network_nodes =[]
