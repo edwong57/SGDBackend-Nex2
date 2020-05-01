@@ -760,6 +760,7 @@ class Chebi(Base):
         if self.chebiid.startswith("NTR:"):
             is_ntr = 1
 
+            
         obj = {
             "id": self.chebi_id,
             "display_name": self.display_name,
@@ -774,6 +775,8 @@ class Chebi(Base):
         obj["complexes"] = self.complex_to_dict() 
         obj["phenotype"] = self.phenotype_to_dict()
         obj["go"] = self.go_to_dict()
+        obj["protein_abundance"] = self.proteinabundnace_to_dict()
+        obj["structure_image_url"] = self.get_structure_url()
         obj["network_graph"] = self.chemical_network()
 
         return obj
@@ -839,7 +842,14 @@ class Chebi(Base):
 
         return complexes
 
-    
+    def get_structure_url(self):
+        url = "https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=" + self.format_name.replace("CHEBI:", "")
+        response = urlopen(url)
+        res = response.read()
+        if len(res) > 0:
+            return url
+        return ""
+        
     def chemical_network(self):
         
         network_nodes =[]
@@ -9926,7 +9936,7 @@ class ReferenceFile(Base):
     source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
     date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
     created_by = Column(String(12), nullable=False)
-    # file_type = Column(String(100), nullable=False)
+    file_type = Column(String(100), nullable=False)
 
     file = relationship('Filedbentity')
     reference = relationship('Referencedbentity')
