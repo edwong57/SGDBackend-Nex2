@@ -2445,15 +2445,6 @@ class Referencedbentity(Dbentity):
             if comment and comment not in comments:
                 comments.append(comment)
             tag2comments[tag] = comments
-
-
-
-            
-        return tag2dbentityNames
-
-
-
-    
             
         tag_list = []    
         for tag in tag2dbentityNames:
@@ -2461,12 +2452,12 @@ class Referencedbentity(Dbentity):
             comments = tag2comments[tag]
             dbentity_str = SEPARATOR.join(dbentity_names)
             comment_str = "; ".join(comments)
-            if dbentity_str != '':
-                tag_list.append({
+            #if dbentity_str != '':
+            tag_list.append({
                     'name': tag,
                     'genes': dbentity_str,
                     'comment': comment_str
-                })
+            })
         return tag_list
 
     def update_tags(self, tags, username):
