@@ -823,7 +823,7 @@ class Chebi(Base):
         for r in references:
             ids_to_references[r.dbentity_id] = r
 
-        data = [a.to_dict(chemical=self, references=ids_to_references) for a in annotations]
+        data = [a.to_dict(chebi=self, references=ids_to_references) for a in annotations]
         return sorted(data, key=lambda d: d['order_by'])
 
     def complex_to_dict(self):
@@ -9369,7 +9369,7 @@ class Proteinabundanceannotation(Base):
     source = relationship('Source')
     taxonomy = relationship('Taxonomy')
 
-    def to_dict(self, locus=None, chemical=None, references=None):
+    def to_dict(self, locus=None, chebi=None, references=None):
 
         if references:
             reference = references[self.reference_id]
@@ -9380,7 +9380,10 @@ class Proteinabundanceannotation(Base):
 
         if locus is None:
             locus = self.dbentity
-        
+            
+        if chebi is None:
+            chebi = self.chebi
+            
         process = ""
         chemical_name = ""
         p = '0'
@@ -9389,7 +9392,7 @@ class Proteinabundanceannotation(Base):
             process = self.go.display_name
             p = '1'
         if self.chemical_id:
-            chemical_name = self.chebi.display_name
+            chemical_name = chebi.display_name
             c = '1'
         order_by = original_reference.display_name + "_" + p + c + "_" + process + "_" + chemical_name 
 
