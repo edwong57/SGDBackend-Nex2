@@ -2425,6 +2425,13 @@ class Referencedbentity(Dbentity):
                       'dbentity_name': dbentity_name,
                       'comment': None
                     })
+
+
+                
+        return tags
+
+
+    
                 
         ###################################################
         tag2dbentityNames = {}
