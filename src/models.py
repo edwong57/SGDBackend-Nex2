@@ -2425,13 +2425,6 @@ class Referencedbentity(Dbentity):
                       'dbentity_name': dbentity_name,
                       'comment': None
                     })
-
-
-                
-        return tags
-
-
-    
                 
         ###################################################
         tag2dbentityNames = {}
@@ -2453,6 +2446,15 @@ class Referencedbentity(Dbentity):
                 comments.append(comment)
             tag2comments[tag] = comments
 
+
+
+            
+        return tag2dbentityNames
+
+
+
+    
+            
         tag_list = []    
         for tag in tag2dbentityNames:
             dbentity_names = tag2dbentityNames[tag]
