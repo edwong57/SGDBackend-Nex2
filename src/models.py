@@ -775,7 +775,7 @@ class Chebi(Base):
         obj["complexes"] = self.complex_to_dict() 
         obj["phenotype"] = self.phenotype_to_dict()
         obj["go"] = self.go_to_dict()
-        obj["protein_abundance"] = self.proteinabundnace_to_dict()
+        obj["protein_abundance"] = self.proteinabundance_to_dict()
         obj["structure_image_url"] = self.get_structure_url()
         obj["network_graph"] = self.chemical_network()
 
@@ -811,7 +811,7 @@ class Chebi(Base):
 
         return obj
 
-    def proteinabundnace_to_dict(self):
+    def proteinabundance_to_dict(self):
 
         pa_annotations = DBSession.query(Proteinabundanceannotation).filter_by(chemical_id=self.chebi_id).all()
         obj = []
