@@ -813,11 +813,18 @@ class Chebi(Base):
 
     def proteinabundance_to_dict(self):
 
-        pa_annotations = DBSession.query(Proteinabundanceannotation).filter_by(chemical_id=self.chebi_id).all()
-        obj = []
-        for annotation in pa_annotations:
-            obj += annotation.to_dict()
-        return obj
+        annotations = DBSession.query(Proteinabundanceannotation).filter_by(chemical_id=self.chebi_id).all()
+        new_reference_ids = [a.reference_id for a in annotations]
+        orig_reference_ids = [a.original_reference_id for a in annotations]
+        reference_ids = list(set(new_reference_ids + orig_reference_ids))
+        references = DBSession.query(Referencedbentity).filter(Referencedbentity.dbentity_id.in_(reference_ids)).all()
+
+        ids_to_references = {}
+        for r in references:
+            ids_to_references[r.dbentity_id] = r
+
+	data = [a.to_dict(chemical=self, references=ids_to_references) for a in annotations]
+        return sorted(data, key=lambda d: d['order_by'])
 
     def complex_to_dict(self):
 
