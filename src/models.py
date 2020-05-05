@@ -2343,7 +2343,7 @@ class Referencedbentity(Dbentity):
             tags.append(obj)
 
         ## for complex vs CurationReference
-        curation_refs = DBSession.query(CurationReference, Complexdbentity).filter_by(reference_id=self.dbentity_id).innerjoin(Complexdbentity).all()
+        curation_refs = DBSession.query(CurationReference, Complexdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Complexdbentity).all()
         for x in curation_refs:
             complex_name = None
             complex = x.Complexdbentity
@@ -2357,7 +2357,7 @@ class Referencedbentity(Dbentity):
             tags.append(obj)
 
         ## for pathway vs CurationReference
-        curation_refs = DBSession.query(CurationReference, Pathwaydbentity).filter_by(reference_id=self.dbentity_id).innerjoin(Pathwaydbentity).all()
+        curation_refs = DBSession.query(CurationReference, Pathwaydbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Pathwaydbentity).all()
         for x in curation_refs:
             pathway_name = None
             pathway = x.Pathwaydbentity
@@ -2381,7 +2381,7 @@ class Referencedbentity(Dbentity):
             name = x.Literatureannotation.get_name()
             items.append((name, locus_name))
 
-        lit_annotations = DBSession.query(Literatureannotation, Complexdbentity).filter_by(reference_id=self.dbentity_id).innerjoin(Complexdbentity).all()
+        lit_annotations = DBSession.query(Literatureannotation, Complexdbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Complexdbentity).all()
         for x in lit_annotations:
             complex_name = None
             complex = x.Complexdbentity
@@ -2390,7 +2390,7 @@ class Referencedbentity(Dbentity):
             name = x.Literatureannotation.get_name()
             items.append((name, complex_name))
 
-        lit_annotations = DBSession.query(Literatureannotation, Pathwaydbentity).filter_by(reference_id=self.dbentity_id).innerjoin(Pathwaydbentity).all()
+        lit_annotations = DBSession.query(Literatureannotation, Pathwaydbentity).filter_by(reference_id=self.dbentity_id).outerjoin(Pathwaydbentity).all()
         for x in lit_annotations:
             pathway_name = None
             pathway= x.Pathwaydbentity
