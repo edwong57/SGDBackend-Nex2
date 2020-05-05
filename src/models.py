@@ -9369,7 +9369,7 @@ class Proteinabundanceannotation(Base):
     source = relationship('Source')
     taxonomy = relationship('Taxonomy')
 
-    def to_dict(self, locus=None, references=None):
+    def to_dict(self, locus=None, chemical=None, references=None):
 
         if references:
             reference = references[self.reference_id]
