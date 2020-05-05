@@ -2402,8 +2402,11 @@ class Referencedbentity(Dbentity):
 
         for (name, dbentity_name) in items:
             # ignore omics tags bc already have internal   
-            if name in ['non_phenotype_htp', 'htp_phenotype']:
-                continue
+
+            
+            # if name in ['non_phenotype_htp', 'htp_phenotype']:
+            #    continue
+            
             # Don't append to tags if it is a primary and already in tags.  
             if name in ['other_primary', 'go', 'classical_phenotype', 'headline_information']:
                 found = 0
