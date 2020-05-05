@@ -823,7 +823,7 @@ class Chebi(Base):
         for r in references:
             ids_to_references[r.dbentity_id] = r
 
-	data = [a.to_dict(chemical=self, references=ids_to_references) for a in annotations]
+        data = [a.to_dict(chemical=self, references=ids_to_references) for a in annotations]
         return sorted(data, key=lambda d: d['order_by'])
 
     def complex_to_dict(self):
