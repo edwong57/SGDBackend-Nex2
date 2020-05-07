@@ -862,7 +862,10 @@ class Chebi(Base):
             pathways.append({ "display_name": row.display_name,
                               "biocyc_id": row.biocyc_id,
                               "link_url": "https://pathway.yeastgenome.org/YEAST/NEW-IMAGE?type=NIL&object=" + row.biocyc_id + "&redirect=T"})
-        return pathways
+            
+        pathwaysSorted = sorted(pathways, key=lambda p: p['display_name'])
+        
+        return pathwaysSorted
     
     def get_structure_url(self):
         url = "https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=" + self.format_name.replace("CHEBI:", "")
