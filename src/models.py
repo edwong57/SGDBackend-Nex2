@@ -877,9 +877,8 @@ class Chebi(Base):
 
     def get_pharmGKB_url(self):
 
-        rows = DBSession.query(ChebiAlia.display_name).filter_by(chebi_id=self.chebi_id, alias_type='PharmGKD ID').all()
+        rows = DBSession.query(ChebiAlia.display_name).filter_by(chebi_id=self.chebi_id, alias_type='PharmGKB ID').all()
         if len(rows) > 0:
-            pharmKGB_id = rows[0].display_name 
             return "https://www.pharmgkb.org/chemical/" + rows[0].display_name
         return ""
         
