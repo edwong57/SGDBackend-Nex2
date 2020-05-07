@@ -777,6 +777,7 @@ class Chebi(Base):
         obj["go"] = self.go_to_dict()
         obj["protein_abundance"] = self.proteinabundance_to_dict()
         obj["structure_image_url"] = self.get_structure_url()
+        obj["pharmGKB_link_url"] = self.get_pharmGKB_url()
         obj["network_graph"] = self.chemical_network()
 
         return obj
@@ -849,12 +850,33 @@ class Chebi(Base):
 
         return complexes
 
+    def pathway_to_dict(self):
+
+        biocycIDs = DBSession.query(ChebiAlia.display_name).filter_by(chebi_id=self.chebi_id, alias_type='YeastPathway ID').all()
+        
+        pathwayRows = DBSession.query(Pathwaydbentity).filter(Pathwaydbentity.biocyc_id.in_(biocycIDs)).all()
+        
+        pathways = []
+        for row in pathwayRows:
+            pathways.append({ "display_name": row.display_name,
+                              "biocyc_id": row.biocyc_id,
+                              "link_url": "https://pathway.yeastgenome.org/YEAST/NEW-IMAGE?type=NIL&object=" + row.biocyc_id + "&redirect=T"})
+        return pathways
+    
     def get_structure_url(self):
         url = "https://www.ebi.ac.uk/chebi/displayImage.do?defaultImage=true&imageIndex=0&chebiId=" + self.format_name.replace("CHEBI:", "")
         response = urlopen(url)
         res = response.read()
         if len(res) > 0:
             return url
+        return ""
+
+    def get_pharmGKB_url(self):
+
+        rows = DBSession.query(ChebiAlia.display_name).filter_by(chebi_id=self.chebi_id, alias_type='PharmGKD ID').all()
+        if len(rows) > 0:
+            pharmKGB_id = rows[0].display_name 
+            return "https://www.pharmgkb.org/chemical/" + rows[0].display_name
         return ""
         
     def chemical_network(self):
