@@ -508,7 +508,8 @@ def new_gene_name_reservation(request):
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     data = request.json_body
-    required_fields = ['colleague_id', 'year', 'status']
+    # required_fields = ['colleague_id', 'year', 'status']
+    required_fields = ['year', 'status']  
     # validate fields outside of reservation
     for x in required_fields:
         if not data[x]:
