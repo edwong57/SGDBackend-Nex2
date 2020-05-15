@@ -668,15 +668,10 @@ def colleague_update(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+'''
 # not authenticated to allow the public submission
 @view_config(route_name='new_colleague', renderer='json', request_method='POST')
 def new_colleague(request):
-    curator_session = None
-    if 'username' in request.session:
-        curator_session = get_curator_session(request.session['username'])
-    else:
-        curator_session = DBSession
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     params = request.json_body
@@ -720,19 +715,21 @@ def new_colleague(request):
         DBSession.add(new_colleague)
         DBSession.flush()
         new_colleague_id = new_colleague.colleague_id
-        # new_colleague = DBSession.query(Colleague).filter(Colleague.format_name == format_name).one_or_none()
-        # new_c_triage = Colleaguetriage(
-        #    colleague_id = new_colleague_id,
-        #    json=json.dumps(params),
-        #    triage_type='New',
-        # )
-        # DBSession.add(new_c_triage)
+        new_colleague = DBSession.query(Colleague).filter(Colleague.format_name == format_name).one_or_none()
+        new_c_triage = Colleaguetriage(
+            colleague_id = new_colleague_id,
+            json=json.dumps(params),
+            triage_type='New',
+        )
+        DBSession.add(new_c_triage)
         transaction.commit()
         return { 'colleague_id': new_colleague_id }
     except Exception as e:
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
+'''
+
 
 @view_config(route_name='reserved_name_index', renderer='json')
 @authenticate
@@ -1076,16 +1073,25 @@ def add_new_colleague_triage(request):
         full_name = params['first_name'] + ' ' + params['last_name']
         # add a random number to be sure it's unique
         format_name = set_string_format(full_name) + str(randint(1, 100))
-        new_c_triage = Colleaguetriage(
-            json=json.dumps(params),
-            triage_type='New',
+        new_colleague = Colleague(
+            format_name = format_name,
+            display_name = full_name,
+            obj_url = '/colleague/' + format_name,
+            source_id = 759,# direct submission
+            orcid = params['orcid'],
+            first_name = params['first_name'],
+            last_name = params['last_name'],
+            email = params['email'],
+            is_contact = False,
+            is_beta_tester = False,
+            display_email = False,
+            is_in_triage = True,
+            is_pi = False,
+            created_by = 'OTTO'
         )
-        curator_session.add(new_c_triage)
+        curator_session.add(new_colleague)
         transaction.commit()
-        colleagueCount = DBSession.query(Colleaguetriage).count()
-        pusher = get_pusher_client() 
-        pusher.trigger('sgd','colleagueCount',{'message':colleagueCount})
-        return {'colleague_id': 0}
+        return {'colleague_id': new_colleague.colleague_id}
     except IntegrityError as IE:
         transaction.abort()
         log.error(IE)
@@ -1094,8 +1100,6 @@ def add_new_colleague_triage(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({'message': str(e) + ' something bad happened'}), content_type='text/json')
-
-
 
 # @view_config(route_name='upload', request_method='POST', renderer='json')
 # @authenticate
