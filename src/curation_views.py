@@ -668,10 +668,15 @@ def colleague_update(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-    
+
 # not authenticated to allow the public submission
 @view_config(route_name='new_colleague', renderer='json', request_method='POST')
 def new_colleague(request):
+    curator_session = None
+    if 'username' in request.session:
+        curator_session = get_curator_session(request.session['username'])
+    else:
+        curator_session = DBSession
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     params = request.json_body
@@ -715,13 +720,13 @@ def new_colleague(request):
         DBSession.add(new_colleague)
         DBSession.flush()
         new_colleague_id = new_colleague.colleague_id
-        new_colleague = DBSession.query(Colleague).filter(Colleague.format_name == format_name).one_or_none()
-        new_c_triage = Colleaguetriage(
-            colleague_id = new_colleague_id,
-            json=json.dumps(params),
-            triage_type='New',
-        )
-        DBSession.add(new_c_triage)
+        # new_colleague = DBSession.query(Colleague).filter(Colleague.format_name == format_name).one_or_none()
+        # new_c_triage = Colleaguetriage(
+        #    colleague_id = new_colleague_id,
+        #    json=json.dumps(params),
+        #    triage_type='New',
+        # )
+        # DBSession.add(new_c_triage)
         transaction.commit()
         return { 'colleague_id': new_colleague_id }
     except Exception as e:
