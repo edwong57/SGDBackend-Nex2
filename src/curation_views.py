@@ -23,7 +23,7 @@ import cgi
 import string
 import psycopg2
 
-from src.helpers import allowed_file, extract_id_request, secure_save_file,\
+from .helpers import allowed_file, extract_id_request, secure_save_file,\
     curator_or_none, extract_references, extract_keywords,\
     get_or_create_filepath, extract_topic, extract_format,\
     file_already_uploaded, link_references_to_file, link_keywords_to_file,\
@@ -31,10 +31,10 @@ from src.helpers import allowed_file, extract_id_request, secure_save_file,\
     send_newsletter_email, get_file_delimiter, unicode_to_string,\
     file_curate_update_readme, upload_new_file, get_file_curate_dropdown_data,\
     get_file_details
-from src.curation_helpers import ban_from_cache, process_pmid_list,\
+from .curation_helpers import ban_from_cache, process_pmid_list,\
     get_curator_session, get_pusher_client, validate_orcid, get_list_of_ptms
-from src.loading.promote_reference_triage import add_paper
-from src.models import DBSession, Dbentity, Dbuser, CuratorActivity, Colleague,\
+from .loading.promote_reference_triage import add_paper
+from .models import DBSession, Dbentity, Dbuser, CuratorActivity, Colleague,\
      Colleaguetriage, LocusnoteReference, Referencedbentity, Reservedname,\
      ReservednameTriage, Straindbentity, Literatureannotation,\
      Referencetriage, Referencedeleted, Locusdbentity,\
@@ -42,13 +42,13 @@ from src.models import DBSession, Dbentity, Dbuser, CuratorActivity, Colleague,\
      convert_space_separated_pmids_to_list, Psimod,\
      Posttranslationannotation, Regulationannotation, \
      Apo, Allele, Reporter, Chebi, Eco, Source
-from src.tsv_parser import parse_tsv_annotations
-from src.models_helpers import ModelsHelper
-from src.phenotype_helpers import add_phenotype_annotations, update_phenotype_annotations,\
+from .tsv_parser import parse_tsv_annotations
+from .models_helpers import ModelsHelper
+from .phenotype_helpers import add_phenotype_annotations, update_phenotype_annotations,\
       delete_phenotype_annotations, get_list_of_phenotypes, get_one_phenotype
-from src.author_response_helpers import insert_author_response, get_author_responses, update_author_response
-from src.litguide_helpers import get_list_of_papers, update_litguide, add_litguide
-from src.disease_helpers import insert_update_disease_annotations, delete_disease_annotation, get_diseases_by_filters, upload_disease_file
+from .author_response_helpers import insert_author_response, get_author_responses, update_author_response
+from .litguide_helpers import get_list_of_papers, update_litguide, add_litguide
+from .disease_helpers import insert_update_disease_annotations, delete_disease_annotation, get_diseases_by_filters, upload_disease_file
 
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
 log = logging.getLogger('curation')
@@ -668,7 +668,7 @@ def colleague_update(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+'''
 # not authenticated to allow the public submission
 @view_config(route_name='new_colleague', renderer='json', request_method='POST')
 def new_colleague(request):
@@ -728,6 +728,8 @@ def new_colleague(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
+'''
+
 
 @view_config(route_name='reserved_name_index', renderer='json')
 @authenticate
