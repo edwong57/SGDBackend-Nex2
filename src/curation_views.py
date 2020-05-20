@@ -1085,6 +1085,7 @@ def add_new_colleague_triage(request):
         )
         curator_session.add(new_colleague)
         curator_session.flush()
+        curator_session.refresh(new_colleague)
         transaction.commit()
         return {'colleague_id': new_colleague.colleague_id}
     except IntegrityError as IE:
