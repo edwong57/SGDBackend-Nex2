@@ -1085,14 +1085,14 @@ def add_new_colleague_triage(request):
         )
         curator_session.add(new_colleague)
         curator_session.flush()
-        curator_session.commit()
+        transaction.commit()
         return {'colleague_id': new_colleague.colleague_id}
     except IntegrityError as IE:
-        curator_session.rollback()
+        transaction.abort()
         log.error(IE)
         return HTTPBadRequest(body=json.dumps({'message': 'Orcid or Email already exists, if error persist Please contact sgd-helpdesk@lists.stanford.edu'}), content_type='text/json')
     except Exception as e:
-        curator_session.rollback()
+        transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({'message': str(e) + ' something bad happened'}), content_type='text/json')
 
