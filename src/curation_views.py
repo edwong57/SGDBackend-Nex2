@@ -1066,7 +1066,7 @@ def add_new_colleague_triage(request):
     try:
         full_name = params['first_name'] + ' ' + params['last_name']
         # add a random number to be sure it's unique
-        format_name = set_string_format(full_name) + str(randint(1, 100))
+        format_name = set_string_format(full_name) + "_" + str(randint(1, 100))
         new_colleague = Colleague(
             format_name = format_name,
             display_name = full_name,
