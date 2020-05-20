@@ -1041,8 +1041,7 @@ def get_username_from_db_uri():
 #     config.add_route('add_new_colleague_triage', '/colleagues', request_method='POST')
 @view_config(route_name='add_new_colleague_triage', renderer='json', request_method='POST')
 def add_new_colleague_triage(request):
-    curator_session = DBSession
-    
+    curator_session = DBSession    
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error': 'Bad CSRF Token'}))
     params = request.json_body
@@ -1085,14 +1084,14 @@ def add_new_colleague_triage(request):
             created_by = 'OTTO'
         )
         curator_session.add(new_colleague)
-        transaction.commit()
+        curator_session.commit()
         return {'colleague_id': new_colleague.colleague_id}
     except IntegrityError as IE:
-        transaction.abort()
+        curator_session.abort()
         log.error(IE)
         return HTTPBadRequest(body=json.dumps({'message': 'Orcid or Email already exists, if error persist Please contact sgd-helpdesk@lists.stanford.edu'}), content_type='text/json')
     except Exception as e:
-        transaction.abort()
+        curator_session.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({'message': str(e) + ' something bad happened'}), content_type='text/json')
 
