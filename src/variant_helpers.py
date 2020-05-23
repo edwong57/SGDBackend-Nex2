@@ -9,7 +9,7 @@ from scripts.loading.util import strain_order
 
 TAXON = 'TAX:559292'
 
-def get_dna_alignment_data(dna_type, strain_to_id):
+def get_dna_alignment_data(locus_id, dna_type, strain_to_id):
 
     dna_seqs = []
     snp_seqs = []
@@ -121,13 +121,13 @@ def get_variant_data(request):
     
     strain_to_id = strain_order()
 
-    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data('genomic', strain_to_id)
+    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'genomic', strain_to_id)
     data['block_sizes'] = block_sizes
     data['block_starts'] = block_starts
     data['aligned_dna_sequences'] = dna_seqs
     data['snp_seqs'] = snp_seqs
 
-    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data('downstream IGR', strain_to_id)
+    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'downstream IGR', strain_to_id)
     data['downstream_format_name'] = name
     data['downstream_chrom_start'] = start
     data['downstream_chrom_end'] = end
@@ -137,7 +137,7 @@ def get_variant_data(request):
     data['downstream_aligned_dna_sequences'] = dna_seqs
     data['downstream_snp_seqs'] = snp_seqs
     
-    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data('upstream IGR', strain_to_id)
+    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'upstream IGR', strain_to_id)
     data['upstream_format_name'] = name
     data['upstream_chrom_start'] = start
     data['upstream_chrom_end'] = end
