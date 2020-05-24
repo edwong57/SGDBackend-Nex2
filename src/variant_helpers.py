@@ -174,23 +174,23 @@ def get_variant_data(request):
     snp_index = 0
     for x in DBSession.query(Sequencevariant).filter_by(locus_id=locus_id).order_by(Sequencevariant.seq_type, Sequencevariant.variant_type, Sequencevariant.snp_type, Sequencevariant.start_index, Sequencevariant.end_index).all():
 
-        if x.seq_type == 'downstream IGR':
-            dna_row = { "start": x.start_index,
-                        "end": x.end_index,
-                        "score": x.score,
-                        "variant_type": x.variant_type }
-            if x.snp_type:
-                dna_row['snp_type'] = x.snp_type.capitalize()
-            downstream_variant_dna.append(dna_row)
+        # if x.seq_type == 'downstream IGR':
+        #    dna_row = { "start": x.start_index,
+        #                "end": x.end_index,
+        #                "score": x.score,
+        #                "variant_type": x.variant_type }
+        #    if x.snp_type:
+        #        dna_row['snp_type'] = x.snp_type.capitalize()
+        #    downstream_variant_dna.append(dna_row)
 
-        if x.seq_type == 'upstream IGR':
-            dna_row = { "start": x.start_index,
-                        "end": x.end_index,
-                        "score": x.score,
-                        "variant_type": x.variant_type }
-            if x.snp_type:
-                dna_row['snp_type'] = x.snp_type.capitalize()
-            upstream_variant_dna.append(dna_row)
+        # if x.seq_type == 'upstream IGR':
+        #    dna_row = { "start": x.start_index,
+        #                "end": x.end_index,
+        #                "score": x.score,
+        #                "variant_type": x.variant_type }
+        #    if x.snp_type:
+        #        dna_row['snp_type'] = x.snp_type.capitalize()
+        #    upstream_variant_dna.append(dna_row)
 
         if x.seq_type == 'DNA':
             dna_row = { "start": x.start_index,
