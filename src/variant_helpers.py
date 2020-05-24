@@ -20,40 +20,40 @@ def get_dna_alignment_data(locus_id, dna_type, strain_to_id):
     name = None
     start = None
     end = None
-    for x in DBSession.query(Dnasequencealignment).filter_by(dna_type=dna_type, locus_id=locus_id).all():
-        if x.display_name.endswith('S288C'):
-            start = x.contig_start_index
-            end = x.contig_end_index
-        strain = None
-        if dna_type == 'genomic':
-            [name, strain] = x.display_name.split('_')
-        else:
-            [name1, name2, strain] = x.display_name.split('_')
-            name = name1 + "_" + name2
-        if strain == 'S288C':
-            block_sizes = x.block_sizes.split(',')
-            if dna_type == 'genomic':
-                block_starts = x.block_starts.split(',')
-        strain_to_dna[strain] = { "strain_display_name": strain,
-                                  "strain_link": "/strain/" + strain.replace(".", "") + "/overview",
-                                  "strain_id": strain_to_id[strain],
-                                  "sequence": x.aligned_sequence
-        }
-        i = strain_to_id[strain] - 1
-        strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
-                                  "name": strain,
-                                  "id":  strain_to_id[strain] }
-    if dna_type == 'genomic':
-        for i in range(0, len(block_sizes)):
-            block_sizes[i] = int(block_sizes[i])
-    else:
-        block_starts = [1]
-    
-    for strain in sorted(strain_to_id, key=strain_to_id.get):
-        if strain in strain_to_snp:
-            snp_seqs.append(strain_to_snp[strain])
-        if strain in strain_to_dna:
-            dna_seqs.append(strain_to_dna[strain])
+    # for x in DBSession.query(Dnasequencealignment).filter_by(dna_type=dna_type, locus_id=locus_id).all():
+    #    if x.display_name.endswith('S288C'):
+    #        start = x.contig_start_index
+    #        end = x.contig_end_index
+    #    strain = None
+    #    if dna_type == 'genomic':
+    #        [name, strain] = x.display_name.split('_')
+    #    else:
+    #        [name1, name2, strain] = x.display_name.split('_')
+    #        name = name1 + "_" + name2
+    #    if strain == 'S288C':
+    #        block_sizes = x.block_sizes.split(',')
+    #        if dna_type == 'genomic':
+    #            block_starts = x.block_starts.split(',')
+    #    strain_to_dna[strain] = { "strain_display_name": strain,
+    #                              "strain_link": "/strain/" + strain.replace(".", "") + "/overview",
+    #                              "strain_id": strain_to_id[strain],
+    #                              "sequence": x.aligned_sequence
+    #    }
+    #    i = strain_to_id[strain] - 1
+    #    strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
+    #                              "name": strain,
+    #                              "id":  strain_to_id[strain] }
+    # if dna_type == 'genomic':
+    #    for i in range(0, len(block_sizes)):
+    #        block_sizes[i] = int(block_sizes[i])
+    # else:
+    #    block_starts = [1]
+    #
+    # for strain in sorted(strain_to_id, key=strain_to_id.get):
+    #    if strain in strain_to_snp:
+    #        snp_seqs.append(strain_to_snp[strain])
+    #    if strain in strain_to_dna:
+    #        dna_seqs.append(strain_to_dna[strain])
 
     return (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes)
         
