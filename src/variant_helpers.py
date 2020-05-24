@@ -127,25 +127,25 @@ def get_variant_data(request):
     data['aligned_dna_sequences'] = dna_seqs
     data['snp_seqs'] = snp_seqs
 
-    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'downstream IGR', strain_to_id)
-    data['downstream_format_name'] = name
-    data['downstream_chrom_start'] = start
-    data['downstream_chrom_end'] = end
-    data['downstream_dna_length'] = end - start + 1
-    data['downstream_block_sizes'] = block_sizes
-    data['downstream_block_starts'] = block_starts
-    data['downstream_aligned_dna_sequences'] = dna_seqs
-    data['downstream_snp_seqs'] = snp_seqs
+    # (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'downstream IGR', strain_to_id)
+    # data['downstream_format_name'] = name
+    # data['downstream_chrom_start'] = start
+    # data['downstream_chrom_end'] = end
+    # data['downstream_dna_length'] = end - start + 1
+    # data['downstream_block_sizes'] = block_sizes
+    # data['downstream_block_starts'] = block_starts
+    # data['downstream_aligned_dna_sequences'] = dna_seqs
+    # data['downstream_snp_seqs'] = snp_seqs
     
-    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'upstream IGR', strain_to_id)
-    data['upstream_format_name'] = name
-    data['upstream_chrom_start'] = start
-    data['upstream_chrom_end'] = end
-    data['upstream_dna_length'] = end - start + 1
-    data['upstream_block_sizes'] = block_sizes
-    data['upstream_block_starts'] = block_starts
-    data['upstream_aligned_dna_sequences'] = dna_seqs
-    data['upstream_snp_seqs'] = snp_seqs
+    # (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'upstream IGR', strain_to_id)
+    # data['upstream_format_name'] = name
+    # data['upstream_chrom_start'] = start
+    # data['upstream_chrom_end'] = end
+    # data['upstream_dna_length'] = end - start + 1
+    # data['upstream_block_sizes'] = block_sizes
+    # data['upstream_block_starts'] = block_starts
+    # data['upstream_aligned_dna_sequences'] = dna_seqs
+    # data['upstream_snp_seqs'] = snp_seqs
     ################################# 
     
     protein_seqs = []
