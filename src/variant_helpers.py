@@ -121,11 +121,11 @@ def get_variant_data(request):
     
     strain_to_id = strain_order()
 
-    (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'genomic', strain_to_id)
-    data['block_sizes'] = block_sizes
-    data['block_starts'] = block_starts
-    data['aligned_dna_sequences'] = dna_seqs
-    data['snp_seqs'] = snp_seqs
+    # (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'genomic', strain_to_id)
+    # data['block_sizes'] = block_sizes
+    # data['block_starts'] = block_starts
+    # data['aligned_dna_sequences'] = dna_seqs
+    # data['snp_seqs'] = snp_seqs
 
     # (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'downstream IGR', strain_to_id)
     # data['downstream_format_name'] = name
