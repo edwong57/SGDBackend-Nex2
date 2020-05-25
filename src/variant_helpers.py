@@ -43,10 +43,11 @@ def get_dna_alignment_data(locus_id, dna_type, strain_to_id):
         strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
                                   "name": strain,
                                   "id":  strain_to_id[strain] }
-    if dna_type == 'genomic':
-        for i in range(0, len(block_sizes)):
-            block_sizes[i] = int(block_sizes[i])
-    else:
+    for i in range(0, len(block_sizes)):
+        block_sizes[i] = int(block_sizes[i])
+    for i in range(0, len(block_starts)):
+        block_starts[i] = int(block_starts[i])
+    if dna_type != 'genomic':
         block_starts = [1]
     
     for strain in sorted(strain_to_id, key=strain_to_id.get):
