@@ -131,7 +131,8 @@ def get_variant_data(request):
     data['downstream_format_name'] = name
     data['downstream_chrom_start'] = start
     data['downstream_chrom_end'] = end
-    data['downstream_dna_length'] = end - start + 1
+    if end and start:
+        data['downstream_dna_length'] = end - start + 1
     data['downstream_block_sizes'] = block_sizes
     data['downstream_block_starts'] = block_starts
     data['downstream_aligned_dna_sequences'] = dna_seqs
@@ -141,7 +142,8 @@ def get_variant_data(request):
     data['upstream_format_name'] = name
     data['upstream_chrom_start'] = start
     data['upstream_chrom_end'] = end
-    data['upstream_dna_length'] = end - start + 1
+    if end and start:
+        data['upstream_dna_length'] = end - start + 1
     data['upstream_block_sizes'] = block_sizes
     data['upstream_block_starts'] = block_starts
     data['upstream_aligned_dna_sequences'] = dna_seqs
