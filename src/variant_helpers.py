@@ -114,11 +114,7 @@ def get_variant_data(request):
                 "href": x.proteindomain.obj_url + '/overview'
         }
         data['protein_domains'].append(row)
-    
-    # absolute_genetic_start = 3522089??   
-    # 'dna_scores': locus['dna_scores'],
-    # 'protein_scores': locus['protein_scores'],
-    
+        
     strain_to_id = strain_order()
 
     (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'genomic', strain_to_id)
@@ -128,26 +124,26 @@ def get_variant_data(request):
     data['snp_seqs'] = snp_seqs
 
     (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'downstream IGR', strain_to_id)
-    data['downstream_format_name'] = name
-    data['downstream_chrom_start'] = start
-    data['downstream_chrom_end'] = end
     if end and start:
+        data['downstream_format_name'] = name
+        data['downstream_chrom_start'] = start
+        data['downstream_chrom_end'] = end
         data['downstream_dna_length'] = end - start + 1
-    data['downstream_block_sizes'] = block_sizes
-    data['downstream_block_starts'] = block_starts
-    data['downstream_aligned_dna_sequences'] = dna_seqs
-    data['downstream_snp_seqs'] = snp_seqs
+        data['downstream_block_sizes'] = block_sizes
+        data['downstream_block_starts'] = block_starts
+        data['downstream_aligned_dna_sequences'] = dna_seqs
+        data['downstream_snp_seqs'] = snp_seqs
     
     (name, start, end, dna_seqs, snp_seqs, block_starts, block_sizes) = get_dna_alignment_data(locus_id, 'upstream IGR', strain_to_id)
-    data['upstream_format_name'] = name
-    data['upstream_chrom_start'] = start
-    data['upstream_chrom_end'] = end
     if end and start:
+        data['upstream_format_name'] = name
+        data['upstream_chrom_start'] = start
+        data['upstream_chrom_end'] = end
         data['upstream_dna_length'] = end - start + 1
-    data['upstream_block_sizes'] = block_sizes
-    data['upstream_block_starts'] = block_starts
-    data['upstream_aligned_dna_sequences'] = dna_seqs
-    data['upstream_snp_seqs'] = snp_seqs
+        data['upstream_block_sizes'] = block_sizes
+        data['upstream_block_starts'] = block_starts
+        data['upstream_aligned_dna_sequences'] = dna_seqs
+        data['upstream_snp_seqs'] = snp_seqs
     ################################# 
     
     protein_seqs = []
@@ -258,9 +254,11 @@ def get_variant_data(request):
             variant_protein.append(protein_row)
             
     data['variant_data_dna'] = variant_dna
-    data['downstream_variant_data_dna'] = downstream_variant_dna
-    data['upstream_variant_data_dna'] = upstream_variant_dna
     data['variant_data_protein'] = variant_protein
+    if data.get('downstream_format_name'):
+        data['downstream_variant_data_dna'] = downstream_variant_dna
+    if data.get('upstream_format_name'):
+        data['upstream_variant_data_dna'] = upstream_variant_dna
     
     return data
  
