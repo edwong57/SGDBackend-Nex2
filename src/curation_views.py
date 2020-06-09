@@ -2075,32 +2075,54 @@ def get_all_go_for_regulations(request):
         if DBSession:
             DBSession.remove()
 
-# WFH
 @view_config(route_name='get_all_eco_for_regulations', renderer='json', request_method='GET')
 @authenticate
 def get_all_eco_for_regulations(request):
-    eco_in_db = models_helper.get_all_eco()
-    obj = [{'eco_id':e.eco_id, 'format_name': e.format_name,'display_name':e.display_name} for e in eco_in_db]
-    return HTTPOk(body=json.dumps({'success':obj}),content_type='text/json')
-
+    try:
+        eco_in_db = models_helper.get_all_eco()
+        obj = [{'eco_id':e.eco_id, 'format_name': e.format_name,'display_name':e.display_name} for e in eco_in_db]
+        return HTTPOk(body=json.dumps({'success':obj}),content_type='text/json')
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+    
 @view_config(route_name='get_papers_by_tag',renderer='json',request_method='GET')
 def get_papers_by_tag(request):
-
-    return get_list_of_papers(request)
+    try:
+        return get_list_of_papers(request)
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='get_all_eco', renderer='json', request_method='GET')
 @authenticate
 def get_all_eco(request):
-    eco_in_db = models_helper.get_all_eco()
-    obj = [{'eco_id':e.eco_id, 'format_name': e.format_name,'display_name':e.display_name} for e in eco_in_db]
-    return HTTPOk(body=json.dumps({'success':obj}),content_type='text/json')
+    try:
+        eco_in_db = models_helper.get_all_eco()
+        obj = [{'eco_id':e.eco_id, 'format_name': e.format_name,'display_name':e.display_name} for e in eco_in_db]
+        return HTTPOk(body=json.dumps({'success':obj}),content_type='text/json')
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='get_all_do', renderer='json', request_method='GET')
 @authenticate
 def get_all_do(request):
-    do_in_db = models_helper.get_all_do()
-    obj = [{'disease_id':d.disease_id, 'format_name': d.format_name,'display_name':d.display_name} for d in do_in_db]
-    return HTTPOk(body=json.dumps({'success': obj}), content_type='text/json')
+    try:
+        do_in_db = models_helper.get_all_do()
+        obj = [{'disease_id':d.disease_id, 'format_name': d.format_name,'display_name':d.display_name} for d in do_in_db]
+        return HTTPOk(body=json.dumps({'success': obj}), content_type='text/json')
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
     
 @view_config(route_name='phenotype_add', renderer='json', request_method='POST')
 @authenticate
@@ -2108,16 +2130,25 @@ def phenotype_add(request):
 
     return add_phenotype_annotations(request)
 
-
 @view_config(route_name='get_phenotypes',renderer='json',request_method='GET')
 def get_phenotypes(request):
-
-    return get_list_of_phenotypes(request)
+    try:
+        return get_list_of_phenotypes(request)
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='get_phenotype',renderer='json',request_method='GET')
 def get_phenotype(request):
-
-    return get_one_phenotype(request)
+    try:
+        return get_one_phenotype(request)
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='phenotype_update', renderer='json', request_method='POST')
 @authenticate
@@ -2161,15 +2192,21 @@ def all_author_responses(request):
 @view_config(route_name='one_author_response',renderer='json',request_method='GET')
 def one_author_response(request):
 
-    curation_id = request.matchdict['id']
-
-    return get_author_responses(curation_id)
+    try:
+        curation_id = request.matchdict['id']
+        return get_author_responses(curation_id)
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='edit_author_response',renderer='json',request_method='POST')
 @authenticate
 def edit_author_response(request):
 
     return update_author_response(request)
+
 @view_config(route_name='disease_insert_update', renderer='json', request_method='POST')
 @authenticate
 def disease_insert_update(request):
@@ -2179,8 +2216,13 @@ def disease_insert_update(request):
 @view_config(route_name='diseases_by_filters',renderer='json',request_method='POST')
 @authenticate
 def diseases_by_filters(request):
-
-    return get_diseases_by_filters(request)
+    try:
+        return get_diseases_by_filters(request)
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='disease_delete',renderer='json',request_method='DELETE')
 @authenticate
@@ -2193,6 +2235,8 @@ def disease_delete(request):
 def disease_file(request):
 
     return upload_disease_file(request)
+
+# WFH
 
 @view_config(route_name='regulation_insert_update', renderer='json', request_method='POST')
 @authenticate
