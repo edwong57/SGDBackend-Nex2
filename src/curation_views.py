@@ -1096,7 +1096,7 @@ def colleague_triage_promote(request):
     finally:
         if curator_session:
             curator_session.remove()
-# WFH
+
 @view_config(route_name='colleague_triage_delete', renderer='json', request_method='DELETE')
 @authenticate
 def colleague_triage_delete(request):
@@ -1123,7 +1123,6 @@ def colleague_triage_delete(request):
     finally:
         if curator_session:
             curator_session.remove()
-
 
 def get_username_from_db_uri():
     s = os.environ['NEX2_URI']
@@ -1155,12 +1154,13 @@ def add_new_colleague_triage(request):
     if not is_orcid_valid:
         msg = params['orcid'] + ' is not a valid orcid.'
         return HTTPBadRequest(body=json.dumps({'message': msg}), content_type='text/json')
-    colleague_orcid_email_exists = curator_session.query(Colleague).filter(or_(and_(Colleague.orcid == params.get('orcid'), Colleague.email == params.get(
-        'email')), or_(Colleague.orcid == params.get('orcid'), Colleague.email == params.get('email')))).one_or_none()
-    if colleague_orcid_email_exists:
-        msg = 'You entered an ORCID or Email which is already being used by an SGD colleague. Try to find your entry or contact sgd-helpdesk@lists.stanford.edu if you think this is a mistake.'
-        return HTTPBadRequest(body=json.dumps({'message': msg}), content_type='text/json')
     try:
+        colleague_orcid_email_exists = curator_session.query(Colleague).filter(or_(and_(Colleague.orcid == params.get('orcid'), Colleague.email == params.get(
+            'email')), or_(Colleague.orcid == params.get('orcid'), Colleague.email == params.get('email')))).one_or_none()
+        if colleague_orcid_email_exists:
+            msg = 'You entered an ORCID or Email which is already being used by an SGD colleague. Try to find your entry or contact sgd-helpdesk@lists.stanford.edu if you think this is a mistake.'
+            return HTTPBadRequest(body=json.dumps({'message': msg}), content_type='text/json')
+        
         full_name = params['first_name'] + ' ' + params['last_name']
         # add a random number to be sure it's unique
         format_name = set_string_format(full_name) + str(randint(1, 100))
@@ -1194,7 +1194,10 @@ def add_new_colleague_triage(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({'message': str(e) + ' something bad happened'}), content_type='text/json')
-
+    finally:
+        if curator_session:
+            curator_session.close()
+            
 # @view_config(route_name='upload', request_method='POST', renderer='json')
 # @authenticate
 # def upload_file(request):
@@ -1264,15 +1267,14 @@ def add_new_colleague_triage(request):
 #     log.info('File ' + request.POST.get('display_name') + ' was successfully uploaded.')
 #     return Response({'success': True})
 
-
-
 @view_config(route_name='colleague_with_subscription', renderer='json', request_method='GET')
 def colleague_with_subscription(request):
     try:
         colleagues = models_helper.get_all_colleague_with_subscription()
         emails_string = ";\n".join([colleague.email for colleague in colleagues])  #[colleague.email for colleague in colleagues]
         return {'colleagues':emails_string}
-    except:
+    except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': "Error retrieving colleagues"}))
 
 @view_config(route_name='get_newsletter_sourcecode',renderer='json',request_method='POST')
@@ -1319,7 +1321,8 @@ def get_newsletter_sourcecode(request):
             return {"code":body.prettify()}
         else:
             return HTTPBadRequest(body=json.dumps({'error': "URL must be from wiki.yeastgenome.org"}))
-    except:
+    except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': "Unexpected error"}))
 
 @view_config(route_name='send_newsletter',renderer='json',request_method='POST')
@@ -1339,8 +1342,8 @@ def send_newsletter(request):
         else:
             return HTTPBadRequest(body=json.dumps(returnValue), content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': "Error occured during sending newsletter"}), content_type='text/json')
-
 
 @view_config(route_name='ptm_file_insert', renderer='json', request_method='POST')
 @authenticate
@@ -1614,7 +1617,7 @@ def ptm_file_insert(request):
                 returnValue = str(e)
             finally:
                 if curator_session:
-                    curator_session.close()
+                    curator_session.remove()
         
         if isSuccess:
             log.info("PTM file upload for "+ filename + " successfully.")
@@ -1622,12 +1625,11 @@ def ptm_file_insert(request):
         
         return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
 
-
     except Exception as e:
         log.exception('PTM fileupload completed with error.')
         return HTTPBadRequest(body=json.dumps({ 'error': str(e) }), content_type='text/json')
-
-
+    
+#WFH
 @view_config(route_name='ptm_by_gene',renderer='json',request_method='GET')
 def ptm_by_gene(request):
     gene = str(request.matchdict['id'])
