@@ -801,32 +801,42 @@ def new_colleague(request):
 @view_config(route_name='reserved_name_index', renderer='json')
 @authenticate
 def reserved_name_index(request):
-    res_triages = DBSession.query(ReservednameTriage).all()
-    res_triages = [x.to_dict() for x in res_triages]
-    reses = DBSession.query(Reservedname).all()
-    reses = [x.to_curate_dict() for x in reses]
-    reses = res_triages + reses
-    return reses
-
+    try:
+        res_triages = DBSession.query(ReservednameTriage).all()
+        res_triages = [x.to_dict() for x in res_triages]
+        reses = DBSession.query(Reservedname).all()
+        reses = [x.to_curate_dict() for x in reses]
+        reses = res_triages + reses
+        return reses
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='reserved_name_curate_show', renderer='json')
 @authenticate
 def reserved_name_curate_show(request):
-    req_id = request.matchdict['id'].upper()
-    # may be either Reservedname or reservedname triage entry
-    res = DBSession.query(Reservedname).filter(Reservedname.reservedname_id == req_id).one_or_none()
-
-    res_dict = None
-    if res:
-        res_dict = res.to_curate_dict()
-    else:
-        res = DBSession.query(ReservednameTriage).filter(ReservednameTriage.curation_id == req_id).one_or_none()
-        res_dict = res.to_dict()
-
-    if res_dict:
-        return res_dict
-    else:
-        return HTTPNotFound()
-
+    try:
+        req_id = request.matchdict['id'].upper()
+        # may be either Reservedname or reservedname triage entry
+        res = DBSession.query(Reservedname).filter(Reservedname.reservedname_id == req_id).one_or_none()
+        res_dict = None
+        if res:
+            res_dict = res.to_curate_dict()
+        else:
+            res = DBSession.query(ReservednameTriage).filter(ReservednameTriage.curation_id == req_id).one_or_none()
+            res_dict = res.to_dict()
+        if res_dict:
+            return res_dict
+        else:
+            return HTTPNotFound()
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='reserved_name_update', renderer='json', request_method='PUT')
 @authenticate
 def reserved_name_update(request):
@@ -835,18 +845,20 @@ def reserved_name_update(request):
     req_id = request.matchdict['id'].upper()
     params = request.json_body
     username = request.session['username']
-    res = DBSession.query(Reservedname).filter(Reservedname.reservedname_id == req_id).one_or_none()
-    if not res:
-        res = DBSession.query(ReservednameTriage).filter(ReservednameTriage.curation_id == req_id).one_or_none()
-    if not res:
-        return HTTPNotFound()
-
     try:
+        res = DBSession.query(Reservedname).filter(Reservedname.reservedname_id == req_id).one_or_none()
+        if not res:
+            res = DBSession.query(ReservednameTriage).filter(ReservednameTriage.curation_id == req_id).one_or_none()
+        if not res:
+            return HTTPNotFound()
         return res.update(params, username)
     except Exception as e:
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='reserved_name_standardize', renderer='json', request_method='POST')
 @authenticate
 def reserved_name_standardize(request):
@@ -890,8 +902,10 @@ def reserved_name_standardize(request):
         traceback.print_exc()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='reserved_name_delete', renderer='json', request_method='DELETE')
 @authenticate
 def reserved_name_delete(request):
@@ -938,8 +952,8 @@ def reserved_name_promote(request):
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     req_id = request.matchdict['id'].upper()
-    res = DBSession.query(ReservednameTriage).filter(ReservednameTriage.curation_id == req_id).one_or_none()
     try:
+        res = DBSession.query(ReservednameTriage).filter(ReservednameTriage.curation_id == req_id).one_or_none()
         if(res.promote(request.session['username'])):
             geneCount = DBSession.query(ReservednameTriage).count()
             pusher = get_pusher_client() 
@@ -948,7 +962,10 @@ def reserved_name_promote(request):
     except Exception as e:
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+# WFH            
 @view_config(route_name='extend_reserved_name', renderer='json', request_method='PUT')
 @authenticate
 def extend_reserved_name(request):
