@@ -665,34 +665,38 @@ def new_gene_name_reservation(request):
 @view_config(route_name='colleague_update', renderer='json', request_method='PUT')
 def colleague_update(request):
     curator_session = None
-    if 'username' in request.session:
-        curator_session = get_curator_session(request.session['username'])
-    else:
-        curator_session = DBSession
+    try:
+        if 'username' in request.session:
+            curator_session = get_curator_session(request.session['username'])
+        else:
+            curator_session = DBSession
 
-    if not check_csrf_token(request, raises=False):
-        return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
-    req_id = request.matchdict['id'].upper()
-    data = request.json_body
-    required_fields = ['first_name', 'last_name', 'email', 'orcid']
-    for x in required_fields:
-        if not data[x]:
-            msg = x + ' is a required field.'
+        if not check_csrf_token(request, raises=False):
+            return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
+        req_id = request.matchdict['id'].upper()
+        data = request.json_body
+        required_fields = ['first_name', 'last_name', 'email', 'orcid']
+        for x in required_fields:
+            if not data[x]:
+                msg = x + ' is a required field.'
+                return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+        if req_id == 'NULL':
+            return HTTPBadRequest(body=json.dumps({ 'message': 'Please select your name from colleague list or create a new entry.' }), content_type='text/json')
+        is_email_valid = validate_email(data['email'], verify=False)
+        if not is_email_valid:
+            msg = data['email'] + ' is not a valid email.'
             return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-    if req_id == 'NULL':
-        return HTTPBadRequest(body=json.dumps({ 'message': 'Please select your name from colleague list or create a new entry.' }), content_type='text/json')
-    is_email_valid = validate_email(data['email'], verify=False)
-    if not is_email_valid:
-        msg = data['email'] + ' is not a valid email.'
-        return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-    is_orcid_valid = validate_orcid(data['orcid'])
-    if not is_orcid_valid:
-        msg = data['orcid'] + ' is not a valid orcid.'
-        return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-    colleague = curator_session.query(Colleague).filter(
-        Colleague.colleague_id == req_id).one_or_none()
-    if not colleague:
-        return HTTPNotFound()
+        is_orcid_valid = validate_orcid(data['orcid'])
+        if not is_orcid_valid:
+            msg = data['orcid'] + ' is not a valid orcid.'
+            return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+        colleague = curator_session.query(Colleague).filter(
+            Colleague.colleague_id == req_id).one_or_none()
+        if not colleague:
+            return HTTPNotFound()
+    except Exception as e:
+        log.error(e)
+        
     # add colleague triage entry
     try:
         is_changed = False
@@ -727,6 +731,10 @@ def colleague_update(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
+    finally:
+        if curator_session:
+            curator_session.remove()
+            
 '''
 # not authenticated to allow the public submission
 @view_config(route_name='new_colleague', renderer='json', request_method='POST')
