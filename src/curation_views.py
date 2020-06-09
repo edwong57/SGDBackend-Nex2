@@ -266,15 +266,21 @@ def reference_triage_id_delete(request):
     finally:
         if DBSession:
             DBSession.remove()
-#WFH
+
 @view_config(route_name='reference_triage_id', renderer='json', request_method='GET')
 def reference_triage_id(request):
-    id = request.matchdict['id'].upper()
-    triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-    if triage:
-        return triage.to_dict()
-    else:
-        return HTTPNotFound()
+    try:
+        id = request.matchdict['id'].upper()
+        triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+        if triage:
+            return triage.to_dict()
+        else:
+            return HTTPNotFound()
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='reference_triage_id_update', renderer='json', request_method='PUT')
 @authenticate
@@ -282,22 +288,29 @@ def reference_triage_id_update(request):
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     id = request.matchdict['id'].upper()
-    triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-    if triage:
-        try:
-            triage.update_from_json(request.json)
-            transaction.commit()
-        except:
-            traceback.print_exc()
-            transaction.abort()
-            DBSession.rollback()
-            return HTTPBadRequest(body=json.dumps({'error': 'DB failure. Verify if pmid is valid and not already present.'}))
-        pusher = get_pusher_client()
-        pusher.trigger('sgd', 'triageUpdate', {})
-        return HTTPOk()
-    else:
-        return HTTPNotFound()
-
+    try:
+        triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+        if triage:
+            try:
+                triage.update_from_json(request.json)
+                transaction.commit()
+            except Exception as e:
+                traceback.print_exc()
+                transaction.abort()
+                log.error(e)
+                DBSession.rollback()
+                return HTTPBadRequest(body=json.dumps({'error': 'DB failure. Verify if pmid is valid and not already present.'}))
+            pusher = get_pusher_client()
+            pusher.trigger('sgd', 'triageUpdate', {})
+            return HTTPOk()
+        else:
+            return HTTPNotFound()
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+#WFH
 @view_config(route_name='reference_triage_promote', renderer='json', request_method='PUT')
 @authenticate
 def reference_triage_promote(request):
