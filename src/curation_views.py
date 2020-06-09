@@ -522,7 +522,6 @@ def get_recent_annotations(request):
     finally:
         if DBSession:
             DBSession.remove()
-## WFH
 
 @view_config(route_name='upload_spreadsheet', request_method='POST', renderer='json')
 @authenticate
@@ -551,7 +550,8 @@ def upload_spreadsheet(request):
             return HTTPBadRequest(body=json.dumps({'error': 'Unable to process file upload. Record already exists.'}), content_type='text/json')
         else:
             return HTTPBadRequest(body=json.dumps({'error': 'Unable to process file upload. Database error occured while updating your entry.'}), content_type='text/json')
-    except:
+    except Exception as e:
+        log.error(e)
         traceback.print_exc()
         return HTTPBadRequest(body=json.dumps({ 'error': 'Unable to process file upload. Please try again.' }), content_type='text/json')
 
