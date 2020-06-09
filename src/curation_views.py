@@ -223,44 +223,50 @@ def new_reference(request):
     finally:
         if DBSession:
             DBSession.remove()
-#WFH    
+
 @view_config(route_name='reference_triage_id_delete', renderer='json', request_method='DELETE')
 @authenticate
 def reference_triage_id_delete(request):
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     id = request.matchdict['id'].upper()
-    triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-    curator_session = None
-    if triage:
-        try:
-            curator_session = get_curator_session(request.session['username'])
-            triage = curator_session.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-            # only add referencedeleted if reference not in referencedbentity (allow curators to delete a reference that was added to DB but failed to removed from referencetriage)
-            existing_ref = curator_session.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
-            existing_ref_deleted = curator_session.query(Referencedeleted).filter_by(pmid=triage.pmid).one_or_none()
-            if not (existing_ref or existing_ref_deleted):
-                reference_deleted = Referencedeleted(pmid=triage.pmid, sgdid=None, reason_deleted='This paper was discarded during literature triage.', created_by=request.session['username'])
-                curator_session.add(reference_deleted)
-            else:
-                log.warning(str(triage.pmid) + ' was removed from referencetriage but no Referencedeleted was added.')
-            curator_session.delete(triage)        
-            transaction.commit()
-            pusher = get_pusher_client()
-            pusher.trigger('sgd', 'triageUpdate', {})
-            return HTTPOk()
-        except Exception as e:
-            transaction.abort()
-            if curator_session:
-                curator_session.rollback()
-            log.error(e)
-            return HTTPBadRequest(body=json.dumps({'error': str(e) }))
-        finally:
-            if curator_session:
-                curator_session.close()
-    else:
-        return HTTPNotFound()
-
+    try:
+        triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+        curator_session = None
+        if triage:
+            try:
+                curator_session = get_curator_session(request.session['username'])
+                triage = curator_session.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+                # only add referencedeleted if reference not in referencedbentity (allow curators to delete a reference that was added to DB but failed to removed from referencetriage)
+                existing_ref = curator_session.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
+                existing_ref_deleted = curator_session.query(Referencedeleted).filter_by(pmid=triage.pmid).one_or_none()
+                if not (existing_ref or existing_ref_deleted):
+                    reference_deleted = Referencedeleted(pmid=triage.pmid, sgdid=None, reason_deleted='This paper was discarded during literature triage.', created_by=request.session['username'])
+                    curator_session.add(reference_deleted)
+                else:
+                    log.warning(str(triage.pmid) + ' was removed from referencetriage but no Referencedeleted was added.')
+                curator_session.delete(triage)        
+                transaction.commit()
+                pusher = get_pusher_client()
+                pusher.trigger('sgd', 'triageUpdate', {})
+                return HTTPOk()
+            except Exception as e:
+                transaction.abort()
+                if curator_session:
+                    curator_session.rollback()
+                log.error(e)
+                return HTTPBadRequest(body=json.dumps({'error': str(e) }))
+            finally:
+                if curator_session:
+                    curator_session.remove()
+        else:
+            return HTTPNotFound()
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+#WFH
 @view_config(route_name='reference_triage_id', renderer='json', request_method='GET')
 def reference_triage_id(request):
     id = request.matchdict['id'].upper()
