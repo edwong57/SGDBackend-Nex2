@@ -378,7 +378,7 @@ def reference_triage_index(request):
     finally:
         if DBSession:
             DBSession.remove()
-# WFH
+
 @view_config(route_name='refresh_homepage_cache', request_method='POST', renderer='json')
 @authenticate
 def refresh_homepage_cache(request):
@@ -428,7 +428,7 @@ def db_sign_in(request):
         return HTTPBadRequest(body=json.dumps({'error': 'Unable to log in, please contact programmers.'}))
     finally:
         if Temp_session:
-            Temp_session.close()
+            Temp_session.remove()
 
 @view_config(route_name='sign_in', request_method='POST', renderer='json')
 def sign_in(request):
@@ -467,7 +467,9 @@ def sign_in(request):
         return {'username': curator.username}
     except crypt.AppIdentityError:
         return HTTPForbidden(body=json.dumps({'error': 'Authentication token is invalid'}))
-
+    except Exception as e:
+        log.error(e)
+        
 @view_config(route_name='sign_out', request_method='GET')
 def sign_out(request):
     request.session.invalidate()
@@ -476,13 +478,20 @@ def sign_out(request):
 @view_config(route_name='reference_tags', renderer='json', request_method='GET')
 # @authenticate
 def reference_tags(request):
-    id = extract_id_request(request, 'reference', 'id', True)
-    if id:
-        reference = DBSession.query(Referencedbentity).filter_by(dbentity_id=id).one_or_none()
-    else:
-        reference = DBSession.query(Referencedbentity).filter_by(sgdid=request.matchdict['id']).one_or_none()
-    return reference.get_tags()
-
+    try:
+        id = extract_id_request(request, 'reference', 'id', True)
+        if id:
+            reference = DBSession.query(Referencedbentity).filter_by(dbentity_id=id).one_or_none()
+        else:
+            reference = DBSession.query(Referencedbentity).filter_by(sgdid=request.matchdict['id']).one_or_none()
+        return reference.get_tags()
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+        
+#WFH
 @view_config(route_name='update_reference_tags', renderer='json', request_method='PUT')
 @authenticate
 def update_reference_tags(request):
