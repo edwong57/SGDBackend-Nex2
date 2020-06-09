@@ -310,7 +310,7 @@ def reference_triage_id_update(request):
     finally:
         if DBSession:
             DBSession.remove()
-#WFH
+
 @view_config(route_name='reference_triage_promote', renderer='json', request_method='PUT')
 @authenticate
 def reference_triage_promote(request):
@@ -318,17 +318,23 @@ def reference_triage_promote(request):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     tags = request.json['tags']
     username = request.session['username']
+    id = request.matchdict['id'].upper()
+    new_reference_id = None
+    triage = None
     # validate tags before doing anything else
     try:
         validate_tags(tags)
+        triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+        existing_ref = DBSession.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
+        if existing_ref:
+            return HTTPBadRequest(body=json.dumps({'error': 'The reference already exists in the database. You may need to discard from triage after verifying.' }))
     except Exception as e:
-        return HTTPBadRequest(body=json.dumps({'error': str(e) }))
-    id = request.matchdict['id'].upper()
-    triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-    new_reference_id = None
-    existing_ref = DBSession.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
-    if existing_ref:
-        return HTTPBadRequest(body=json.dumps({'error': 'The reference already exists in the database. You may need to discard from triage after verifying.' }))
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
+    curator_session = None
     if triage:
         # promote
         try:
@@ -342,7 +348,7 @@ def reference_triage_promote(request):
             traceback.print_exc()
             log.error(e)
             transaction.abort()
-            DBSession.rollback()
+            curator_session.rollback()
             return HTTPBadRequest(body=json.dumps({'error': str(e) }))
         # update tags
         try:
@@ -353,7 +359,7 @@ def reference_triage_promote(request):
             log.error(e)
             curator_session.rollback()
         finally:
-            curator_session.close()
+            curator_session.remove()
         pusher = get_pusher_client()
         pusher.trigger('sgd', 'triageUpdate', {})
         pusher.trigger('sgd', 'curateHomeUpdate', {})
@@ -363,10 +369,16 @@ def reference_triage_promote(request):
 
 @view_config(route_name='reference_triage_index', renderer='json', request_method='GET')
 def reference_triage_index(request):
-    total = DBSession.query(Referencetriage).count()
-    triages = DBSession.query(Referencetriage).order_by(Referencetriage.date_created.asc()).limit(150).all()
-    return { 'entries': [t.to_dict() for t in triages], 'total': total }
-
+    try:
+        total = DBSession.query(Referencetriage).count()
+        triages = DBSession.query(Referencetriage).order_by(Referencetriage.date_created.asc()).limit(150).all()
+        return { 'entries': [t.to_dict() for t in triages], 'total': total }
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+# WFH
 @view_config(route_name='refresh_homepage_cache', request_method='POST', renderer='json')
 @authenticate
 def refresh_homepage_cache(request):
