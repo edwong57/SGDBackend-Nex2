@@ -128,8 +128,6 @@ def locus_curate_summaries(request):
         if DBSession:
             DBSession.remove()
 
-## WFH
-
 @view_config(route_name='locus_curate_basic', request_method='PUT', renderer='json')
 @authenticate
 def locus_curate_basic(request):
@@ -147,7 +145,10 @@ def locus_curate_basic(request):
         traceback.print_exc()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+# WFH            
 @view_config(route_name='get_new_reference_info', renderer='json', request_method='POST')
 @authenticate
 def get_new_reference_info(request):
