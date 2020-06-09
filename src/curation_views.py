@@ -588,46 +588,50 @@ def new_gene_name_reservation(request):
                     return HTTPBadRequest(body=json.dumps({ 'message': 'Author names must contain only letters or space or dot.' }), content_type='text/json')
     res_required_fields = ['new_gene_name']
     # validate reservations themselves
-    for res in data['reservations']:
-        for x in res_required_fields:
-            if not res[x]:
-                field_name = x.replace('_', ' ')
-                field_name = field_name.replace('new', 'proposed')
-                msg = field_name + ' is a required field.'
+    try:
+        for res in data['reservations']:
+            for x in res_required_fields:
+                if not res[x]:
+                    field_name = x.replace('_', ' ')
+                    field_name = field_name.replace('new', 'proposed')
+                    msg = field_name + ' is a required field.'
+                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+            proposed_name = res['new_gene_name'].strip().upper()
+            is_already_res = DBSession.query(Reservedname).filter(Reservedname.display_name == proposed_name).one_or_none()
+            if is_already_res:
+                msg = 'The proposed name ' + proposed_name + ' is already reserved. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
                 return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-        proposed_name = res['new_gene_name'].strip().upper()
-        is_already_res = DBSession.query(Reservedname).filter(Reservedname.display_name == proposed_name).one_or_none()
-        if is_already_res:
-            msg = 'The proposed name ' + proposed_name + ' is already reserved. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-            return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-        is_already_gene = DBSession.query(Locusdbentity).filter(Locusdbentity.gene_name == proposed_name).one_or_none()
-        if is_already_gene:
-            msg = 'The proposed name ' + proposed_name + ' is a standard gene name. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-            return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-        # make sure is proper format
-        if not Locusdbentity.is_valid_gene_name(proposed_name):
-            msg = 'Proposed gene name does not meet standards for gene names. Must be 3 letters followed by a number.'
-            return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-        # validate ORF as valid systematic name
-        if res['systematic_name']:
-            proposed_systematic_name = res['systematic_name'].strip()
-            systematic_locus = DBSession.query(Locusdbentity).filter(Locusdbentity.systematic_name == proposed_systematic_name).one_or_none()
-            if not systematic_locus:
-                msg = proposed_systematic_name + ' is not a recognized locus systematic name.'
+            is_already_gene = DBSession.query(Locusdbentity).filter(Locusdbentity.gene_name == proposed_name).one_or_none()
+            if is_already_gene:
+                msg = 'The proposed name ' + proposed_name + ' is a standard gene name. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
                 return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-            # see if there is already a res for that locus, or if already named
-            is_systematic_res = DBSession.query(Reservedname).filter(Reservedname.locus_id == systematic_locus.dbentity_id).one_or_none()
-            if is_systematic_res:
-                msg = proposed_systematic_name + ' has already been reserved. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
+            # make sure is proper format
+            if not Locusdbentity.is_valid_gene_name(proposed_name):
+                msg = 'Proposed gene name does not meet standards for gene names. Must be 3 letters followed by a number.'
                 return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-            is_already_named = DBSession.query(Locusdbentity.gene_name).filter(Locusdbentity.dbentity_id == systematic_locus.dbentity_id).scalar()
-            if is_already_named:
-                msg = proposed_systematic_name + ' has already been named. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-                return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-            existing_name = systematic_locus.gene_name
-            if existing_name:
-                msg = proposed_systematic_name + ' already has a standard name: ' + existing_name + '. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-                return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+            # validate ORF as valid systematic name
+            if res['systematic_name']:
+                proposed_systematic_name = res['systematic_name'].strip()
+                systematic_locus = DBSession.query(Locusdbentity).filter(Locusdbentity.systematic_name == proposed_systematic_name).one_or_none()
+                if not systematic_locus:
+                    msg = proposed_systematic_name + ' is not a recognized locus systematic name.'
+                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+                # see if there is already a res for that locus, or if already named
+                is_systematic_res = DBSession.query(Reservedname).filter(Reservedname.locus_id == systematic_locus.dbentity_id).one_or_none()
+                if is_systematic_res:
+                    msg = proposed_systematic_name + ' has already been reserved. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
+                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+                is_already_named = DBSession.query(Locusdbentity.gene_name).filter(Locusdbentity.dbentity_id == systematic_locus.dbentity_id).scalar()
+                if is_already_named:
+                    msg = proposed_systematic_name + ' has already been named. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
+                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+                existing_name = systematic_locus.gene_name
+                if existing_name:
+                    msg = proposed_systematic_name + ' already has a standard name: ' + existing_name + '. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
+                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
+    except Exception as e:
+        log.error(e)
+        
     # input is valid, add entry or entries to reservednametriage
     try:
         colleague_id = data['colleague_id']
@@ -647,14 +651,16 @@ def new_gene_name_reservation(request):
         geneCount = DBSession.query(ReservednameTriage).count()
         pusher = get_pusher_client() 
         pusher.trigger('sgd','geneCount',{'message':geneCount})
-
         return True
     except Exception as e:
         traceback.print_exc()
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.close()
+            
 # not authenticated to allow the public submission
 @view_config(route_name='colleague_update', renderer='json', request_method='PUT')
 def colleague_update(request):
