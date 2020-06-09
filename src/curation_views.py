@@ -555,9 +555,11 @@ def upload_spreadsheet(request):
         pusher.trigger('sgd', 'curateHomeUpdate', {})
         return {'annotations': annotations}
     except ValueError as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'error': str(e) }), content_type='text/json')
     except AttributeError:
         traceback.print_exc()
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'error': 'Please attach a valid TSV file.' }), content_type='text/json')
     except IntegrityError as IE:
         traceback.print_exc()
@@ -572,113 +574,8 @@ def upload_spreadsheet(request):
     finally:
         if DBSession:
             DBSession.remove()
-        
-# not authenticated to allow the public submission
-@view_config(route_name='new_gene_name_reservation', renderer='json', request_method='POST')
-def new_gene_name_reservation(request):
-    if not check_csrf_token(request, raises=False):
-        return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
-    data = request.json_body
-    required_fields = ['colleague_id', 'year', 'status']
-    # validate fields outside of reservation
-    for x in required_fields:
-        if not data[x]:
-            field_name = x.replace('_', ' ')
-            field_name = field_name.replace('new', 'proposed')
-            msg = field_name + ' is a required field.'
-            return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-        if x == 'year':
-            try:
-                iy = int(data[x])
-                if iy < 1950 or iy > 2050:
-                    raise ValueError('Not a valid year')
-            except ValueError as e:
-                msg = 'Please enter a valid year.'
-                return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-    # make sure author names have only letters or spaces or dot 
-    if 'authors' in list(data.keys()):
-        authors = data['authors']
-        for a in authors:
-            if a['first_name'] and a['last_name']:
-                first_name = a['first_name'].replace(' ', '').replace('.', '')
-                last_name = a['last_name'].replace(' ', '').replace('.', '')
-                if not (first_name.isalpha() and last_name.isalpha()):
-                    return HTTPBadRequest(body=json.dumps({ 'message': 'Author names must contain only letters or space or dot.' }), content_type='text/json')
-    res_required_fields = ['new_gene_name']
-    # validate reservations themselves
-    try:
-        for res in data['reservations']:
-            for x in res_required_fields:
-                if not res[x]:
-                    field_name = x.replace('_', ' ')
-                    field_name = field_name.replace('new', 'proposed')
-                    msg = field_name + ' is a required field.'
-                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-            proposed_name = res['new_gene_name'].strip().upper()
-            is_already_res = DBSession.query(Reservedname).filter(Reservedname.display_name == proposed_name).one_or_none()
-            if is_already_res:
-                msg = 'The proposed name ' + proposed_name + ' is already reserved. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-                return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-            is_already_gene = DBSession.query(Locusdbentity).filter(Locusdbentity.gene_name == proposed_name).one_or_none()
-            if is_already_gene:
-                msg = 'The proposed name ' + proposed_name + ' is a standard gene name. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-                return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-            # make sure is proper format
-            if not Locusdbentity.is_valid_gene_name(proposed_name):
-                msg = 'Proposed gene name does not meet standards for gene names. Must be 3 letters followed by a number.'
-                return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-            # validate ORF as valid systematic name
-            if res['systematic_name']:
-                proposed_systematic_name = res['systematic_name'].strip()
-                systematic_locus = DBSession.query(Locusdbentity).filter(Locusdbentity.systematic_name == proposed_systematic_name).one_or_none()
-                if not systematic_locus:
-                    msg = proposed_systematic_name + ' is not a recognized locus systematic name.'
-                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-                # see if there is already a res for that locus, or if already named
-                is_systematic_res = DBSession.query(Reservedname).filter(Reservedname.locus_id == systematic_locus.dbentity_id).one_or_none()
-                if is_systematic_res:
-                    msg = proposed_systematic_name + ' has already been reserved. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-                is_already_named = DBSession.query(Locusdbentity.gene_name).filter(Locusdbentity.dbentity_id == systematic_locus.dbentity_id).scalar()
-                if is_already_named:
-                    msg = proposed_systematic_name + ' has already been named. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-                existing_name = systematic_locus.gene_name
-                if existing_name:
-                    msg = proposed_systematic_name + ' already has a standard name: ' + existing_name + '. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
-                    return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-    except Exception as e:            
-        log.error(e)
-                
-    # input is valid, add entry or entries to reservednametriage
-    try:
-        colleague_id = data['colleague_id']
-        for res in data['reservations']:
-            proposed_gene_name = res['new_gene_name'].upper()
-            res_data = data
-            res_data.pop('reservations', None)
-            res_data.update(res)
-            res_json = json.dumps(res_data)
-            new_res = ReservednameTriage(
-                proposed_gene_name=proposed_gene_name,
-                colleague_id=colleague_id,
-                json=res_json
-            )
-            DBSession.add(new_res)
-        transaction.commit()
-        geneCount = DBSession.query(ReservednameTriage).count()
-        pusher = get_pusher_client() 
-        pusher.trigger('sgd','geneCount',{'message':geneCount})
 
-        return True
-    except Exception as e:
-        traceback.print_exc()
-        transaction.abort()
-        log.error(e)
-        return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-    finally:
-        if DBSession:
-            DBSession.remove()
+
 # WFH
 
 # not authenticated to allow the public submission
