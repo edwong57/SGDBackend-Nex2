@@ -148,7 +148,7 @@ def locus_curate_basic(request):
     finally:
         if DBSession:
             DBSession.remove()
-
+            
 @view_config(route_name='get_new_reference_info', renderer='json', request_method='POST')
 @authenticate
 def get_new_reference_info(request):
@@ -223,49 +223,43 @@ def new_reference(request):
     finally:
         if DBSession:
             DBSession.remove()
-
+    
 @view_config(route_name='reference_triage_id_delete', renderer='json', request_method='DELETE')
 @authenticate
 def reference_triage_id_delete(request):
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     id = request.matchdict['id'].upper()
-    try:
-        triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-        curator_session = None
-        if triage:
-            try:
-                curator_session = get_curator_session(request.session['username'])
-                triage = curator_session.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-                # only add referencedeleted if reference not in referencedbentity (allow curators to delete a reference that was added to DB but failed to removed from referencetriage)
-                existing_ref = curator_session.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
-                existing_ref_deleted = curator_session.query(Referencedeleted).filter_by(pmid=triage.pmid).one_or_none()
-                if not (existing_ref or existing_ref_deleted):
-                    reference_deleted = Referencedeleted(pmid=triage.pmid, sgdid=None, reason_deleted='This paper was discarded during literature triage.', created_by=request.session['username'])
-                    curator_session.add(reference_deleted)
-                else:
-                    log.warning(str(triage.pmid) + ' was removed from referencetriage but no Referencedeleted was added.')
-                curator_session.delete(triage)        
-                transaction.commit()
-                pusher = get_pusher_client()
-                pusher.trigger('sgd', 'triageUpdate', {})
-                return HTTPOk()
-            except Exception as e:
-                transaction.abort()
-                if curator_session:
-                    curator_session.rollback()
-                log.error(e)
-                return HTTPBadRequest(body=json.dumps({'error': str(e) }))
-            finally:
-                if curator_session:
-                    curator_session.remove()
-        else:
-            return HTTPNotFound()
-    except Exception as e:
-        log.error(e)
-    finally:
-        if DBSession:
-            DBSession.remove()
+    triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+    curator_session = None
+    if triage:
+        try:
+            curator_session = get_curator_session(request.session['username'])
+            triage = curator_session.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+            # only add referencedeleted if reference not in referencedbentity (allow curators to delete a reference that was added to DB but failed to removed from referencetriage)
+            existing_ref = curator_session.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
+            existing_ref_deleted = curator_session.query(Referencedeleted).filter_by(pmid=triage.pmid).one_or_none()
+            if not (existing_ref or existing_ref_deleted):
+                reference_deleted = Referencedeleted(pmid=triage.pmid, sgdid=None, reason_deleted='This paper was discarded during literature triage.', created_by=request.session['username'])
+                curator_session.add(reference_deleted)
+            else:
+                log.warning(str(triage.pmid) + ' was removed from referencetriage but no Referencedeleted was added.')
+            curator_session.delete(triage)        
+            transaction.commit()
+            pusher = get_pusher_client()
+            pusher.trigger('sgd', 'triageUpdate', {})
+            return HTTPOk()
+        except Exception as e:
+            transaction.abort()
+            if curator_session:
+                curator_session.rollback()
+            log.error(e)
+            return HTTPBadRequest(body=json.dumps({'error': str(e) }))
+        finally:
+            if curator_session:
+                curator_session.close()
+    else:
+        return HTTPNotFound()
 
 @view_config(route_name='reference_triage_id', renderer='json', request_method='GET')
 def reference_triage_id(request):
@@ -281,7 +275,7 @@ def reference_triage_id(request):
     finally:
         if DBSession:
             DBSession.remove()
-
+            
 @view_config(route_name='reference_triage_id_update', renderer='json', request_method='PUT')
 @authenticate
 def reference_triage_id_update(request):
@@ -295,9 +289,9 @@ def reference_triage_id_update(request):
                 triage.update_from_json(request.json)
                 transaction.commit()
             except Exception as e:
+                log.error(e)
                 traceback.print_exc()
                 transaction.abort()
-                log.error(e)
                 DBSession.rollback()
                 return HTTPBadRequest(body=json.dumps({'error': 'DB failure. Verify if pmid is valid and not already present.'}))
             pusher = get_pusher_client()
@@ -309,8 +303,8 @@ def reference_triage_id_update(request):
         log.error(e)
     finally:
         if DBSession:
-            DBSession.remove()
-
+            DBSession.close()
+            
 @view_config(route_name='reference_triage_promote', renderer='json', request_method='PUT')
 @authenticate
 def reference_triage_promote(request):
@@ -318,23 +312,17 @@ def reference_triage_promote(request):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     tags = request.json['tags']
     username = request.session['username']
-    id = request.matchdict['id'].upper()
-    new_reference_id = None
-    triage = None
     # validate tags before doing anything else
     try:
         validate_tags(tags)
-        triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
-        existing_ref = DBSession.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
-        if existing_ref:
-            return HTTPBadRequest(body=json.dumps({'error': 'The reference already exists in the database. You may need to discard from triage after verifying.' }))
     except Exception as e:
-        log.error(e)
-    finally:
-        if DBSession:
-            DBSession.remove()
-            
-    curator_session = None
+        return HTTPBadRequest(body=json.dumps({'error': str(e) }))
+    id = request.matchdict['id'].upper()
+    triage = DBSession.query(Referencetriage).filter_by(curation_id=id).one_or_none()
+    new_reference_id = None
+    existing_ref = DBSession.query(Referencedbentity).filter_by(pmid=triage.pmid).one_or_none()
+    if existing_ref:
+        return HTTPBadRequest(body=json.dumps({'error': 'The reference already exists in the database. You may need to discard from triage after verifying.' }))
     if triage:
         # promote
         try:
@@ -348,7 +336,7 @@ def reference_triage_promote(request):
             traceback.print_exc()
             log.error(e)
             transaction.abort()
-            curator_session.rollback()
+            DBSession.rollback()
             return HTTPBadRequest(body=json.dumps({'error': str(e) }))
         # update tags
         try:
@@ -359,7 +347,7 @@ def reference_triage_promote(request):
             log.error(e)
             curator_session.rollback()
         finally:
-            curator_session.remove()
+            curator_session.close()
         pusher = get_pusher_client()
         pusher.trigger('sgd', 'triageUpdate', {})
         pusher.trigger('sgd', 'curateHomeUpdate', {})
@@ -378,7 +366,7 @@ def reference_triage_index(request):
     finally:
         if DBSession:
             DBSession.remove()
-
+            
 @view_config(route_name='refresh_homepage_cache', request_method='POST', renderer='json')
 @authenticate
 def refresh_homepage_cache(request):
@@ -428,7 +416,7 @@ def db_sign_in(request):
         return HTTPBadRequest(body=json.dumps({'error': 'Unable to log in, please contact programmers.'}))
     finally:
         if Temp_session:
-            Temp_session.remove()
+            Temp_session.close()
 
 @view_config(route_name='sign_in', request_method='POST', renderer='json')
 def sign_in(request):
@@ -512,10 +500,7 @@ def update_reference_tags(request):
     except Exception as e:
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'error': str(e) }), content_type='text/json')
-    finally:
-        if curator_session:
-            curator_session.remove()
-            
+    
 @view_config(route_name='get_recent_annotations', request_method='GET', renderer='json')
 def get_recent_annotations(request):
     try:
@@ -537,7 +522,8 @@ def get_recent_annotations(request):
     finally:
         if DBSession:
             DBSession.remove()
-            
+## WFH
+
 @view_config(route_name='upload_spreadsheet', request_method='POST', renderer='json')
 @authenticate
 def upload_spreadsheet(request):
@@ -555,10 +541,8 @@ def upload_spreadsheet(request):
         pusher.trigger('sgd', 'curateHomeUpdate', {})
         return {'annotations': annotations}
     except ValueError as e:
-        log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'error': str(e) }), content_type='text/json')
-    except AttributeError as e:
-        log.error(e)
+    except AttributeError:
         traceback.print_exc()
         return HTTPBadRequest(body=json.dumps({ 'error': 'Please attach a valid TSV file.' }), content_type='text/json')
     except IntegrityError as IE:
@@ -567,13 +551,9 @@ def upload_spreadsheet(request):
             return HTTPBadRequest(body=json.dumps({'error': 'Unable to process file upload. Record already exists.'}), content_type='text/json')
         else:
             return HTTPBadRequest(body=json.dumps({'error': 'Unable to process file upload. Database error occured while updating your entry.'}), content_type='text/json')
-    except Exception as e::
+    except:
         traceback.print_exc()
-        log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'error': 'Unable to process file upload. Please try again.' }), content_type='text/json')
-    finally:
-        if DBSession:
-            DBSession.remove()
 
 # not authenticated to allow the public submission
 @view_config(route_name='new_gene_name_reservation', renderer='json', request_method='POST')
@@ -597,7 +577,7 @@ def new_gene_name_reservation(request):
             except ValueError as e:
                 msg = 'Please enter a valid year.'
                 return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-    # make sure author names have only letters or spaces or dot
+    # make sure author names have only letters or spaces or dot 
     if 'authors' in list(data.keys()):
         authors = data['authors']
         for a in authors:
@@ -648,7 +628,6 @@ def new_gene_name_reservation(request):
             if existing_name:
                 msg = proposed_systematic_name + ' already has a standard name: ' + existing_name + '. Please contact sgd-helpdesk@lists.stanford.edu for more information.'
                 return HTTPBadRequest(body=json.dumps({ 'message': msg }), content_type='text/json')
-
     # input is valid, add entry or entries to reservednametriage
     try:
         colleague_id = data['colleague_id']
@@ -666,7 +645,7 @@ def new_gene_name_reservation(request):
             DBSession.add(new_res)
         transaction.commit()
         geneCount = DBSession.query(ReservednameTriage).count()
-        pusher = get_pusher_client()
+        pusher = get_pusher_client() 
         pusher.trigger('sgd','geneCount',{'message':geneCount})
 
         return True
@@ -675,8 +654,6 @@ def new_gene_name_reservation(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
-# WFH
 
 # not authenticated to allow the public submission
 @view_config(route_name='colleague_update', renderer='json', request_method='PUT')
