@@ -1629,25 +1629,30 @@ def ptm_file_insert(request):
         log.exception('PTM fileupload completed with error.')
         return HTTPBadRequest(body=json.dumps({ 'error': str(e) }), content_type='text/json')
     
-#WFH
 @view_config(route_name='ptm_by_gene',renderer='json',request_method='GET')
 def ptm_by_gene(request):
     gene = str(request.matchdict['id'])
 
     if(gene is None):
         return HTTPBadRequest(body=json.dumps({'error': 'No gene provided'}), content_type='text/json')
+
+    try:
+        dbentity = None 
+        dbentity = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == gene,Dbentity.format_name == gene)).one_or_none()
+
+        if dbentity is None:
+            return HTTPBadRequest(body=json.dumps({'error': 'Gene not found in database'}), content_type='text/json')
     
-    dbentity = None 
-    dbentity = DBSession.query(Dbentity).filter(or_(Dbentity.sgdid == gene,Dbentity.format_name == gene)).one_or_none()
+        ptms = models_helper.get_all_ptms_by_dbentity(dbentity.dbentity_id)
+        list_of_ptms = get_list_of_ptms(ptms)
 
-    if dbentity is None:
-        return HTTPBadRequest(body=json.dumps({'error': 'Gene not found in database'}), content_type='text/json')
-    
-    ptms = models_helper.get_all_ptms_by_dbentity(dbentity.dbentity_id)
-    list_of_ptms = get_list_of_ptms(ptms)
-
-    return HTTPOk(body=json.dumps({'ptms' :list_of_ptms}),content_type='text/json')
-
+        return HTTPOk(body=json.dumps({'ptms' :list_of_ptms}),content_type='text/json')
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_observable', renderer='json', request_method='GET')
 def get_observable(request):
     try:
@@ -1660,8 +1665,12 @@ def get_observable(request):
 
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_allele', renderer='json', request_method='GET')
 def get_allele(request):
     try:
@@ -1674,8 +1683,12 @@ def get_allele(request):
 
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_reporter', renderer='json', request_method='GET')
 def get_reporter(request):
     try:
@@ -1688,8 +1701,11 @@ def get_reporter(request):
 
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='get_chebi', renderer='json', request_method='GET')
 def get_chebi(request):
@@ -1702,8 +1718,12 @@ def get_chebi(request):
                          "display_name": c.display_name})
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_eco', renderer='json', request_method='GET')
 def get_eco(request):
     try:
@@ -1717,8 +1737,12 @@ def get_eco(request):
                          "display_name": e.display_name})
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_apo', renderer='json', request_method='GET')
 def get_apo(request):
     try:
@@ -1732,8 +1756,12 @@ def get_apo(request):
         else:
             return [ {'display_name': x.display_name, 'apo_id': x.apo_id } for x in all_apo ]
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_publication_year', renderer='json', request_method='GET')
 def get_publication_year(request):
     try:
@@ -1741,8 +1769,12 @@ def get_publication_year(request):
         data = [x[0] for x in all_years]  
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_curation_tag', renderer='json', request_method='GET')
 def get_curation_tag(request):
     try:
@@ -1750,8 +1782,12 @@ def get_curation_tag(request):
         data = [x[0] for x in all_tags]
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='get_literature_topic', renderer='json', request_method='GET')
 def get_literature_topic(request):
     try:
@@ -1759,23 +1795,25 @@ def get_literature_topic(request):
         data = [x[0] for x in all_topics]
         return HTTPOk(body=json.dumps(data),content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
-
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='get_strains', renderer='json', request_method='GET')
 def get_strains(request):
     try:
         strains = models_helper.get_common_strains()
-        
         if strains:
             return {'strains': [{'display_name':key,'taxonomy_id':value} for key,value in strains.items()]}
-
         return None
-
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='get_psimod', renderer='json', request_method='GET')
 def get_psimod(request):
@@ -1808,8 +1846,11 @@ def get_psimod(request):
 
         return None
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}))
-
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name="ptm_update", renderer='json', request_method='POST')
 @authenticate
@@ -1930,7 +1971,7 @@ def ptm_update(request):
                 return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
             finally:
                 if curator_session:
-                    curator_session.close()
+                    curator_session.remove()
         
         if(int(id) == 0):
             try: 
@@ -1969,7 +2010,7 @@ def ptm_update(request):
                 return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
             finally:
                 if curator_session:
-                    curator_session.close()
+                    curator_session.remove()
 
     except ValueError as e:
         log.exception(e)
@@ -1977,8 +2018,10 @@ def ptm_update(request):
     except Exception as e:
         log.exception(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
-
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name="ptm_delete", renderer='json', request_method='DELETE')
 @authenticate
 def ptm_delete(request):
@@ -2006,7 +2049,7 @@ def ptm_delete(request):
                 returnValue = 'Error occurred deleting ptm: ' + str(e)
             finally:
                 if curator_session:
-                    curator_session.close()
+                    curator_session.remove()
 
             if isSuccess:
                 return HTTPOk(body=json.dumps({'success': returnValue, 'ptms': ptms_in_db}), content_type='text/json')
@@ -2016,16 +2059,23 @@ def ptm_delete(request):
         return HTTPBadRequest(body=json.dumps({'error': 'ptm not found in database.'}), content_type='text/json')
 
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
 
 @view_config(route_name='get_all_go_for_regulations',renderer='json',request_method='GET')
 @authenticate
 def get_all_go_for_regulations(request):
-    go_in_db = models_helper.get_all_go()
-    obj = [{'go_id': g.go_id, 'format_name': g.format_name,'display_name': g.display_name} for g in go_in_db]
-    return HTTPOk(body=json.dumps({'success': obj}), content_type='text/json')
+    try:
+        go_in_db = models_helper.get_all_go()
+        obj = [{'go_id': g.go_id, 'format_name': g.format_name,'display_name': g.display_name} for g in go_in_db]
+        return HTTPOk(body=json.dumps({'success': obj}), content_type='text/json')
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
 
-
+# WFH
 @view_config(route_name='get_all_eco_for_regulations', renderer='json', request_method='GET')
 @authenticate
 def get_all_eco_for_regulations(request):
