@@ -820,8 +820,9 @@ def add_phenotype_annotations(request):
         return HTTPOk(body=json.dumps({'success': success_message, 'phenotype': "PHENOTYPE"}), content_type='text/json')
     except Exception as e:
         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
-
-
+    finally:
+        if curator_session:
+            curator_session.remove()
 
 def get_apo_by_id(apo_id):
 
@@ -1354,7 +1355,9 @@ def update_phenotype_annotations(request):
         return HTTPOk(body=json.dumps({'success': success_message, 'phenotype': "PHENOTYPE"}), content_type='text/json')
     except Exception as e:
         return HTTPBadRequest(body=json.dumps({'error': str(e) + "<br>DONE reporting ERROR!"}), content_type='text/json')
-
+    finally:
+        if curator_session:
+            curator_session.remove()
 
 def delete_phenotype_annotations(request):
 
@@ -1440,7 +1443,10 @@ def delete_phenotype_annotations(request):
         return HTTPOk(body=json.dumps({'success': success_message, 'phenotype': "PHENOTYPE"}), content_type='text/json')
     except Exception as e:
         return HTTPBadRequest(body=json.dumps({'error': str(e)+"<br>DONE reporting ERROR!"}), content_type='text/json')
-
+    finally:
+        if curator_session:
+            curator_session.remove()
+            
 def phenotype_to_dict(row):
 
     dbentity = DBSession.query(Locusdbentity).filter_by(dbentity_id=row.dbentity_id).one_or_none()
