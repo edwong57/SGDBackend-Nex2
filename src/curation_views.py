@@ -965,35 +965,49 @@ def reserved_name_promote(request):
     finally:
         if DBSession:
             DBSession.remove()
-# WFH            
+
 @view_config(route_name='extend_reserved_name', renderer='json', request_method='PUT')
 @authenticate
 def extend_reserved_name(request):
     if not check_csrf_token(request, raises=False):
         return HTTPBadRequest(body=json.dumps({'error':'Bad CSRF Token'}))
     req_id = request.matchdict['id'].upper()
-    res = DBSession.query(Reservedname).filter(Reservedname.reservedname_id == req_id).one_or_none()
     try:
+        res = DBSession.query(Reservedname).filter(Reservedname.reservedname_id == req_id).one_or_none()
         return res.extend(request.session['username'])
     except Exception as e:
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='colleague_triage_index', renderer='json', request_method='GET')
 def colleague_triage_index(request):
-    c_triages = DBSession.query(Colleaguetriage).all()
-    return [x.to_dict() for x in c_triages]
-
+    try:
+        c_triages = DBSession.query(Colleaguetriage).all()
+        return [x.to_dict() for x in c_triages]
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='colleague_triage_show', renderer='json', request_method='GET')
 def colleague_triage_show(request):
     req_id = request.matchdict['id'].upper()
-    c_triage = DBSession.query(Colleaguetriage).filter(Colleaguetriage.curation_id == req_id).one_or_none()
-    if c_triage:
-        return c_triage.to_dict()
-    else:
-        return HTTPNotFound()
-
+    try:
+        c_triage = DBSession.query(Colleaguetriage).filter(Colleaguetriage.curation_id == req_id).one_or_none()
+        if c_triage:
+            return c_triage.to_dict()
+        else:
+            return HTTPNotFound()
+    except Exception as e:
+        log.error(e)
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='colleague_triage_update', renderer='json', request_method='PUT')
 @authenticate
 def colleague_triage_update(request):
@@ -1082,8 +1096,7 @@ def colleague_triage_promote(request):
     finally:
         if curator_session:
             curator_session.remove()
-
-
+# WFH
 @view_config(route_name='colleague_triage_delete', renderer='json', request_method='DELETE')
 @authenticate
 def colleague_triage_delete(request):
