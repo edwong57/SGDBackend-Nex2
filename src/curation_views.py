@@ -561,10 +561,9 @@ def upload_spreadsheet(request):
         log.error(e)
         traceback.print_exc()
         return HTTPBadRequest(body=json.dumps({ 'error': 'Please attach a valid TSV file.' }), content_type='text/json')
-    except IntegrityError as e:
-        log.error(e)
+    except IntegrityError as IE:
         traceback.print_exc()
-        if 'already exists' in e.message:
+        if 'already exists' in IE.message:
             return HTTPBadRequest(body=json.dumps({'error': 'Unable to process file upload. Record already exists.'}), content_type='text/json')
         else:
             return HTTPBadRequest(body=json.dumps({'error': 'Unable to process file upload. Database error occured while updating your entry.'}), content_type='text/json')
