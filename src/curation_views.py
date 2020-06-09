@@ -148,7 +148,7 @@ def locus_curate_basic(request):
     finally:
         if DBSession:
             DBSession.remove()
-# WFH            
+
 @view_config(route_name='get_new_reference_info', renderer='json', request_method='POST')
 @authenticate
 def get_new_reference_info(request):
@@ -192,7 +192,10 @@ def get_new_reference_info(request):
         log.error(e)
         DBSession.rollback()
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+            
 @view_config(route_name='new_reference', renderer='json', request_method='POST')
 @authenticate
 def new_reference(request):
@@ -217,7 +220,10 @@ def new_reference(request):
         transaction.abort()
         log.error(e)
         return HTTPBadRequest(body=json.dumps({ 'message': str(e) }), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.remove()
+#WFH    
 @view_config(route_name='reference_triage_id_delete', renderer='json', request_method='DELETE')
 @authenticate
 def reference_triage_id_delete(request):
