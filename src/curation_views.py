@@ -2558,8 +2558,6 @@ def regulations_by_filters(request):
         if DBSession:
             DBSession.remove()
 
-# WFH
-
 @view_config(route_name='regulation_delete',renderer='json',request_method='DELETE')
 @authenticate
 def regulation_delete(request):
@@ -2597,7 +2595,10 @@ def regulation_delete(request):
     except Exception as e:
         log.exception(str(e))
         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
-
+    finally:
+        if curator_session:
+            curator_session.remove()
+    
 @view_config(route_name='regulation_file',renderer='json',request_method='POST')
 @authenticate
 def regulation_file(request):
@@ -2942,8 +2943,12 @@ def regulation_file(request):
         return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')    
 
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({"error":str(e)}),content_type='text/json')
-
+    finally:
+        if curator_session:
+            curator_session.remove()
+# WFH
 
 @view_config(route_name='upload_file_curate', renderer='json', request_method='POST')
 def upload_file_curate(request):
