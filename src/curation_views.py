@@ -3009,7 +3009,7 @@ def upload_tar_file(request):
         return upload_new_file(obj)
     except Exception as e:
         log.error(e)
-         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
+        return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
 
 
 @view_config(route_name="file_curate_menus", renderer='json', request_method='GET')
