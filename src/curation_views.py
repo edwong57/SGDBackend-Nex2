@@ -2236,7 +2236,6 @@ def disease_file(request):
 
     return upload_disease_file(request)
 
-# WFH
 
 @view_config(route_name='regulation_insert_update', renderer='json', request_method='POST')
 @authenticate
@@ -2309,6 +2308,7 @@ def regulation_insert_update(request):
             try:
                 dbentity_in_db = DBSession.query(Dbentity).filter(and_(Dbentity.dbentity_id == int(reference_id), Dbentity.subclass == 'REFERENCE')).one_or_none()
             except ValueError as e:
+                log.error(e)
                 pass
         if dbentity_in_db is None:
             try:
@@ -2463,8 +2463,11 @@ def regulation_insert_update(request):
         return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
 
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
-
+    finally:
+        if DBSession:
+            DBSession.remove()
 
 @view_config(route_name='regulations_by_filters',renderer='json',request_method='POST')
 @authenticate
@@ -2549,8 +2552,13 @@ def regulations_by_filters(request):
         
         return HTTPOk(body=json.dumps({'success': list_of_regulations}), content_type='text/json')
     except Exception as e:
+        log.error(e)
         return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
+    finally:
+        if DBSession:
+            DBSession.remove()
 
+# WFH
 
 @view_config(route_name='regulation_delete',renderer='json',request_method='DELETE')
 @authenticate
