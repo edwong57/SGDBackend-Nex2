@@ -2948,7 +2948,6 @@ def regulation_file(request):
     finally:
         if curator_session:
             curator_session.remove()
-# WFH
 
 @view_config(route_name='upload_file_curate', renderer='json', request_method='POST')
 def upload_file_curate(request):
@@ -2967,8 +2966,9 @@ def upload_file_curate(request):
         file_curate_update_readme(obj)
 
     except Exception as e:
+        log.error(e)
         pass
-
+    
     return {}
 
 
@@ -2983,6 +2983,7 @@ def get_file(request):
             return get_file_details(dname)
         return None
     except Exception as e:
+        log.error(e)
         msg = ''
         if e.message:
             msg = e.message
@@ -3007,6 +3008,7 @@ def upload_tar_file(request):
         obj['source_id'] = SGD_SOURCE_ID
         return upload_new_file(obj)
     except Exception as e:
+        log.error(e)
          return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type='text/json')
 
 
