@@ -688,17 +688,8 @@ def disease_locus_details_all(request):
 
 @view_config(route_name='locus', renderer='json', request_method='GET')
 def locus(request):
-    id = request.matchdict['sgdid']
-    return {"id": id}
+    id = extract_id_request(request, 'locus', param_name="sgdid")
     try:
-        if id.startswith('NP_'):
-            rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id+'%')).all()
-            if len(rows) >= 1:
-                id = rows[0].locus_id
-	    else:
-                return HTTPNotFound()
-        else:
-            id = extract_id_request(request, 'locus', param_name="sgdid")
         locus = get_locus_by_id(id)
         if locus:
             return locus.to_dict()
@@ -708,6 +699,7 @@ def locus(request):
         logging.exception(str(e))
         return HTTPNotFound()
         
+
 @view_config(route_name='locus_tabs', renderer='json', request_method='GET')
 def locus_tabs(request):
     id = extract_id_request(request, 'locus')
