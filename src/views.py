@@ -695,16 +695,18 @@ def locus(request):
             return locus.to_dict()
         else:
             id = request.matchdict['sgdid']
-            rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id + '%')).all()
+            rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id+'%')).all()
             if len(rows) >= 1:
                 id = rows[0].locus_id
                 locus = get_locus_by_id(id)
                 if locus:
                     return locus.to_dict()
                 else:
-                    return HTTPNotFound()
+                    return { "error": "LOCUS ID = " + str(id) }
+                    # return HTTPNotFound()
             else:
-                return HTTPNotFound()
+                return {"error": "ID is not in LOCUSALIAS table" }
+                # return HTTPNotFound()
     except Exception as e:
         logging.exception(str(e))
         return HTTPNotFound()
