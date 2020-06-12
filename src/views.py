@@ -694,12 +694,20 @@ def locus(request):
         if locus:
             return locus.to_dict()
         else:
-            return HTTPNotFound()
+            rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id + '%')).all()
+            if len(rows) >= 1:
+                id = rows[0].locus_id
+                locus = get_locus_by_id(id)
+                if locus:
+                    return locus.to_dict()
+                else:
+                    return HTTPNotFound()
+            else:
+                return HTTPNotFound()
     except Exception as e:
         logging.exception(str(e))
         return HTTPNotFound()
         
-
 @view_config(route_name='locus_tabs', renderer='json', request_method='GET')
 def locus_tabs(request):
     id = extract_id_request(request, 'locus')
