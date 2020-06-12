@@ -688,25 +688,21 @@ def disease_locus_details_all(request):
 
 @view_config(route_name='locus', renderer='json', request_method='GET')
 def locus(request):
-    id = extract_id_request(request, 'locus', param_name="sgdid")
+    id = request.matchdict['sgdid']
     try:
+        if id.startswith('NP_'):
+            rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id+'%')).all()
+            if len(rows) >= 1:
+                id = rows[0].locus_id
+	    else:
+                return HTTPNotFound()
+        else:
+            id = extract_id_request(request, 'locus', param_name="sgdid")
         locus = get_locus_by_id(id)
         if locus:
             return locus.to_dict()
         else:
-            id = request.matchdict['sgdid']
-            rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id+'%')).all()
-            if len(rows) >= 1:
-                id = rows[0].locus_id
-                locus = get_locus_by_id(id)
-                if locus:
-                    return locus.to_dict()
-                else:
-                    return { "error": "LOCUS ID = " + str(id) }
-                    # return HTTPNotFound()
-            else:
-                return {"error": "ID is not in LOCUSALIAS table" }
-                # return HTTPNotFound()
+            return HTTPNotFound()
     except Exception as e:
         logging.exception(str(e))
         return HTTPNotFound()
