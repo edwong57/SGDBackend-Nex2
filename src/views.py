@@ -689,6 +689,7 @@ def disease_locus_details_all(request):
 @view_config(route_name='locus', renderer='json', request_method='GET')
 def locus(request):
     id = request.matchdict['sgdid']
+    return {"id": id}
     try:
         if id.startswith('NP_'):
             rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id+'%')).all()
