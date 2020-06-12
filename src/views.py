@@ -689,14 +689,12 @@ def disease_locus_details_all(request):
 @view_config(route_name='locus', renderer='json', request_method='GET')
 def locus(request):
     id = extract_id_request(request, 'locus', param_name="sgdid")
-
-    return {"id": id}
-    
     try:
         locus = get_locus_by_id(id)
         if locus:
             return locus.to_dict()
         else:
+            id = request.matchdict['sgdid']
             rows = DBSession.query(LocusAlias).filter_by(alias_type='RefSeq protein version ID').filter(LocusAlias.display_name.like(id + '%')).all()
             if len(rows) >= 1:
                 id = rows[0].locus_id
