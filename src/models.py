@@ -754,8 +754,7 @@ class Chebi(Base):
     def to_dict(self):
 
         urls = DBSession.query(ChebiUrl).filter_by(chebi_id=self.chebi_id).all()
-        # synonyms = DBSession.query(ChebiAlia).filter_by(chebi_id=self.chebi_id).filter(ChebiAlia.alias_type != 'YeastPathway ID').filter(ChebiAlia.alias_type != 'PharmGKB ID').all()
-
+        synonyms = DBSession.query(ChebiAlia).filter_by(chebi_id=self.chebi_id).filter(ChebiAlia.alias_type.in_(['EXACT', 'RELATED', 'IUPAC name'])).all()
         is_ntr = 0
         if self.chebiid.startswith("NTR:"):
             is_ntr = 1
@@ -767,11 +766,11 @@ class Chebi(Base):
             "chebi_id": self.chebiid,
             "is_ntr": is_ntr,
             "definition": self.description,
+            "synonyms": [synonym.to_dict() for synonym in synonyms],
             "urls": [url.to_dict() for url in urls]
         }
         
         ## need to fix the following...
-        obj["synonyms"] = self.synonym_to_dict()
         obj["complexes"] = self.complex_to_dict() 
         obj["phenotype"] = self.phenotype_to_dict()
         obj["go"] = self.go_to_dict()
@@ -781,14 +780,6 @@ class Chebi(Base):
         obj["pharmGKB_link_url"] = self.get_pharmGKB_url()
         obj["network_graph"] = self.chemical_network()
 
-        return obj
-
-    def synonym_to_dict(self):
-        synonyms = DBSession.query(ChebiAlia).filter_by(chebi_id=self.chebi_id).all()
-        obj = []
-        for x in synonyms:
-            if x.alias_type in ['YeastPathway ID', 'PharmGKB ID']:
-                obj += x.to_dict()
         return obj
     
     def phenotype_to_dict(self):
