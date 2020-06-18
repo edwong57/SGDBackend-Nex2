@@ -754,7 +754,7 @@ class Chebi(Base):
     def to_dict(self):
 
         urls = DBSession.query(ChebiUrl).filter_by(chebi_id=self.chebi_id).all()
-        synonyms = DBSession.query(ChebiAlia).filter_by(chebi_id=self.chebi_id).filter(ChebiAlia.alias_type.in_('EXACT', 'RELATED', 'IUPAC name')).all()
+        synonyms = DBSession.query(ChebiAlia).filter_by(chebi_id=self.chebi_id).filter(ChebiAlia.alias_type != 'YeastPathway ID').filter(ChebiAlia.alias_type != 'PharmGKB ID').all()
 
         is_ntr = 0
         if self.chebiid.startswith("NTR:"):
@@ -1086,8 +1086,6 @@ class ChebiAlia(Base):
     source = relationship('Source')
 
     def to_dict(self):
-        if self.alias_type in ['YeastPathway ID', 'PharmGKB ID']:
-            return {}
         return {
             "display_name": self.display_name,
             "synonym_type": self.alias_type
