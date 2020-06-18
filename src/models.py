@@ -788,8 +788,7 @@ class Chebi(Base):
         obj = []
         for x in synonyms:
             if x.alias_type in ['YeastPathway ID', 'PharmGKB ID']:
-                continue
-            obj += x.to_dict()
+                obj += x.to_dict()
         return obj
     
     def phenotype_to_dict(self):
