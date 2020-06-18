@@ -1086,6 +1086,8 @@ class ChebiAlia(Base):
     source = relationship('Source')
 
     def to_dict(self):
+        if self.alias_type in ['YeastPathway ID', 'PharmGKB ID']:
+            return {}
         return {
             "display_name": self.display_name,
             "synonym_type": self.alias_type
