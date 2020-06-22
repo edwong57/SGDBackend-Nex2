@@ -9483,7 +9483,34 @@ class Proteinabundanceannotation(Base):
             }
         }
 
+class Transcriptdbentity(Dbentity):
+    __tablename__ = 'transcriptdbentity'
+    __table_args__ = {'schema': 'nex'}
+    __url_segment__ = '/transcript/'
 
+    dbentity_id = Column(ForeignKey('nex.dbentity.dbentity_id', ondelete='CASCADE'), primary_key=True, server_default=text("nextval('nex.object_seq'::regclass)"))
+    condition_name = Column(String(50), nullable=True)
+    condition_value = Column(String(50), nullable=True)
+    in_ncbi = Column(Boolean, nullable=False)
+
+class TranscriptReference(Base):
+    __tablename__ = 'transcript_reference'
+    __table_args__ = (
+        UniqueConstraint('transcript_id', 'reference_id'),
+        {'schema': 'nex'}
+    )
+
+    transcript_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    transcript_id = Column(ForeignKey('nex.transcriptdbentity.dbentity_id', ondelete='CASCADE'), nullable=False)
+    reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    transcript = relationship('Transcriptdbentity')
+    source = relationship('Source')
+    reference = relationship('Referencedbentity')
+    
 class Complexdbentity(Dbentity):
     __tablename__ = 'complexdbentity'
     __table_args__ = {'schema': 'nex'}
