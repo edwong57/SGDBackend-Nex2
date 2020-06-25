@@ -6341,7 +6341,7 @@ class Dnasequenceannotation(Base):
         if len(strains) == 0:
             return None
 
-        if "transcript" is in self.so.display_name:
+        if "transcript" in self.so.display_name:
             return None
             
         if loci:
