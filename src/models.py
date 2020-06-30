@@ -27,7 +27,6 @@ from scripts.loading.util import link_gene_complex_names
 
 from src.aws_helpers import simple_s3_upload, get_checksum, calculate_checksum_s3_file
 
-
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 ESearch = Elasticsearch(os.environ['ES_URI'], retry_on_timeout=True)
 
@@ -9485,6 +9484,98 @@ class Proteinabundanceannotation(Base):
         }
 
 
+class Alleledbentity(Dbentity):
+    __tablename__ = 'alleledbentity'
+    __table_args__ = {'schema': 'nex'}
+    __url_segment__ = '/allele/'
+
+    dbentity_id = Column(ForeignKey('nex.dbentity.dbentity_id', ondelete='CASCADE'), primary_key=True, server_default=text("nextval('nex.object_seq'::regclass)"))
+    so_id = Column(ForeignKey('nex.so.so_id', ondelete='CASCADE'), nullable=False, index=True)
+    description = Column(String(500), nullable=True)
+
+class AlleleReference(Base):
+    __tablename__ = 'allele_reference'
+    __table_args__ = (
+        UniqueConstraint('allele_id', 'reference_id'),
+        {'schema': 'nex'}
+    )
+
+    allele_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    allele_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), nullable=False)
+    reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    allele = relationship('Alleledbentity')
+    source = relationship('Source')
+    reference = relationship('Referencedbentity')
+
+class AlleleAlias(Base):
+    __tablename__ = 'allele_alias'
+    __table_args__ = (
+        UniqueConstraint('allele_id', 'display_name', 'alias_type'),
+        {'schema': 'nex'}
+    )
+
+    allele_alias_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    allele_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), nullable=False)
+    display_name = Column(String(500), nullable=False)
+    obj_url = Column(String(500), nullable=False)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    alias_type = Column(String(40), nullable=False)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    allele = relationship('Alleledbentity')
+    source = relationship('Source')
+
+class AllelealiasReference(Base):
+    __tablename__ = 'allelealias_reference'
+    __table_args__ = (
+        UniqueConstraint('alias_id', 'reference_id'),
+        {'schema': 'nex'}
+    )
+
+    allelealias_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    alias_id = Column(ForeignKey('nex.allele_alias.allele_alias_id', ondelete='CASCADE'), nullable=False)
+    reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    alias = relationship('AlleleAlias')
+    source = relationship('Source')
+    reference = relationship('Referencedbentity')
+    
+class Transcriptdbentity(Dbentity):
+    __tablename__ = 'transcriptdbentity'
+    __table_args__ = {'schema': 'nex'}
+    __url_segment__ = '/transcript/'
+
+    dbentity_id = Column(ForeignKey('nex.dbentity.dbentity_id', ondelete='CASCADE'), primary_key=True, server_default=text("nextval('nex.object_seq'::regclass)"))
+    condition_name = Column(String(50), nullable=True)
+    condition_value = Column(String(50), nullable=True)
+    in_ncbi = Column(Boolean, nullable=False)
+
+class TranscriptReference(Base):
+    __tablename__ = 'transcript_reference'
+    __table_args__ = (
+        UniqueConstraint('transcript_id', 'reference_id'),
+        {'schema': 'nex'}
+    )
+
+    transcript_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    transcript_id = Column(ForeignKey('nex.transcriptdbentity.dbentity_id', ondelete='CASCADE'), nullable=False)
+    reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    transcript = relationship('Transcriptdbentity')
+    source = relationship('Source')
+    reference = relationship('Referencedbentity')
+    
 class Complexdbentity(Dbentity):
     __tablename__ = 'complexdbentity'
     __table_args__ = {'schema': 'nex'}
