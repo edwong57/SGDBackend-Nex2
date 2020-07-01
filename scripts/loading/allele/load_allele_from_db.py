@@ -33,12 +33,12 @@ def load_data():
         insert_alleledbentity(nex_session, x.format_name, x.display_name, x.description,
                               source_id, so_id, x.date_created, x.created_by)
         if count >= 300:
-            nex_session.rollback()  
-            # nex_session.commit()
+            # nex_session.rollback()  
+            nex_session.commit()
             count = 0
                         
-    nex_session.rollback()
-    # nex_session.commit()
+    # nex_session.rollback()
+    nex_session.commit()
         
     nex_session.close()
     log.info("Done!")
