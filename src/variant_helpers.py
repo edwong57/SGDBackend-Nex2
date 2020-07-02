@@ -342,5 +342,8 @@ def get_all_variant_data(request):
                  "protein_scores": dna_scores
         }
         loci.append(data)
-        
-    return loci
+
+    variants = { "total": len(loci),
+                 "offset": 0,
+                 "loci": loci }    
+    return variants
