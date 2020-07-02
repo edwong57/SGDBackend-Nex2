@@ -285,17 +285,19 @@ def get_all_variant_data(request):
     locus_id = None
     strain_to_snp = {}
     start = None
-    protein_scores = []
-    dna_scores = []
     for x in all:
         if x.locus_id not in dbentity_id_to_obj:
             continue
         if x.locus_id != locus_id and locus_id is not None:
             (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
             snp_seqs = []
+            dna_scores = []
             for strain in sorted(strain_to_id, key=strain_to_id.get):
                 if strain in strain_to_snp:
+                    dna_scores.append(1.0000)
                     snp_seqs.append(strain_to_snp[strain])
+                else:
+                    dna_scores.append(0)
             data = { "absolute_genetic_start": start,
                      "href": "/locus/" +  sgdid + "/overview",
                      "sgdid": sgdid,
@@ -303,12 +305,13 @@ def get_all_variant_data(request):
                      "name": display_name,
                      "snp_seqs": snp_seqs,
                      "dna_scores": dna_scores,
-                     "protein_scores": protein_scores
+                     "protein_scores": []
             }
             loci.append(data)
             start = None
             locus_id = None
             strain_to_snp = {}
+            strain_to_dna_score = {}
         else:
             if x.display_name.endswith('S288C'):
                 start = x.contig_start_index
@@ -322,9 +325,13 @@ def get_all_variant_data(request):
     if locus_id is not None and locus_id in dbentity_id_to_obj:        
         (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
         snp_seqs = []
+        dna_scores = []
         for strain in sorted(strain_to_id, key=strain_to_id.get):
             if strain in strain_to_snp:
+                dna_scores.append(1.000)
                 snp_seqs.append(strain_to_snp[strain])
+            else:
+                dna_scores.append(0)
         data = { "absolute_genetic_start": start,
                  "href": "/locus/" +  sgdid + "/overview",
                  "sgdid": sgdid,
@@ -332,7 +339,7 @@ def get_all_variant_data(request):
                  "name": display_name,
                  "snp_seqs": snp_seqs,
                  "dna_scores": dna_scores,
-                 "protein_scores": protein_scores
+                 "protein_scores": []
         }
         loci.append(data)
         
