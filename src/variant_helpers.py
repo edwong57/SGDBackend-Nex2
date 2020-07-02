@@ -361,7 +361,8 @@ def get_all_variant_data(request):
         }
         loci.append(data)
 
+    sortedLoci = sorted(loci, key=lambda a: a['absolute_genetic_start'])
     variants = { "total": len(loci),
                  "offset": 0,
-                 "loci": loci }    
+                 "loci": sortedLoci }    
     return variants
