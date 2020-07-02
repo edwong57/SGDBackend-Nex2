@@ -324,7 +324,7 @@ def get_all_variant_data(request):
             strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
                                       "name": strain,
                                       "id":  strain_to_id[strain] }
-            strain_to_dna_score[strain] = 1 - len(x.snp_sequence)/len(aligned_sequence)
+            strain_to_dna_score[strain] = 1 - len(x.snp_sequence)/len(x.aligned_sequence)
     if locus_id is not None and locus_id in dbentity_id_to_obj:        
         (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
         snp_seqs = []
