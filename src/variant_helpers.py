@@ -293,7 +293,7 @@ def get_all_variant_data(request):
     locus_id = None
     strain_to_snp = {}
     start = None
-    end = None
+    seqLen = None
     for x in all:
         if x.locus_id not in dbentity_id_to_obj:
             continue
@@ -310,7 +310,7 @@ def get_all_variant_data(request):
                         S288C_snp_seq = snp['snp_sequence']
                     dna_scores.append(calculate_dna_score(S288C_snp_seq,
                                                           snp['snp_sequence'],
-                                                          end-start+1))
+                                                          seqLen))
                 else:
                     dna_scores.append(None)
             data = { "absolute_genetic_start": start,
@@ -324,13 +324,13 @@ def get_all_variant_data(request):
             }
             loci.append(data)
             start = None
-            end = None
+            seqLen = None
             locus_id = None
             strain_to_snp = {}
         else:
             if x.display_name.endswith('S288C'):
                 start = x.contig_start_index
-                end = x.contig_end_index
+                seqLen = x.contig_end_index - x.contig_start_index + 1
             locus_id = x.locus_id
             [name, strain] = x.display_name.split('_')
             strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
@@ -348,7 +348,7 @@ def get_all_variant_data(request):
                     S288C_snp_seq = snp['snp_sequence']
                 dna_scores.append(calculate_dna_score(S288C_snp_seq,
                                                       snp['snp_sequence'],
-                                                      end-start+1))
+                                                      seqLen))
             else:
                 dna_scores.append(None)
         data = { "absolute_genetic_start": start,
