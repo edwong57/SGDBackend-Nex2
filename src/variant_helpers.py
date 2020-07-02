@@ -291,12 +291,12 @@ def get_all_variant_data(request):
 
     strain_to_id = strain_order()
     
-    loci = []
     locus_id = None
     strain_to_snp = {}
     start = None
     seqLen = None
     S288C_snp_seq = None
+    locus_id_to_data = {}
     for x in all:
         if x.locus_id not in dbentity_id_to_obj:
             continue
@@ -322,7 +322,7 @@ def get_all_variant_data(request):
                      "dna_scores": dna_scores,
                      "protein_scores": dna_scores,
             }
-            loci.append(data)
+            locus_id_to_data[locus_id] = data
             start = None
             seqLen = None
             locus_id = None
@@ -359,10 +359,15 @@ def get_all_variant_data(request):
                  "dna_scores": dna_scores,
                  "protein_scores": dna_scores
         }
-        loci.append(data)
+        locus_id_to_data[locus_id] = data
 
-    sortedLoci = sorted(loci, key=lambda a: a['absolute_genetic_start'])
+    loci = []
+    for x in DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all():
+        if x.dbentity_id in locus_id_to_data:
+            loci.append(locus_id_to_data[x.dbentity_id])
+    
     variants = { "total": len(loci),
                  "offset": 0,
-                 "loci": sortedLoci }    
+                 "loci": loci }
+    
     return variants
