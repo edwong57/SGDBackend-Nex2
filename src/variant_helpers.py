@@ -299,7 +299,7 @@ def get_all_variant_data(request):
                 if strain in strain_to_dna_score:
                     dna_scores.append(strain_to_dna_score[strain])
                 else:
-                    dna_scores.append(null)
+                    dna_scores.append(None)
             data = { "absolute_genetic_start": start,
                      "href": "/locus/" +  sgdid + "/overview",
                      "sgdid": sgdid,
@@ -335,7 +335,7 @@ def get_all_variant_data(request):
             if strain in strain_to_dna_score:
                 dna_scores.append(strain_to_dna_score[strain])
             else:
-                dna_scores.append(null)
+                dna_scores.append(None)
         data = { "absolute_genetic_start": start,
                  "href": "/locus/" +  sgdid + "/overview",
                  "sgdid": sgdid,
