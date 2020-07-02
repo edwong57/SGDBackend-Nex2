@@ -294,6 +294,7 @@ def get_all_variant_data(request):
     strain_to_snp = {}
     start = None
     seqLen = None
+    S288C_snp_seq = None
     for x in all:
         if x.locus_id not in dbentity_id_to_obj:
             continue
@@ -301,13 +302,10 @@ def get_all_variant_data(request):
             (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
             snp_seqs = []
             dna_scores = []
-            S288C_snp_seq = None
             for strain in sorted(strain_to_id, key=strain_to_id.get):
                 if strain in strain_to_snp:
                     snp = strain_to_snp[strain]
                     snp_seqs.append(snp)
-                    if strain == 'S288C':
-                        S288C_snp_seq = snp['snp_sequence']
                     dna_scores.append(calculate_dna_score(S288C_snp_seq,
                                                           snp['snp_sequence'],
                                                           seqLen))
@@ -331,6 +329,7 @@ def get_all_variant_data(request):
             if x.display_name.endswith('S288C'):
                 start = x.contig_start_index
                 seqLen = x.contig_end_index - x.contig_start_index + 1
+                S288C_snp_seq = x.snp_sequence
             locus_id = x.locus_id
             [name, strain] = x.display_name.split('_')
             strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
@@ -344,8 +343,6 @@ def get_all_variant_data(request):
             if strain in strain_to_snp:
                 snp = strain_to_snp[strain]
                 snp_seqs.append(snp)
-                if strain == 'S288C':
-                    S288C_snp_seq = snp['snp_sequence']
                 dna_scores.append(calculate_dna_score(S288C_snp_seq,
                                                       snp['snp_sequence'],
                                                       seqLen))
