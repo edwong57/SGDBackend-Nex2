@@ -277,7 +277,7 @@ def get_all_variant_data(request):
     
     dbentity_id_to_obj = dict([(x.dbentity_id, (x.sgdid, x.format_name, x.display_name)) for x in nex_session.query(Locusdbentity).all()])
     
-    all = DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id)all()
+    all = DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id).all()
     
     loci = []
     locus_id = None
