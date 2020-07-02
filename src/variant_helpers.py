@@ -330,7 +330,7 @@ def get_all_variant_data(request):
         else:
             if x.display_name.endswith('S288C'):
                 start = x.contig_start_index
-                seqLen = x.contig_end_index - x.contig_start_index + 1
+                seqLen = len(x.aligned_sequence)
                 S288C_snp_seq = x.snp_sequence
             locus_id = x.locus_id
             [name, strain] = x.display_name.split('_')
