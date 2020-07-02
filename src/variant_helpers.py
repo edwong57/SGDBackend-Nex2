@@ -367,7 +367,7 @@ def get_all_variant_data(request):
             loci.append(locus_id_to_data[x.dbentity_id])
         elif x.dbentity_id in dbentity_id_to_obj:
             (sgdid, format_name, display_name) = dbentity_id_to_obj[x.dbentity_id]
-            data = { "absolute_genetic_start": x.contig_start_index,
+            data = { "absolute_genetic_start": x.start_index,
                      "href": "/locus/" +  sgdid + "/overview",
                      "sgdid": sgdid,
                      "format_name": format_name,
