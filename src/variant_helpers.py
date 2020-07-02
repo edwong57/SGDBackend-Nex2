@@ -369,7 +369,7 @@ def get_all_variant_data(request):
                      "name": display_name,
                      "snp_seqs": [{"snp_sequence": '',
                                    "name": 'S288C',
-                                   "id":  strain_to_id['S288C']}]
+                                   "id":  strain_to_id['S288C']}],
                      "dna_scores": [1.0, None, None, None, None, None, None, None, None, None, None, None],
                      "protein_scores": [1,0, None, None, None, None, None, None, None, None, None, None, None]
             }
