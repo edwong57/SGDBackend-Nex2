@@ -267,6 +267,8 @@ def calculate_dna_score(S288C_snp_seq, snp_seq, seq_length):
     count = 0
     i = 0
     for x in snp_seq:
+        if i >= len(S288C_snp_seq):
+            break
         if x != S288C_snp_seq[i]:
             count = count + 1
         i = i + 1
