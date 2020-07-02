@@ -300,7 +300,7 @@ def get_all_variant_data(request):
     for x in all:
         if x.locus_id not in dbentity_id_to_obj:
             continue
-        if x.locus_id != locus_id and locus_id is not None:
+        if x.locus_id != locus_id and locus_id is not None and seqLen is not None:
             (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
             snp_seqs = []
             dna_scores = []
@@ -337,7 +337,7 @@ def get_all_variant_data(request):
             strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
                                       "name": strain,
                                       "id":  strain_to_id[strain] }
-    if locus_id is not None and locus_id in dbentity_id_to_obj:        
+    if locus_id is not None and locus_id in dbentity_id_to_obj and seqLen is not None:        
         (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
         snp_seqs = []
         dna_scores = []
