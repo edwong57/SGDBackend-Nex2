@@ -262,5 +262,79 @@ def get_variant_data(request):
         data['upstream_variant_data_dna'] = upstream_variant_dna
     
     return data
- 
+
+
+def get_all_variant_data(request):    
+
+    # "absolute_genetic_start": 335, (start_coord)
+    # "href": "/locus/S000002143/overview",
+    # "sgdid": "S000002143",
+    # "format_name": "YAL069W",
+    # "name": "YAL069W"   (dbentity.display_name)
     
+    taxonomy = DBSession.query(Taxonomy).filter_by(taxid=TAXON).one_or_none()
+    taxonomy_id = taxonomy.taxonomy_id
+    
+    dbentity_id_to_obj = dict([(x.dbentity_id, (x.sgdid, x.format_name, x.display_name)) for x in nex_session.query(Locusdbentity).all()])
+    
+    all = DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id)all()
+    
+    loci = []
+    locus_id = None
+    strain_to_snp = {}
+    start = None
+    protein_scores = []
+    dna_scores = []
+    for x in all:
+        if x.locus_id not in dbentity_id_to_obj:
+            continue
+        if x.locus_id != locus_id and locus_id is not None:
+            (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
+            snp_seqs = []
+            for strain in sorted(strain_to_id, key=strain_to_id.get):
+                if strain in strain_to_snp:
+                    snp_seqs.append(strain_to_snp[strain])
+            data = { "absolute_genetic_start": start,
+                     "href": "/locus/" +  sgdid + "/overview",
+                     "sgdid": sgdid,
+                     "format_name": format_name,
+                     "name": display_name,
+                     "snp_seqs": snp_seqs,
+                     "dna_scores": dna_scores,
+                     "protein_scores": protein_scores
+            }
+            loci.append(data)
+            start = None
+            locus_id = None
+            strain_to_snp = {}
+        else:
+            if x.display_name.endswith('S288C'):
+                start = x.contig_start_index
+            locus_id = x.locus_id
+            strain = None
+            if dna_type == 'genomic':
+                [name, strain] = x.display_name.split('_')
+            else:
+                [name1, name2, strain] = x.display_name.split('_')
+            strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
+                                      "name": strain,
+                                      "id":  strain_to_id[strain] }
+            
+    if locus_id is not None and locus_id in dbentity_id_to_obj:        
+        (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
+        snp_seqs = []
+        for strain in sorted(strain_to_id, key=strain_to_id.get):
+            if strain in strain_to_snp:
+                snp_seqs.append(strain_to_snp[strain])
+        data = { "absolute_genetic_start": start,
+                 "href": "/locus/" +  sgdid + "/overview",
+                 "sgdid": sgdid,
+                 "format_name": format_name,
+                 "name": display_name,
+                 "snp_seqs": snp_seqs,
+                 "dna_scores": dna_scores,
+                 "protein_scores": protein_scores
+        }
+        loci.append(data)
+        
+    return loci
