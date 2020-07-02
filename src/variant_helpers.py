@@ -263,6 +263,14 @@ def get_variant_data(request):
     
     return data
 
+def calculate_dna_score(S288C_snp_seq, snp_seq, seq_length):
+    count = 0
+    i = 0
+    for x in snp_seq:
+        if x != S288C_snp_seq[i]:
+            count = count + 1
+        i = i + 1
+    return 1 - count/seq_length
 
 def get_all_variant_data(request):    
 
@@ -284,8 +292,8 @@ def get_all_variant_data(request):
     loci = []
     locus_id = None
     strain_to_snp = {}
-    strain_to_dna_score = {}
     start = None
+    end = None
     for x in all:
         if x.locus_id not in dbentity_id_to_obj:
             continue
@@ -293,11 +301,16 @@ def get_all_variant_data(request):
             (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
             snp_seqs = []
             dna_scores = []
+            S288C_snp_seq = None
             for strain in sorted(strain_to_id, key=strain_to_id.get):
                 if strain in strain_to_snp:
-                    snp_seqs.append(strain_to_snp[strain])
-                if strain in strain_to_dna_score:
-                    dna_scores.append(strain_to_dna_score[strain])
+                    snp = strain_to_snp[strain]
+                    snp_seqs.append(snp)
+                    if strain == 'S288C':
+                        S288C_snp_seq = snp['snp_sequence']
+                    dna_scores.append(calculate_dna_score(S288C_snp_seq,
+                                                          snp['snp_sequence'],
+                                                          end-start+1))
                 else:
                     dna_scores.append(None)
             data = { "absolute_genetic_start": start,
@@ -311,29 +324,31 @@ def get_all_variant_data(request):
             }
             loci.append(data)
             start = None
+            end = None
             locus_id = None
             strain_to_snp = {}
-            strain_to_dna_score = {}
         else:
             if x.display_name.endswith('S288C'):
                 start = x.contig_start_index
                 end = x.contig_end_index
             locus_id = x.locus_id
-            strain = None
             [name, strain] = x.display_name.split('_')
             strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
                                       "name": strain,
                                       "id":  strain_to_id[strain] }
-            strain_to_dna_score[strain] = 1 - len(x.snp_sequence)/len(x.aligned_sequence)
     if locus_id is not None and locus_id in dbentity_id_to_obj:        
         (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
         snp_seqs = []
         dna_scores = []
         for strain in sorted(strain_to_id, key=strain_to_id.get):
             if strain in strain_to_snp:
-                snp_seqs.append(strain_to_snp[strain])
-            if strain in strain_to_dna_score:
-                dna_scores.append(strain_to_dna_score[strain])
+                snp = strain_to_snp[strain]
+                snp_seqs.append(snp)
+                if strain == 'S288C':
+                    S288C_snp_seq = snp['snp_sequence']
+                dna_scores.append(calculate_dna_score(S288C_snp_seq,
+                                                      snp['snp_sequence'],
+                                                      end-start+1))
             else:
                 dna_scores.append(None)
         data = { "absolute_genetic_start": start,
