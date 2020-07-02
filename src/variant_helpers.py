@@ -312,10 +312,7 @@ def get_all_variant_data(request):
                 start = x.contig_start_index
             locus_id = x.locus_id
             strain = None
-            if dna_type == 'genomic':
-                [name, strain] = x.display_name.split('_')
-            else:
-                [name1, name2, strain] = x.display_name.split('_')
+            [name, strain] = x.display_name.split('_')
             strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
                                       "name": strain,
                                       "id":  strain_to_id[strain] }
