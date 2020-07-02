@@ -305,7 +305,7 @@ def get_all_variant_data(request):
                      "name": display_name,
                      "snp_seqs": snp_seqs,
                      "dna_scores": dna_scores,
-                     "protein_scores": []
+                     "protein_scores": dna_scores,
             }
             loci.append(data)
             start = None
@@ -339,7 +339,7 @@ def get_all_variant_data(request):
                  "name": display_name,
                  "snp_seqs": snp_seqs,
                  "dna_scores": dna_scores,
-                 "protein_scores": []
+                 "protein_scores": dna_scores
         }
         loci.append(data)
         
