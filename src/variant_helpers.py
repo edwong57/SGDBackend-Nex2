@@ -313,24 +313,24 @@ def get_all_variant_data(request, query, offset, limit):
         if x.locus_id != locus_id and locus_id is not None and seqLen is not None:
             (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
             snp_seqs = []
-            dna_scores = []
+            scores = []
             for strain in sorted(strain_to_id, key=strain_to_id.get):
                 if strain in strain_to_snp:
                     snp = strain_to_snp[strain]
                     snp_seqs.append(snp)
-                    dna_scores.append(calculate_dna_score(S288C_snp_seq,
-                                                          snp['snp_sequence'],
-                                                          seqLen))
+                    scores.append(calculate_dna_score(S288C_snp_seq,
+                                                      snp['snp_sequence'],
+                                                      seqLen))
                 else:
-                    dna_scores.append(None)
+                    scores.append(None)
             data = { "absolute_genetic_start": start,
                      "href": "/locus/" +  sgdid + "/overview",
                      "sgdid": sgdid,
                      "format_name": format_name,
                      "name": display_name,
                      "snp_seqs": snp_seqs,
-                     "dna_scores": dna_scores,
-                     "protein_scores": dna_scores,
+                     "dna_scores": scores,
+                     "protein_scores": scores,
             }
             locus_id_to_data[locus_id] = data
             start = None
@@ -351,24 +351,24 @@ def get_all_variant_data(request, query, offset, limit):
     if locus_id is not None and locus_id in dbentity_id_to_obj and seqLen is not None:        
         (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
         snp_seqs = []
-        dna_scores = []
+        scores = []
         for strain in sorted(strain_to_id, key=strain_to_id.get):
             if strain in strain_to_snp:
                 snp = strain_to_snp[strain]
                 snp_seqs.append(snp)
-                dna_scores.append(calculate_dna_score(S288C_snp_seq,
+                scores.append(calculate_dna_score(S288C_snp_seq,
                                                       snp['snp_sequence'],
                                                       seqLen))
             else:
-                dna_scores.append(None)
+                scores.append(None)
         data = { "absolute_genetic_start": start,
                  "href": "/locus/" +  sgdid + "/overview",
                  "sgdid": sgdid,
                  "format_name": format_name,
                  "name": display_name,
                  "snp_seqs": snp_seqs,
-                 "dna_scores": dna_scores,
-                 "protein_scores": dna_scores
+                 "dna_scores": scores,
+                 "protein_scores": scores
         }
         locus_id_to_data[locus_id] = data
 
@@ -399,12 +399,12 @@ def get_all_variant_data(request, query, offset, limit):
             }
             
         if data is not None:
-            count = count + 1
-            if offset != 0 and count <= offset:
-                continue
-            index = index + 1
-            if limit > 0 and index >= limit:
-                break
+            # count = count + 1
+            # if offset != 0 and count <= offset:
+            #    continue
+            # index = index + 1
+            # if limit > 0 and index >= limit:
+            #    break
             loci.append(data)
 
     variants = { "total": len(loci),
