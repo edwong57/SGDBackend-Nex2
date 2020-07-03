@@ -275,6 +275,9 @@ def calculate_dna_score(S288C_snp_seq, snp_seq, seq_length):
     return 1 - count/seq_length
 
 def get_all_variant_data(request, query, offset, limit):    
+
+    offset = int(offset)
+    limit = int(limit)
     
     taxonomy = DBSession.query(Taxonomy).filter_by(taxid=TAXON).one_or_none()
     taxonomy_id = taxonomy.taxonomy_id
@@ -333,6 +336,7 @@ def get_all_variant_data(request, query, offset, limit):
             start = None
             seqLen = None
             locus_id = None
+            S288C_snp_seq = None
             strain_to_snp = {}
         else:
             if x.display_name.endswith('S288C'):
@@ -370,6 +374,7 @@ def get_all_variant_data(request, query, offset, limit):
 
     loci = []
     count = 0
+    index = 0
     for x in DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id, so_id=so_id).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all():
         data = None
         if x.dbentity_id in locus_id_to_data:
@@ -395,9 +400,10 @@ def get_all_variant_data(request, query, offset, limit):
             
         if data is not None:
             count = count + 1
-            if offset and count <= offset:
+            if offset != 0 and count <= offset:
                 continue
-            if limit and count >= limit:
+            index = index + 1
+            if limit > 0 and index >= limit:
                 break
             loci.append(data)
 
