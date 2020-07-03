@@ -274,6 +274,10 @@ def calculate_dna_score(S288C_snp_seq, snp_seq, seq_length):
         i = i + 1
     return 1 - count/seq_length
 
+def get_variant_for_query(query):
+    
+    return {}
+
 def get_all_variant_data(request, query, offset, limit):    
 
     if query != '':
