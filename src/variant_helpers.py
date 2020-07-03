@@ -274,7 +274,7 @@ def calculate_dna_score(S288C_snp_seq, snp_seq, seq_length):
         i = i + 1
     return 1 - count/seq_length
 
-def get_all_variant_data(request):    
+def get_all_variant_data(request, query, offset, limit):    
     
     taxonomy = DBSession.query(Taxonomy).filter_by(taxid=TAXON).one_or_none()
     taxonomy_id = taxonomy.taxonomy_id
@@ -284,6 +284,10 @@ def get_all_variant_data(request):
     
     all = DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id).all()
 
+    query_set = []
+    if query:
+        query_set = query.replace(" ", "").split(",")
+        
     strain_to_id = strain_order()
     
     locus_id = None
@@ -292,9 +296,17 @@ def get_all_variant_data(request):
     seqLen = None
     S288C_snp_seq = None
     locus_id_to_data = {}
-    for x in all:
+    not_wanted = {}
+    for x in all:            
         if x.locus_id not in dbentity_id_to_obj:
             continue
+        if len(query_set) > 0:
+            if x.locus_id in not_wanted:
+                continue
+            (sgdid, format_name, display_name) = dbentity_id_to_obj[x.locus_id]
+            if sgdid.lower() not in query_set and format_name.lower() not in query_set and display_name.lower() not in query_set:
+                not_wanted[x.locus_id] = 1
+                continue
         if x.locus_id != locus_id and locus_id is not None and seqLen is not None:
             (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
             snp_seqs = []
@@ -357,11 +369,18 @@ def get_all_variant_data(request):
         locus_id_to_data[locus_id] = data
 
     loci = []
+    count = 0
     for x in DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id, so_id=so_id).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all():
+        data = None
         if x.dbentity_id in locus_id_to_data:
-            loci.append(locus_id_to_data[x.dbentity_id])
+            data = locus_id_to_data[x.dbentity_id]
         elif x.dbentity_id in dbentity_id_to_obj:
-            (sgdid, format_name, display_name) = dbentity_id_to_obj[x.dbentity_id]
+            if len(query_set) > 0:
+                if x.dbentity_id in not_wanted:
+                    continue
+                (sgdid, format_name, display_name) = dbentity_id_to_obj[x.dbentity_id]
+                if sgdid.lower() not in query_set and format_name.lower() not in query_set and display_name.lower() not in query_set:
+                    continue
             data = { "absolute_genetic_start": x.start_index,
                      "href": "/locus/" +  sgdid + "/overview",
                      "sgdid": sgdid,
@@ -373,10 +392,17 @@ def get_all_variant_data(request):
                      "dna_scores": [1.0, None, None, None, None, None, None, None, None, None, None, None],
                      "protein_scores": [1,0, None, None, None, None, None, None, None, None, None, None, None]
             }
+            
+        if data is not None:
+            count = count + 1
+            if offset and count <= offset:
+                continue
+            if limit and count >= limit:
+                break
             loci.append(data)
 
     variants = { "total": len(loci),
-                 "offset": 0,
+                 "offset": offset,
                  "loci": loci }
     
     return variants
