@@ -391,12 +391,11 @@ def reference_list(request):
 
 @view_config(route_name='search_sequence_objects', request_method='GET')
 def search_sequence_objects(request):
-    # query = request.params.get('query', '').lower()
-    # offset = request.params.get('offset', 0)
-    # limit = request.params.get('limit', 1000)
-
+    query = request.params.get('query', '').lower()
+    offset = request.params.get('offset', 0)
+    limit = request.params.get('limit', 1000)
     try:
-        data = get_all_variant_data(request)
+        data = get_all_variant_data(request, query, offset, limit)
         return HTTPOk(body=json.dumps(data), content_type="text/json")
     except Exception as e:
         logging.exception(str(e))
