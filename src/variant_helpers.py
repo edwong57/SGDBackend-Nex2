@@ -292,8 +292,6 @@ def get_locus_id_list(query_text):
     return locus_id_list
     
 def get_all_variant_data(request, query_text, offset, limit):    
-
-    locus_id_list = []
     
     locus_id_list = get_locus_id_list(query_text)
 
