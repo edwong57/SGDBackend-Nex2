@@ -310,13 +310,6 @@ def get_all_variant_data(request, query_text, offset, limit):
     else:
         all = DBSession.query(Dnasequencealignment).filter(Dnasequencealignment.locus_id.in_(locus_id_list)).filter_by(dna_type='genomic').all()
         
-
-    return { "count:", len(all) }
-
-
-
-
-
     strain_to_id = strain_order()
     
     locus_id = None
@@ -390,6 +383,11 @@ def get_all_variant_data(request, query_text, offset, limit):
         }
         locus_id_to_data[locus_id] = data
 
+
+    return locus_id_to_data
+
+
+        
     loci = []
     count = 0
     index = 0
