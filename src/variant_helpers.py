@@ -308,7 +308,7 @@ def get_all_variant_data(request, query_text, offset, limit):
     if len(locus_id_list) == 0:
         all = DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id).all()
     else:
-        all = DBSession.query(Dnasequencealignment).filter(Dnasequencealignment.locus_id.in_(locus_id_list)).all()
+        all = DBSession.query(Dnasequencealignment).filter(Dnasequencealignment.locus_id.in_(locus_id_list)).filter_by(dna_type='genomic').all()
         
 
     return { "count:", len(all) }
