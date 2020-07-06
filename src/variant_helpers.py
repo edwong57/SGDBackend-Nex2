@@ -334,7 +334,7 @@ def get_protein_scores(locus_id_list, strain_to_id):
                 scores.append(calculate_scores(S288C_seq,
                                                strain_to_seq[strain],
                                                len(S288C_seq)))
-	    else:
+            else:
                 scores.append(None)
         locus_id_to_protein_scrores[locus_id] = scores
     return locus_id_to_protein_scrores
@@ -435,7 +435,7 @@ def get_all_variant_data(request, query, offset, limit):
         if locus_id in locus_id_to_protein_scrores:
             protein_scores = locus_id_to_protein_scrores[locus_id]
         else:
-	    protein_scores = get_default_scores()
+            protein_scores = get_default_scores()
                 
         data = { "absolute_genetic_start": start,
                  "href": "/locus/" +  sgdid + "/overview",
