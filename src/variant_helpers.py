@@ -355,6 +355,8 @@ def get_all_variant_data(request, query, offset, limit):
     so_id = so.so_id
     dbentity_id_to_obj = dict([(x.dbentity_id, (x.sgdid, x.format_name, x.display_name)) for x in DBSession.query(Locusdbentity).all()])
 
+    strain_to_id = strain_order()
+    
     locus_id_to_protein_scrores = get_protein_scores(locus_id_list, strain_to_id)
     
     all = []
@@ -363,8 +365,6 @@ def get_all_variant_data(request, query, offset, limit):
     else:
         all = DBSession.query(Dnasequencealignment).filter(Dnasequencealignment.locus_id.in_(locus_id_list)).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id).all()
         
-    strain_to_id = strain_order()
-    
     locus_id = None
     strain_to_snp = {}
     start = None
