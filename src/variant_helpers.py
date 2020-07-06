@@ -1,4 +1,3 @@
-from sqlalchemy import or_
 from pyramid.httpexceptions import HTTPBadRequest, HTTPOk
 import json
 from src.models import DBSession, Dbentity, Locusdbentity, Dnasequencealignment, \
@@ -285,16 +284,20 @@ def get_locus_id_list(query_text):
         locus = None
         if query.startswith('S00'):
             locus = DBSession.query(Dbentity).filter_by(sgdid=query).one_or_none()
+            if locus is not None:
+                locus_id_list.append(x.dbentity)
         if locus is None:
             locus = DBSession.query(Locusdbentity).filter(or_(Locusdbentity.gene_name == query, Locusdbentity.systematic_name == query)).one_or_none()
-        if locus is not None:
-            locus_id_list.append(locus.dbentity_id)
+            if locus is not None:
+                locus_id_list.append(x.dbentity)
+                
     return locus_id_list
     
-def get_all_variant_data(request, query_text, offset, limit):    
-    
-    locus_id_list = get_locus_id_list(query_text)
 
+def get_all_variant_data(request, query, offset, limit):    
+
+    locus_id_list = get_locus_id_list(query)
+    
     offset = int(offset)
     limit = int(limit)
     
@@ -308,7 +311,7 @@ def get_all_variant_data(request, query_text, offset, limit):
     if len(locus_id_list) == 0:
         all = DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id).all()
     else:
-        all = DBSession.query(Dnasequencealignment).filter(Dnasequencealignment.locus_id.in_(locus_id_list)).filter_by(dna_type='genomic').all()
+        all = DBSession.query(Dnasequencealignment).filter(Dnasequencealignment.locus_id.in_(locus_id_list)).all()
         
     strain_to_id = strain_order()
     
@@ -344,23 +347,22 @@ def get_all_variant_data(request, query_text, offset, limit):
                      "protein_scores": scores,
             }
             locus_id_to_data[locus_id] = data
-            data = {}
             start = None
             seqLen = None
             locus_id = None
             S288C_snp_seq = None
             strain_to_snp = {}
-        else:
-            if x.display_name.endswith('S288C'):
-                start = x.contig_start_index
-                seqLen = len(x.aligned_sequence)
-                S288C_snp_seq = x.snp_sequence
-            locus_id = x.locus_id
-            [name, strain] = x.display_name.split('_')
-            strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
-                                      "name": strain,
-                                      "id":  strain_to_id[strain] }
-            
+        
+        if x.display_name.endswith('S288C'):
+            start = x.contig_start_index
+            seqLen = len(x.aligned_sequence)
+            S288C_snp_seq = x.snp_sequence
+        locus_id = x.locus_id
+        [name, strain] = x.display_name.split('_')
+        strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
+                                  "name": strain,
+                                  "id":  strain_to_id[strain] }
+        
     if locus_id is not None and locus_id in dbentity_id_to_obj and seqLen is not None:
         (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
         snp_seqs = []
@@ -385,8 +387,9 @@ def get_all_variant_data(request, query_text, offset, limit):
         }
         locus_id_to_data[locus_id] = data
 
-    return locus_id_to_data
 
+
+        
     loci = []
     count = 0
     index = 0
@@ -396,7 +399,7 @@ def get_all_variant_data(request, query_text, offset, limit):
         all = DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id, so_id=so_id).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all()
     else:
         all = DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id, so_id=so_id).filter(Dnasequenceannotation.dbentity_id.in_(locus_id_list)).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all()
-        
+
     for x in all:   
         data = None
         if x.dbentity_id in locus_id_to_data:
