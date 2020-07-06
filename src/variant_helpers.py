@@ -286,11 +286,11 @@ def get_locus_id_list(query_text):
         if query.startswith('S00'):
             locus = DBSession.query(Dbentity).filter_by(sgdid=query).one_or_none()
             if locus is not None:
-                locus_id_list.append(x.dbentity)
+                locus_id_list.append(locus.dbentity_id)
         if locus is None:
             locus = DBSession.query(Locusdbentity).filter(or_(Locusdbentity.gene_name == query, Locusdbentity.systematic_name == query)).one_or_none()
             if locus is not None:
-                locus_id_list.append(x.dbentity)
+                locus_id_list.append(locus.dbentity_id)
                 
     return locus_id_list
     
