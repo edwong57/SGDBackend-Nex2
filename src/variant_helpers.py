@@ -382,11 +382,6 @@ def get_all_variant_data(request, query_text, offset, limit):
                  "protein_scores": scores
         }
         locus_id_to_data[locus_id] = data
-
-
-    return locus_id_to_data
-
-
         
     loci = []
     count = 0
@@ -398,6 +393,10 @@ def get_all_variant_data(request, query_text, offset, limit):
     else:
         all = DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id, so_id=so_id).filter(Dnasequenceannotation.dbentity_id.in_(locus_id_list)).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all()
 
+
+    return { "total": len(all) }
+        
+        
     for x in all:   
         data = None
         if x.dbentity_id in locus_id_to_data:
