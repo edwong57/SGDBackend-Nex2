@@ -295,8 +295,6 @@ def get_all_variant_data(request, query_text, offset, limit):
     
     locus_id_list = get_locus_id_list(query_text)
 
-    return locus_id_list
-
     offset = int(offset)
     limit = int(limit)
     
@@ -312,6 +310,13 @@ def get_all_variant_data(request, query_text, offset, limit):
     else:
         all = DBSession.query(Dnasequencealignment).filter(Dnasequencealignment.locus_id.in_(locus_id_list)).all()
         
+
+    return { "count:", len(all) }
+
+
+
+
+
     strain_to_id = strain_order()
     
     locus_id = None
