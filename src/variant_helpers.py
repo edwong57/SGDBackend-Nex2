@@ -392,10 +392,6 @@ def get_all_variant_data(request, query_text, offset, limit):
         all = DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id, so_id=so_id).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all()
     else:
         all = DBSession.query(Dnasequenceannotation).filter_by(dna_type='GENOMIC', taxonomy_id=taxonomy_id, so_id=so_id).filter(Dnasequenceannotation.dbentity_id.in_(locus_id_list)).order_by(Dnasequenceannotation.contig_id, Dnasequenceannotation.start_index, Dnasequenceannotation.end_index).all()
-
-
-    return { "total": len(all) }
-        
         
     for x in all:   
         data = None
