@@ -391,7 +391,7 @@ def reference_list(request):
 
 @view_config(route_name='search_sequence_objects', request_method='GET')
 def search_sequence_objects(request):
-    query = request.params.get('query', '').lower()
+    query = request.params.get('query', '')
     offset = request.params.get('offset', 0)
     limit = request.params.get('limit', 1000)
     try:
