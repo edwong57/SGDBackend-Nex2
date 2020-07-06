@@ -344,6 +344,7 @@ def get_all_variant_data(request, query_text, offset, limit):
                      "protein_scores": scores,
             }
             locus_id_to_data[locus_id] = data
+            data = {}
             start = None
             seqLen = None
             locus_id = None
@@ -359,6 +360,7 @@ def get_all_variant_data(request, query_text, offset, limit):
             strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
                                       "name": strain,
                                       "id":  strain_to_id[strain] }
+            
     if locus_id is not None and locus_id in dbentity_id_to_obj and seqLen is not None:
         (sgdid, format_name, display_name) = dbentity_id_to_obj[locus_id]
         snp_seqs = []
@@ -382,7 +384,9 @@ def get_all_variant_data(request, query_text, offset, limit):
                  "protein_scores": scores
         }
         locus_id_to_data[locus_id] = data
-        
+
+    return locus_id_to_data
+
     loci = []
     count = 0
     index = 0
