@@ -1,3 +1,4 @@
+from sqlalchemy import or_
 from pyramid.httpexceptions import HTTPBadRequest, HTTPOk
 import json
 from src.models import DBSession, Dbentity, Locusdbentity, Dnasequencealignment, \
