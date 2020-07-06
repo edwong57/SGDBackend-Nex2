@@ -297,7 +297,9 @@ def get_locus_id_list(query_text):
 
 def get_all_variant_data(request, query, offset, limit):    
 
-    locus_id_list = get_locus_id_list(query)
+    # locus_id_list = get_locus_id_list(query)
+    
+    locus_id_list = []
     
     offset = int(offset)
     limit = int(limit)
