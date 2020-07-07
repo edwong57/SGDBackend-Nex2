@@ -371,7 +371,7 @@ def get_absolute_genetic_start(contig_lengths, contig_name, start):
     chr = contig_name.replace("Chromosome ", "")
     contig_index = list(contig_lengths.keys()).index(chr)
     absolute_genetic_start = 0
-    for contig in list(contig_length.keys()):
+    for contig in list(contig_lengths.keys()):
         if contig == chr:
             break
         absolute_genetic_start += contig_lengths[contig]
