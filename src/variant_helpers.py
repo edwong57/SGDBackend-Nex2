@@ -311,9 +311,9 @@ def get_protein_scores(locus_id_list, strain_to_id):
             scores = []
             for strain in sorted(strain_to_id, key=strain_to_id.get):
                 if strain in strain_to_seq:
-                    scores.append(calculate_scores(S288C_seq,
-                                                   strain_to_seq[strain],
-                                                   len(S288C_seq)))
+                    scores.append(calculate_score(S288C_seq,
+                                                  strain_to_seq[strain],
+                                                  len(S288C_seq)))
                 else:
                     scores.append(None)
             locus_id_to_protein_scrores[locus_id] = scores
@@ -382,7 +382,7 @@ def get_all_variant_data(request, query, offset, limit):
                 if strain in strain_to_snp:
                     snp = strain_to_snp[strain]
                     snp_seqs.append(snp)
-                    dna_scores.append(calculate_dna_score(S288C_snp_seq,
+                    dna_scores.append(calculate_score(S288C_snp_seq,
                                                       snp['snp_sequence'],
                                                       seqLen))
                 else:
@@ -426,7 +426,7 @@ def get_all_variant_data(request, query, offset, limit):
             if strain in strain_to_snp:
                 snp = strain_to_snp[strain]
                 snp_seqs.append(snp)
-                dna_scores.append(calculate_dna_score(S288C_snp_seq,
+                dna_scores.append(calculate_score(S288C_snp_seq,
                                                       snp['snp_sequence'],
                                                       seqLen))
             else:
