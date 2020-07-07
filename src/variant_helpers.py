@@ -316,7 +316,7 @@ def get_protein_scores(locus_id_list, strain_to_id):
                                                   len(S288C_seq)))
                 else:
                     scores.append(None)
-            locus_id_to_protein_scrores[locus_id] = scores
+            locus_id_to_protein_scores[locus_id] = scores
             locus_id = None
             S288C_seq =	None
             strain_to_seq = {}
@@ -336,8 +336,8 @@ def get_protein_scores(locus_id_list, strain_to_id):
                                                len(S288C_seq)))
             else:
                 scores.append(None)
-        locus_id_to_protein_scrores[locus_id] = scores
-    return locus_id_to_protein_scrores
+        locus_id_to_protein_scores[locus_id] = scores
+    return locus_id_to_protein_scores
 
 def get_default_scores():
     return [1, None, None, None, None, None, None, None, None, None, None, None]
@@ -357,7 +357,7 @@ def get_all_variant_data(request, query, offset, limit):
 
     strain_to_id = strain_order()
     
-    locus_id_to_protein_scrores = get_protein_scores(locus_id_list, strain_to_id)
+    locus_id_to_protein_scores = get_protein_scores(locus_id_list, strain_to_id)
     
     all = []
     if len(locus_id_list) == 0:
@@ -388,8 +388,8 @@ def get_all_variant_data(request, query, offset, limit):
                 else:
                     dna_scores.append(None)
             protein_scores = []
-            if locus_id in locus_id_to_protein_scrores:
-                protein_scores = locus_id_to_protein_scrores[locus_id]
+            if locus_id in locus_id_to_protein_scores:
+                protein_scores = locus_id_to_protein_scores[locus_id]
             else:
                 protein_scores = get_default_scores()
             data = { "absolute_genetic_start": start,
@@ -432,8 +432,8 @@ def get_all_variant_data(request, query, offset, limit):
             else:
                 dna_scores.append(None)
         protein_scores = []
-        if locus_id in locus_id_to_protein_scrores:
-            protein_scores = locus_id_to_protein_scrores[locus_id]
+        if locus_id in locus_id_to_protein_scores:
+            protein_scores = locus_id_to_protein_scores[locus_id]
         else:
             protein_scores = get_default_scores()
                 
