@@ -342,6 +342,41 @@ def get_protein_scores(locus_id_list, strain_to_id):
 def get_default_scores():
     return [1, None, None, None, None, None, None, None, None, None, None, None]
 
+def get_contig_lengths():
+
+    CONTIG_LENGTHS = OrderedDict([
+        ('I', 230218),
+        ('II', 813184),
+        ('III', 316620),
+        ('IV',  1531933),
+        ('V', 576874),
+        ('VI', 270161),
+        ('VII', 1090940),
+        ('VIII', 562643),
+        ('IX', 439888),
+        ('X', 745751),
+        ('XI', 666816),
+        ('XII', 1078177),
+        ('XIII', 924431),
+        ('XIV', 784333),
+        ('XV', 1091291),
+        ('XVI', 94806),
+        ('Mito', 85779)
+    ])
+
+    return CONTIG_LENGTHS
+
+def get_absolute_genetic_start(contig_lengths, contig_name, start):
+    chr = contig_name.replace("Chromosome ", "")
+    contig_index = list(contig_lengths.keys()).index(chr)
+    absolute_genetic_start = 0
+    for contig in list(contig_length.keys()):
+        if contig == chr:
+            break
+        absolute_genetic_start += contig_lengths[contig]
+    absolute_genetic_start += start
+    return absolute_genetic_start
+
 def get_all_variant_data(request, query, offset, limit):
 
     locus_id_list = get_locus_id_list(query)
@@ -354,11 +389,13 @@ def get_all_variant_data(request, query, offset, limit):
     so = DBSession.query(So).filter_by(display_name='ORF').one_or_none()
     so_id = so.so_id
     dbentity_id_to_obj = dict([(x.dbentity_id, (x.sgdid, x.format_name, x.display_name)) for x in DBSession.query(Locusdbentity).all()])
-
+    contig_id_to_display_name = dict([(x.contig_id, x.display_name) for x in DBSession.query(Contig).filter(Contig.display_name.like('Chromosome %')).all()])
     strain_to_id = strain_order()
     
     locus_id_to_protein_scores = get_protein_scores(locus_id_list, strain_to_id)
-    
+
+    contig_lengths = get_contig_lengths()
+
     all = []
     if len(locus_id_list) == 0:
         all = DBSession.query(Dnasequencealignment).filter_by(dna_type='genomic').order_by(Dnasequencealignment.locus_id).order_by(Dnasequencealignment.locus_id).all()
@@ -371,6 +408,7 @@ def get_all_variant_data(request, query, offset, limit):
     seqLen = None
     S288C_snp_seq = None
     locus_id_to_data = {}
+    contig_name = None
     for x in all:            
         if x.locus_id not in dbentity_id_to_obj:
             continue
@@ -392,7 +430,7 @@ def get_all_variant_data(request, query, offset, limit):
                 protein_scores = locus_id_to_protein_scores[locus_id]
             else:
                 protein_scores = get_default_scores()
-            data = { "absolute_genetic_start": start,
+            data = { "absolute_genetic_start": get_absolute_genetic_start(contig_lengths, contig_name, start),
                      "href": "/locus/" +  sgdid + "/overview",
                      "sgdid": sgdid,
                      "format_name": format_name,
@@ -406,12 +444,14 @@ def get_all_variant_data(request, query, offset, limit):
             seqLen = None
             locus_id = None
             S288C_snp_seq = None
+            contig_name = None
             strain_to_snp = {}
         
         if x.display_name.endswith('S288C'):
             start = x.contig_start_index
             seqLen = len(x.aligned_sequence)
             S288C_snp_seq = x.snp_sequence
+            contig_name = contig_id_to_display_name[x.contig_id]
         locus_id = x.locus_id
         [name, strain] = x.display_name.split('_')
         strain_to_snp[strain] = { "snp_sequence": x.snp_sequence,
@@ -437,7 +477,7 @@ def get_all_variant_data(request, query, offset, limit):
         else:
             protein_scores = get_default_scores()
                 
-        data = { "absolute_genetic_start": start,
+        data = { "absolute_genetic_start": get_absolute_genetic_start(contig_lengths, contig_name, start),
                  "href": "/locus/" +  sgdid + "/overview",
                  "sgdid": sgdid,
                  "format_name": format_name,
@@ -464,7 +504,10 @@ def get_all_variant_data(request, query, offset, limit):
             data = locus_id_to_data[x.dbentity_id]
         elif x.dbentity_id in dbentity_id_to_obj:
             (sgdid, format_name, display_name) = dbentity_id_to_obj[x.dbentity_id]
-            data = { "absolute_genetic_start": x.start_index,
+            contig_name = contig_id_to_display_name.get(x.contig_id)
+            if contig_name is None:
+                continue
+            data = { "absolute_genetic_start": get_absolute_genetic_start(contig_lengths, contig_name, x.start_index),
                      "href": "/locus/" +  sgdid + "/overview",
                      "sgdid": sgdid,
                      "format_name": format_name,
