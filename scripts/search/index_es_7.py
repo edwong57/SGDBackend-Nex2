@@ -832,7 +832,32 @@ def index_complex_names():
     if len(bulk_data) > 0:
         es.bulk(index=INDEX_NAME, body=bulk_data, refresh=True)
 
-
+def index_variant_data():
+    variant_url = "/get_all_variant_data"
+    variant_response = requests.get(variant_url).json()
+    bulk_data = []
+    for x in variant_response:
+        obj = { "sgdid": x['sgdid'],
+                "name": x['name'],
+                "href": x['href'],
+                "absolute_genetic_start”: x['absolute_genetic_start'],
+                "format_name": x['format_name'],
+                "dna_scores": x['dna_scores'],
+                "protein_scores”: x['protein_scores'],
+                "snp_seqs": x['snp_seqs'] }
+        bulk_data.append({
+                "index": {
+                    "_index": INDEX_NAME,
+                    "_id": "variant_" + x['format_name']
+                }
+            })         
+        bulk_data.append(obj)            
+        if len(bulk_data) == 300:
+                es.bulk(index=INDEX_NAME, body=bulk_data, refresh=True)
+                bulk_data = []
+    if len(bulk_data) > 0:
+        es.bulk(index=INDEX_NAME, body=bulk_data, refresh=True)
+    
 def index_chemicals():
     all_chebi_data = DBSession.query(Chebi).all()
     _result = IndexESHelper.get_chebi_annotations(all_chebi_data)
@@ -882,8 +907,8 @@ def index_part_2():
     index_disease_terms()
     index_complex_names()
     index_references()
-
-
+    index_variant_data()
+    
 def index_toolbar_links():
     links = [
         ("Gene List", "https://yeastmine.yeastgenome.org/yeastmine/bag.do", []),
