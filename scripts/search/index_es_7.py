@@ -833,7 +833,7 @@ def index_complex_names():
         es.bulk(index=INDEX_NAME, body=bulk_data, refresh=True)
 
 def index_variant_data():
-    variant_url = "/get_all_variant_data"
+    variant_url = "/get_all_variant_objects"
     variant_response = requests.get(variant_url).json()
     bulk_data = []
     for x in variant_response:
