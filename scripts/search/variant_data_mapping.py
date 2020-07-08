@@ -23,13 +23,13 @@ mapping = {
             },
             "format_name": {
                 "type": "text"
-            }
+            },
             "dna_scores": {
                 "type": "object"
-            }
+            },
             "protein_scores": {
                 "type": "object"
-            }
+            },
             "snp_seqs": {
                 "type": "object"
             }
