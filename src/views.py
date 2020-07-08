@@ -389,6 +389,19 @@ def reference_list(request):
         except ValueError:
             return HTTPBadRequest(body=json.dumps({'error': "IDs must be string format of integers. Example JSON object expected: {\"reference_ids\": [\"1\", \"2\"]}"}))
 
+
+@view_config(route_name='get_all_variant_objects', request_method='GET')
+def get_all_variant_objects(request):
+    query = request.params.get('query', '')
+    offset = request.params.get('offset', 0)
+    limit = request.params.get('limit', 7000)
+    try:
+        data = get_all_variant_data(request, query, offset, limit)
+        return HTTPOk(body=json.dumps(data), content_type="text/json")
+    except Exception as e:
+        logging.exception(str(e))
+        return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type="text/json")
+        
 @view_config(route_name='search_sequence_objects', request_method='GET')
 def search_sequence_objects(request):
     query = request.params.get('query', '')
