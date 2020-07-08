@@ -18,6 +18,9 @@ DOC_TYPE = "searchable_item"
 ES_URI = os.environ["WRITE_ES_URI"]
 es = Elasticsearch(ES_URI, retry_on_timeout=True)
 
+## will fix this to use prod URL when it is ready
+variant_url = "https://www3-web.dev.yeastgenome.org/backend/get_all_variant_objects"
+
 def delete_mapping():
     print("Deleting mapping...")
     response = requests.delete(ES_URI + INDEX_NAME + "/")
@@ -52,7 +55,6 @@ def setup():
         put_mapping()
 
 def index_variant_data():
-    variant_url = "https://www3-web.dev.yeastgenome.org/backend/get_all_variant_objects"
     variant_response = requests.get(variant_url).json()
     loci = variant_response['loci']
     bulk_data = []
