@@ -4,14 +4,9 @@ import os
 import requests
 from threading import Thread
 import json
-# import collections
 from index_es_helpers import IndexESHelper
 import concurrent.futures
 import logging
-
-# engine = create_engine(os.environ["NEX2_URI"], pool_recycle=3600)
-# DBSession.configure(bind=engine)
-# Base.metadata.bind = engine
 
 INDEX_NAME = os.environ.get("ES_VARIANT_INDEX_NAME", "variant_data_index")
 DOC_TYPE = "searchable_item"
