@@ -427,6 +427,7 @@ def search_sequence_objects(request):
             simple_hits.append(hit['_source'])
 
     formatted_response = {
+        "query_length": len(query_list),
         'loci': simple_hits,
         'total': limit,
         'offset': offset
