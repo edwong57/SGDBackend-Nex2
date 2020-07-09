@@ -426,8 +426,8 @@ def search_sequence_objects(request):
             if hit['_source']['name'] in query_list or hit['_source']['format_name'] in query_list or hit['_source']['sgdid'] in query_list:
                 simple_hits.append(hit['_source'])
         else:
-            simple_hits.append(hit['_source'])
-
+            # simple_hits.append(hit['_source'])
+            simple_hits.append(hit['_source']['name'])
     formatted_response = {
         'loci': simple_hits,
         'total': limit,
