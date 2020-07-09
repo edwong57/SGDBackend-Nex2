@@ -588,10 +588,10 @@ def build_sequence_objects_search_query(query):
         search_body = {
             'query': {
                 'bool': {
-                    'multi_match': {
-                        "query": [q.strip() for q in query.split(',')],
-                        "fields": ['name', 'format_name', 'sgdid'],
-                        "operator": "or"
+                    'filter': {
+                        'terms': {
+                            '_all': [q.strip() for q in query.split(',')]
+                        }
                     }
                 }
             }

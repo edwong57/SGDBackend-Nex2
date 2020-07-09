@@ -406,19 +406,22 @@ def get_all_variant_objects(request):
         
 @view_config(route_name='search_sequence_objects', request_method='GET')
 def search_sequence_objects(request):
-    query = request.params.get('query', '').lower()
+    query = request.params.get('query', '').upper()
     offset = request.params.get('offset', 0)
     limit = request.params.get('limit', 1000)
 
     search_result = ESearch.search(
         index=ES_INDEX_NAME,
-        body=build_sequence_objects_search_query(query),
+        body=build_sequence_objects_search_query(''),
         size=limit,
         from_=offset
     )
 
     simple_hits = []
+    query_list = query.replace(" ", "").split(",")
     for hit in search_result['hits']['hits']:
+        if query != '' and hit['_source']['name'] not in query_list and hit['_source']['format_name'] not in query_list and hit['_source']['sgdid'] not in query_list:
+            continue
         simple_hits.append(hit['_source'])
 
     formatted_response = {
