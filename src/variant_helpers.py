@@ -381,6 +381,11 @@ def get_absolute_genetic_start(contig_lengths, contig_name, start):
 def get_all_variant_data(request, query, offset, limit):
 
     locus_id_list = get_locus_id_list(query)
+
+    if query != '' and len(locus_id_list) == 0: 
+        return { "total": 0,
+                 "offset": offset,
+                 "loci": [] }
     
     offset = int(offset)
     limit = int(limit)
