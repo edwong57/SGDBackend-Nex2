@@ -432,7 +432,7 @@ def get_all_variant_data(request, query, offset, limit):
             else:
                 protein_scores = get_default_scores()
             data = { "absolute_genetic_start": get_absolute_genetic_start(contig_lengths, contig_name, start),
-                     "href": "/locus/" +  sgdid + "/overview",
+                     "href": "/locus/" +  sgdid + "/sequence#variants",
                      "sgdid": sgdid,
                      "format_name": format_name,
                      "name": display_name,
@@ -479,7 +479,7 @@ def get_all_variant_data(request, query, offset, limit):
             protein_scores = get_default_scores()
                 
         data = { "absolute_genetic_start": get_absolute_genetic_start(contig_lengths, contig_name, start),
-                 "href": "/locus/" +  sgdid + "/overview",
+                 "href": "/locus/" +  sgdid + "/sequence#variants",
                  "sgdid": sgdid,
                  "format_name": format_name,
                  "name": display_name,
@@ -509,7 +509,7 @@ def get_all_variant_data(request, query, offset, limit):
             if contig_name is None:
                 continue
             data = { "absolute_genetic_start": get_absolute_genetic_start(contig_lengths, contig_name, x.start_index),
-                     "href": "/locus/" +  sgdid + "/overview",
+                     "href": "/locus/" +  sgdid + "/sequence#variants",
                      "sgdid": sgdid,
                      "format_name": format_name,
                      "name": display_name,
