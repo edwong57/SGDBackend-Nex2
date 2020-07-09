@@ -410,33 +410,38 @@ def search_sequence_objects(request):
     offset = request.params.get('offset', 0)
     limit = request.params.get('limit', 1000)
 
-    search_result = ESearch.search(
-        index=ES_INDEX_NAME,
-        body=build_sequence_objects_search_query(''),
-        size=limit,
-        from_=offset
-    )
+    if query != '':
+        try:
+            data = get_all_variant_data(request, query, offset, limit)
+            return HTTPOk(body=json.dumps(data), content_type="text/json")
+        except Exception as e:
+            logging.exception(str(e))
+            return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type="text/json")
 
-    simple_hits = []
-    query_list = query.replace(" ", "").split(",")
-    if len(query_list) > 0 and query_list[0] == '':
-        query_list = []
-    for hit in search_result['hits']['hits']:
-        if len(query_list) > 0:
-            name = json.dumps(hit['_source']['name'])
-            # if hit['_source']['name'] in query_list or hit['_source']['format_name'] in query_list or hit['_source']['sgdid'] in query_list:
-            if name == 'ACT1':
-                simple_hits.append(hit['_source'])
-        else:
+    try:
+        search_result = ESearch.search(
+            index=ES_INDEX_NAME,
+            body=build_sequence_objects_search_query(''),
+            size=limit,
+            from_=offset
+        )
+        
+        simple_hits = []
+        for hit in search_result['hits']['hits']:
             simple_hits.append(hit['_source'])
-    formatted_response = {
-        'loci': simple_hits,
-        'total': limit,
-        'offset': offset
-    }
-
-    return Response(body=json.dumps(formatted_response), content_type='application/json')
-
+        
+        formatted_response = {
+            'loci': simple_hits,
+            'total': limit,
+            'offset': offset
+        }
+        
+        return Response(body=json.dumps(formatted_response), content_type='application/json')
+    
+    except Exception as e:
+        logging.exception(str(e))
+        return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type="text/json")
+    
 @view_config(route_name='get_sequence_object', renderer='json', request_method='GET')
 def get_sequence_object(request):
 
