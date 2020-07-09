@@ -423,11 +423,11 @@ def search_sequence_objects(request):
         query_list = []
     for hit in search_result['hits']['hits']:
         if len(query_list) > 0:
-            if hit['_source']['name'] in query_list or hit['_source']['format_name'] in query_list or hit['_source']['sgdid'] in query_list:
+            # if hit['_source']['name'] in query_list or hit['_source']['format_name'] in query_list or hit['_source']['sgdid'] in query_list:
+            if hit['_source']['name'] = 'ACT1':
                 simple_hits.append(hit['_source'])
         else:
-            # simple_hits.append(hit['_source'])
-            simple_hits.append(hit['_source']['name'])
+            simple_hits.append(hit['_source'])
     formatted_response = {
         'loci': simple_hits,
         'total': limit,
