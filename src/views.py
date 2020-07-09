@@ -415,12 +415,12 @@ def search_sequence_objects(request):
         body=build_sequence_objects_search_query(query)
     )
 
-    # simple_hits = []
-    # for hit in res['hits']['hits']:
-    #    simple_hits.append(hit['_source'])
+    simple_hits = []
+    for hit in res['hits']['hits']:
+        simple_hits.append(hit['_source'])
 
     formatted_response = {
-        'loci': search_result,
+        'loci': simple_hits,
         'total': limit,
         'offset': offset
     }
@@ -477,7 +477,7 @@ def reference(request):
 @view_config(route_name='reference_literature_details', renderer='json', request_method='GET')
 def reference_literature_details(request):
     id = extract_id_request(request, 'reference', 'id', True)
-    # allow reference to be accessed by sgdid even if not in disambig table
+     # allow reference to be accessed by sgdid even if not in disambig table
     if id:
         reference = DBSession.query(Referencedbentity).filter_by(dbentity_id=id).one_or_none()
     else:
