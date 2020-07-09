@@ -420,7 +420,7 @@ def search_sequence_objects(request):
         simple_hits.append(hit['_source'])
 
     formatted_response = {
-        'loci': simple_hits,
+        'loci': search_result,
         'total': limit,
         'offset': offset
     }
