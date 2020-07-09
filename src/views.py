@@ -423,7 +423,7 @@ def search_sequence_objects(request):
         query_list = []
     for hit in search_result['hits']['hits']:
         if len(query_list) > 0:
-            name = json.dump(hit['_source']['name'])
+            name = json.dumps(hit['_source']['name'])
             # if hit['_source']['name'] in query_list or hit['_source']['format_name'] in query_list or hit['_source']['sgdid'] in query_list:
             if name == 'ACT1':
                 simple_hits.append(hit['_source'])
