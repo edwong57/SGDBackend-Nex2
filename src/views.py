@@ -419,6 +419,8 @@ def search_sequence_objects(request):
 
     simple_hits = []
     query_list = query.replace(" ", "").split(",")
+    if len(query_list) > 0 and query_list[0] == '':
+        query_list = []
     for hit in search_result['hits']['hits']:
         if len(query_list) > 0:
             if hit['_source']['name'] in query_list or hit['_source']['format_name'] in query_list or hit['_source']['sgdid'] in query_list:
@@ -427,7 +429,6 @@ def search_sequence_objects(request):
             simple_hits.append(hit['_source'])
 
     formatted_response = {
-        "query": query_list,
         'loci': simple_hits,
         'total': limit,
         'offset': offset
