@@ -416,11 +416,11 @@ def search_sequence_objects(request):
     )
 
     simple_hits = []
-    for hit in res['hits']['hits']:
+    for hit in search_result['hits']['hits']:
         simple_hits.append(hit['_source'])
 
     formatted_response = {
-        'loci': search_result,
+        'loci': simple_hits,
         'total': limit,
         'offset': offset
     }
