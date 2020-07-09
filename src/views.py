@@ -31,6 +31,8 @@ logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
 log = logging.getLogger()
 
 ES_INDEX_NAME = os.environ.get('ES_INDEX_NAME', 'searchable_items_aws')
+ES_VARIANT_INDEX_NAME = os.environ.get('ES_VARIANT_INDEX_NAME', 'variant_data_index')
+
 models_helper = ModelsHelper()
 
 @view_config(route_name='home', request_method='GET', renderer='home.jinja2')
@@ -404,15 +406,26 @@ def get_all_variant_objects(request):
         
 @view_config(route_name='search_sequence_objects', request_method='GET')
 def search_sequence_objects(request):
-    query = request.params.get('query', '')
+    query = request.params.get('query', '').lower()
     offset = request.params.get('offset', 0)
     limit = request.params.get('limit', 1000)
-    try:
-        data = get_all_variant_data(request, query, offset, limit)
-        return HTTPOk(body=json.dumps(data), content_type="text/json")
-    except Exception as e:
-        logging.exception(str(e))
-        return HTTPBadRequest(body=json.dumps({'error': str(e)}), content_type="text/json")
+
+    search_result = ESearch.search(
+        index=ES_VARIANT_INDEX_NAME,
+        body=build_sequence_objects_search_query(query)
+    )
+
+    # simple_hits = []
+    # for hit in res['hits']['hits']:
+    #    simple_hits.append(hit['_source'])
+
+    formatted_response = {
+        'loci': search_result,
+        'total': limit,
+        'offset': offset
+    }
+
+    return Response(body=json.dumps(formatted_response), content_type='application/json')
 
 @view_config(route_name='get_sequence_object', renderer='json', request_method='GET')
 def get_sequence_object(request):
