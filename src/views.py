@@ -420,8 +420,8 @@ def search_sequence_objects(request):
     simple_hits = []
     query_list = query.replace(" ", "").split(",")
     for hit in search_result['hits']['hits']:
-        if query != '' and hit['_source']['name'] not in query_list and hit['_source']['format_name'] not in query_list and hit['_source']['sgdid'] not in query_list:
-            continue
+        # if query != '' and hit['_source']['name'] not in query_list and hit['_source']['format_name'] not in query_list and hit['_source']['sgdid'] not in query_list:
+        #    continue
         simple_hits.append(hit['_source'])
 
     formatted_response = {
