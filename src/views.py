@@ -412,7 +412,9 @@ def search_sequence_objects(request):
 
     search_result = ESearch.search(
         index=ES_INDEX_NAME,
-        body=build_sequence_objects_search_query(query)
+        body=build_sequence_objects_search_query(query),
+        size=limit,
+        from_=offset
     )
 
     simple_hits = []
