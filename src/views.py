@@ -418,7 +418,7 @@ def search_sequence_objects(request):
     )
 
     simple_hits = []
-    # query_list = query.replace(" ", "").split(",")
+    query_list = query.replace(" ", "").split(",")
     for hit in search_result['hits']['hits']:
         if len(query_list) > 0:
             if hit['_source']['name'] in query_list or hit['_source']['format_name'] in query_list or hit['_source']['sgdid'] in query_list:
