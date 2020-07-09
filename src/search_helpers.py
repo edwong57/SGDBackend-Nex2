@@ -578,6 +578,7 @@ def format_search_results(search_results, json_response_fields, query):
 
 
 def build_sequence_objects_search_query(query):
+    # '_all': [q.strip() for q in query.split(',')]
     if query == '':
         search_body = {
             'query': {'match_all': {}},
@@ -587,10 +588,10 @@ def build_sequence_objects_search_query(query):
         search_body = {
             'query': {
                 'bool': {
-                    'filter': {
-                        'terms': {
-                            '_all': [q.strip() for q in query.split(',')]
-                        }
+                    'multi_match': {
+                        "query": [q.strip() for q in query.split(',')],
+                        "fields": ['name', 'format_name', 'sgdid'],
+                        "operator": "or"
                     }
                 }
             }
