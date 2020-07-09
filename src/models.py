@@ -9547,7 +9547,43 @@ class AllelealiasReference(Base):
     alias = relationship('AlleleAlias')
     source = relationship('Source')
     reference = relationship('Referencedbentity')
-    
+
+class LocusAllele(Base):
+    __tablename__ = 'locus_allele'
+    __table_args__ = (
+        UniqueConstraint('locus_id', 'allele_id'),
+        {'schema': 'nex'}
+    )
+
+    locus_allele_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    locus_id = Column(ForeignKey('nex.locusdbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    allele_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    locus = relationship('Locusdbentity')
+    source = relationship('Source')
+    allele = relationship('Alleledbentity')
+
+class LocusalleleReference(Base):
+    __tablename__ = 'locusallele_reference'
+    __table_args__ = (
+	UniqueConstraint('locus_allele_id', 'reference_id'),
+        {'schema': 'nex'}
+    )
+
+    locusallele_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    locus_allele_id = Column(ForeignKey('nex.locusallele.locus_allele_id', ondelete='CASCADE'), nullable=False)
+    reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    locusallele = relationship('Locusallele')
+    source = relationship('Source')
+    reference = relationship('Referencedbentity')
+
 class Transcriptdbentity(Dbentity):
     __tablename__ = 'transcriptdbentity'
     __table_args__ = {'schema': 'nex'}
