@@ -411,7 +411,7 @@ def search_sequence_objects(request):
     limit = request.params.get('limit', 1000)
 
     search_result = ESearch.search(
-        index=ES_VARIANT_INDEX_NAME,
+        index=ES_INDEX_NAME,
         body=build_sequence_objects_search_query(query)
     )
 
