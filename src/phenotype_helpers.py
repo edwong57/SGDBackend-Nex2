@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError, DataError
 import transaction
 import json
 from src.models import DBSession, Phenotypeannotation, PhenotypeannotationCond, Phenotype,\
-     Allele, Reporter, Apo, Chebi, Source, Dbentity, Locusdbentity, Referencedbentity,\
+     Alleledbentity, Reporter, Apo, Chebi, Source, Dbentity, Locusdbentity, Referencedbentity,\
      Straindbentity
 from src.curation_helpers import get_curator_session
 
@@ -62,20 +62,24 @@ def insert_phenotype(curator_session, CREATED_BY, source_id, format_name, displa
 
 def insert_allele(curator_session, CREATED_BY, source_id, allele):
 
-    a = curator_session.query(Allele).filter_by(display_name=allele).one_or_none()
+    a = curator_session.query(Alleledbentity).filter_by(display_name=allele).one_or_none()
     if a is not None:
-        return a.allele_id
+        return a.dbentity_id
 
     isSuccess = False
     returnValue = ""
     allele_id = None
     try:
+        so = nex_session.query(So).filter_by(display_name='structural variant').one_or_none()
+        so_id = so.so_id
         format_name = allele.replace(" ", "_")
-        x = Allele(format_name = format_name,
-                   display_name = allele,
-                   obj_url = '/allele/' + format_name,
-                   source_id = source_id,
-                   created_by = CREATED_BY)
+        x = Alleledbentity(format_name = format_name,
+                           display_name = allele,
+                           source_id = source_id,
+                           subclass = 'ALLELE',
+                           dbentity_status = 'Active',
+                           so_id = so_id,
+                           created_by = CREATED_BY)
         curator_session.add(x)
         transaction.commit()
         isSuccess = True
@@ -99,7 +103,7 @@ def insert_allele(curator_session, CREATED_BY, source_id, allele):
         isSuccess = False
         returnValue = 'Insert allele failed' + ' ' + str(e.orig.pgerror)
     finally:
-        allele_id = x.allele_id
+        allele_id = x.dbentity_id
 
     if isSuccess:
         return allele_id
@@ -228,14 +232,6 @@ def insert_phenotypeannotation(curator_session, CREATED_BY, source_id, dbentity_
 
 def insert_phenotypeannotation_cond(curator_session, CREATED_BY, annotation_id, group_id, condition_class, condition_name, condition_value, condition_unit):
 
-    # conds = DBSession.query(PhenotypeannotationCond).filter_by(annotation_id=annotation_id,
-    #                                                           condition_class=condition_class,
-    #                                                           condition_name=condition_name,
-    #                                                           condition_value=condition_value,
-    #                                                           condition_unit=condition_unit).all()
-    # if len(conds) > 0:
-    #    return [conds[0].condition_id, 0]
-    #
     try:
         x = PhenotypeannotationCond(annotation_id=annotation_id,
                                     group_id = group_id,
@@ -357,7 +353,7 @@ def check_allele(allele, gene_count, gene_name):
         return HTTPBadRequest(body=json.dumps({'error': "Make sure no allele provided since you have entered the multiple genes."}), content_type='text/json')
 
     if str(allele).isdigit():
-        allele_obj = DBSession.query(Allele).filter_by(allele_id=int(allele)).one_or_none()
+        allele_obj = DBSession.query(Alleledbentity).filter_by(dbentity_id=int(allele)).one_or_none()
         if allele_obj is None:
             return HTTPBadRequest(body=json.dumps({'error': "allele_id " + allele + " is not in the database."}), content_type='text/json')
         allele = allele_obj.display_name

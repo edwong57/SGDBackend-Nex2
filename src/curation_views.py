@@ -41,7 +41,7 @@ from .models import DBSession, Dbentity, Dbuser, CuratorActivity, Colleague,\
      CurationReference, Locussummary, validate_tags,\
      convert_space_separated_pmids_to_list, Psimod,\
      Posttranslationannotation, Regulationannotation, \
-     Apo, Allele, Reporter, Chebi, Eco, Source
+     Apo, Alleledbentity, Reporter, Chebi, Eco, Source
 from .tsv_parser import parse_tsv_annotations
 from .models_helpers import ModelsHelper
 from .phenotype_helpers import add_phenotype_annotations, update_phenotype_annotations,\
@@ -1566,10 +1566,10 @@ def get_observable(request):
 @view_config(route_name='get_allele', renderer='json', request_method='GET')
 def get_allele(request):
     try:
-        all_allele = DBSession.query(Allele).order_by(Allele.display_name).all()
+        all_allele = DBSession.query(Alleledbentity).order_by(Alleledbentity.display_name).all()
         data = []
         for a in all_allele:
-            data.append({"allele_id": a.allele_id,
+            data.append({"allele_id": a.dbentity_id,
                          "format_name":a.format_name,
                          "display_name": a.display_name})
 
