@@ -4,7 +4,7 @@ import transaction
 import json
 from src.models import DBSession, Phenotypeannotation, PhenotypeannotationCond, Phenotype,\
      Alleledbentity, Reporter, Apo, Chebi, Source, Dbentity, Locusdbentity, Referencedbentity,\
-     Straindbentity
+     Straindbentity, So
 from src.curation_helpers import get_curator_session
 
 def insert_phenotype(curator_session, CREATED_BY, source_id, format_name, display_name, observable_id, qualifier_id):
