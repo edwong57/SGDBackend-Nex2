@@ -6340,7 +6340,7 @@ class Dnasequenceannotation(Base):
         if len(strains) == 0:
             return None
         
-        if loci && self.dbentity.subclass == 'LOCUS':
+        if loci and self.dbentity.subclass == 'LOCUS':
             locus = loci[self.dbentity_id]
         else:
             locus = DBSession.query(Locusdbentity).filter_by(dbentity_id=self.dbentity_id).one_or_none()
