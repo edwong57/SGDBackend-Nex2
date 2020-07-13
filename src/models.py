@@ -6352,14 +6352,15 @@ class Dnasequenceannotation(Base):
         tags = sorted(tags, key=lambda t: t.contig_end_index, reverse=(self.strand == "-"))
 
         if self.dbentity.subclass != 'LOCUS':
-            "start": self.start_index,
-            "end": self.end_index,
-            "residues": self.residues,
-            "contig": self.contig.to_dict_sequence_widget(),
-            "strand": self.strand,
-            "dna_type": self.dna_type,
-            "feature_status": locus.dbentity_status
-        }
+            return {
+                "start": self.start_index,
+                "end": self.end_index,
+                "residues": self.residues,
+                "contig": self.contig.to_dict_sequence_widget(),
+                "strand": self.strand,
+                "dna_type": self.dna_type,
+                "feature_status": locus.dbentity_status
+            }
 
         return {
             "start": self.start_index,
@@ -6374,6 +6375,8 @@ class Dnasequenceannotation(Base):
                 "id": strains[0].dbentity_id,
                 "link": strains[0].obj_url,
                 "description": strains[0].headline
+            },
+            "locus": locus.to_dict_sequence_widget(),
             "strand": self.strand,
             "dna_type": self.dna_type,
             "feature_status": locus.dbentity_status
