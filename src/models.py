@@ -8290,7 +8290,7 @@ class Phenotypeannotation(Base):
     phenotype_id = Column(ForeignKey('nex.phenotype.phenotype_id', ondelete='CASCADE'), nullable=False, index=True)
     experiment_id = Column(ForeignKey('nex.apo.apo_id', ondelete='CASCADE'), nullable=False, index=True)
     mutant_id = Column(ForeignKey('nex.apo.apo_id', ondelete='CASCADE'), nullable=False, index=True)
-    allele_id = Column(ForeignKey('nex.allele.allele_id', ondelete='CASCADE'), index=True)
+    allele_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), index=True)
     reporter_id = Column(ForeignKey('nex.reporter.reporter_id', ondelete='CASCADE'), index=True)
     assay_id = Column(ForeignKey('nex.obi.obi_id', ondelete='CASCADE'), index=True)
     strain_name = Column(String(100))
@@ -8301,7 +8301,7 @@ class Phenotypeannotation(Base):
     allele_comment = Column(String(200))
     reporter_comment = Column(String(200))
 
-    allele = relationship('Allele')
+    allele = relationship('Alleledbentity')
     assay = relationship('Obi')
     dbentity = relationship('Dbentity')
     experiment = relationship('Apo', primaryjoin='Phenotypeannotation.experiment_id == Apo.apo_id')
