@@ -71,7 +71,7 @@ def insert_allele(curator_session, CREATED_BY, source_id, allele):
     allele_id = None
     x = None
     try:
-        so = nex_session.query(So).filter_by(display_name='structural variant').one_or_none()
+        so = curator_session.query(So).filter_by(display_name='structural variant').one_or_none()
         so_id = so.so_id
         format_name = allele.replace(" ", "_")
         x = Alleledbentity(format_name = format_name,
