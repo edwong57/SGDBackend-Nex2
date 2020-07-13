@@ -69,10 +69,10 @@ def insert_allele(curator_session, CREATED_BY, source_id, allele):
     isSuccess = False
     returnValue = ""
     allele_id = None
+    so = curator_session.query(So).filter_by(display_name='structural variant').one_or_none()
+    so_id = so.so_id
     x = None
     try:
-        so = curator_session.query(So).filter_by(display_name='structural variant').one_or_none()
-        so_id = so.so_id
         format_name = allele.replace(" ", "_")
         x = Alleledbentity(format_name = format_name,
                            display_name = allele,
