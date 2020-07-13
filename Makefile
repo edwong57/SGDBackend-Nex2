@@ -32,6 +32,9 @@ curate-deploy:
 preview-deploy:
 	source dev_variables.sh && NEX2_URI=$$CURATE_NEX2_URI && cap preview deploy
 
+preview-prod-deploy:
+	npm run build && source prod_variables.sh && NEX2_URI=$$CURATE_NEX2_URI && cap preview deploy
+
 deploy:
 	npm run build && source dev_variables.sh && cap dev deploy
 

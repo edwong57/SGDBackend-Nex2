@@ -9533,12 +9533,12 @@ class AlleleAlias(Base):
 class AllelealiasReference(Base):
     __tablename__ = 'allelealias_reference'
     __table_args__ = (
-        UniqueConstraint('alias_id', 'reference_id'),
+        UniqueConstraint('allele_alias_id', 'reference_id'),
         {'schema': 'nex'}
     )
 
     allelealias_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
-    alias_id = Column(ForeignKey('nex.allele_alias.allele_alias_id', ondelete='CASCADE'), nullable=False)
+    allele_alias_id = Column(ForeignKey('nex.allele_alias.allele_alias_id', ondelete='CASCADE'), nullable=False)
     reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
     source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
     date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
@@ -9574,13 +9574,13 @@ class LocusalleleReference(Base):
     )
 
     locusallele_reference_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
-    locus_allele_id = Column(ForeignKey('nex.locusallele.locus_allele_id', ondelete='CASCADE'), nullable=False)
+    locus_allele_id = Column(ForeignKey('nex.locus_allele.locus_allele_id', ondelete='CASCADE'), nullable=False)
     reference_id = Column(ForeignKey('nex.referencedbentity.dbentity_id', ondelete='CASCADE'), nullable=False, index=True)
     source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
     date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
     created_by = Column(String(12), nullable=False)
 
-    locusallele = relationship('Locusallele')
+    locusallele = relationship('LocusAllele')
     source = relationship('Source')
     reference = relationship('Referencedbentity')
 
