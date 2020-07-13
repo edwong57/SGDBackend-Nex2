@@ -6358,8 +6358,7 @@ class Dnasequenceannotation(Base):
                 "residues": self.residues,
                 "contig": self.contig.to_dict_sequence_widget(),
                 "strand": self.strand,
-                "dna_type": self.dna_type,
-                "feature_status": locus.dbentity_status
+                "dna_type": self.dna_type
             }
 
         return {
