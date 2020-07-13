@@ -105,21 +105,21 @@ class CacheBase(object):
 
 Base = declarative_base(cls=CacheBase)
 
-class Allele(Base):
-    __tablename__ = 'allele'
-    __table_args__ = {'schema': 'nex'}
+# class Allele(Base):
+#    __tablename__ = 'allele'
+#    __table_args__ = {'schema': 'nex'}
+#
+#    allele_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.object_seq'::regclass)"))
+#    format_name = Column(String(100), nullable=False, unique=True)
+#    display_name = Column(String(500), nullable=False)
+#    obj_url = Column(String(500), nullable=False)
+#    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+#    bud_id = Column(Integer)
+#    description = Column(String(500))
+#    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+#    created_by = Column(String(12), nullable=False)
 
-    allele_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.object_seq'::regclass)"))
-    format_name = Column(String(100), nullable=False, unique=True)
-    display_name = Column(String(500), nullable=False)
-    obj_url = Column(String(500), nullable=False)
-    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
-    bud_id = Column(Integer)
-    description = Column(String(500))
-    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
-    created_by = Column(String(12), nullable=False)
-
-    source = relationship('Source')
+#    source = relationship('Source')
 
 
 class Apo(Base):
