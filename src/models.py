@@ -8301,7 +8301,7 @@ class Phenotypeannotation(Base):
     allele_comment = Column(String(200))
     reporter_comment = Column(String(200))
 
-    allele = relationship('Alleledbentity')
+    allele = relationship('Alleledbentity', foreign_keys=[allele_id])
     assay = relationship('Obi')
     dbentity = relationship('Dbentity')
     experiment = relationship('Apo', primaryjoin='Phenotypeannotation.experiment_id == Apo.apo_id')
