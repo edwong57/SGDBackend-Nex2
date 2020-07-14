@@ -301,11 +301,15 @@ def get_journal_id(record, created_by):
         journals = DBSession.query(Journal).filter_by(issn_print=issn_print).all()
         if len(journals) > 0:
             return journals[0].journal_id, journals[0].med_abbr, journal_full_name, issn_print
+        
+    if journal_abbr == '':
+        return None, '', '', ''
+    
     if journal_abbr:
         journals = DBSession.query(Journal).filter_by(med_abbr=journal_abbr).all()
         if len(journals) > 0:
             return journals[0].journal_id, journals[0].med_abbr, journal_full_name, issn_print
-
+      
     source_id = 824 # 'PubMed'
     shortened_full_name = (journal_full_name[:197] + '...') if len(journal_full_name) > 200 else journal_full_name
     format_name = journal_full_name.replace(' ', '_') + journal_abbr.replace(' ', '_')
