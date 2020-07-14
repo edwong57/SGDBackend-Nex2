@@ -1492,7 +1492,7 @@ def allele(request):
         alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.display_name.ilike(allele)).one_or_none()
         
     if alleleObj is not None:
-        return allele.to_dict()
+        return alleleObj.to_dict()
     else:
         return {}
     
