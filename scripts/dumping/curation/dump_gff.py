@@ -186,7 +186,10 @@ def dump_data():
                 fw.write(";display=" + do_escape(headline))
 
             fw.write(";dbxref=" + sgdid)
-
+            
+            if "gene" in type:
+                fw.write(";gene_id=" + sgdid)
+                
             if qualifier:
                 fw.write(";orf_classification=" + qualifier)
 
