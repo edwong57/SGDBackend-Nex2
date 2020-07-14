@@ -9505,6 +9505,33 @@ class Alleledbentity(Dbentity):
     so_id = Column(ForeignKey('nex.so.so_id', ondelete='CASCADE'), nullable=False, index=True)
     description = Column(String(500), nullable=True)
 
+    so = relationship('So')
+    
+    def to_dict(self):
+        return { "display_name": self.display_name,
+                 "sgdid": self.sgdid,
+                 "allele_type": self.so.display_name,
+                 "aliases": self.get_aliases(),
+                 "affect_gene": self.get_gene_name(),
+                 "description": self.description
+            }
+
+    def get_gene_name():
+        
+        la = DBSession.query(LocusAllele).filter_by(allele_id = self.dbentity_id).one_or_none()
+        if la is None:
+            return ''
+        return la.locus.display_name
+
+    def get_aliases():
+
+        aliasObjs = DBSession.query(AlleleAlias).filter_by(allele_id = self.dbentity_id).all()
+        objs = []
+        for x in aliasObjs:
+            objs.append(x.display_name)
+        return objs
+            
+
 class AlleleReference(Base):
     __tablename__ = 'allele_reference'
     __table_args__ = (
