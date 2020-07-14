@@ -9516,14 +9516,14 @@ class Alleledbentity(Dbentity):
                  "description": self.description
             }
 
-    def get_gene_name():
+    def get_gene_name(self):
         
         la = DBSession.query(LocusAllele).filter_by(allele_id = self.dbentity_id).one_or_none()
         if la is None:
             return ''
         return la.locus.display_name
 
-    def get_aliases():
+    def get_aliases(self):
 
         aliasObjs = DBSession.query(AlleleAlias).filter_by(allele_id = self.dbentity_id).all()
         objs = []
