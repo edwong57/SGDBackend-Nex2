@@ -83,7 +83,7 @@ def insert_allele(curator_session, CREATED_BY, source_id, allele, mutant_id):
     returnValue = ""
     allele_id = None
 
-    mutant = curator_session.query(Apo).filter_by(apo_id=muatnt_id).one_or_none()
+    mutant = curator_session.query(Apo).filter_by(apo_id=mutant_id).one_or_none()
     so_term = mutant_to_so_mapping.get(mutant.display_name)
     if so_term is None:
         return "The mutant: " + mutant.display_name + " is not in the mutant to SO mapping."
