@@ -9512,7 +9512,7 @@ class Alleledbentity(Dbentity):
                  "sgdid": self.sgdid,
                  "allele_type": self.so.display_name,
                  "aliases": self.get_aliases(),
-                 "affect_gene": self.get_gene_name(),
+                 "affected_gene": self.get_gene_name(),
                  "description": self.description
             }
 
