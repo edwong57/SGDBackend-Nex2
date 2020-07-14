@@ -89,7 +89,7 @@ def insert_allele(curator_session, CREATED_BY, source_id, allele, mutant_id):
         return "The mutant: " + mutant.display_name + " is not in the mutant to SO mapping."
     so = curator_session.query(So).filter_by(term_name=so_term).one_or_none()
     if so is None:
-        return "The SO term: " + so_term + " is not in the database.""
+        return "The SO term: " + so_term + " is not in the database."
     so_id = so.so_id
     x = None
     try:
