@@ -7,6 +7,19 @@ from src.models import DBSession, Phenotypeannotation, PhenotypeannotationCond, 
      Straindbentity, So
 from src.curation_helpers import get_curator_session
 
+# "mutant_type": "functional_effect_variant",
+mutant_to_so_mapping = { "mutant_type": "functional_effect_variant",
+                         "overexpression": "increased_transcript_level_variant",
+                         "gain of function": "gain_of_function_variant",
+                         "null": "null_mutation",
+                         "repressible": "decreased_transcript_level_variant",
+                         "reduction of function": "loss_of_function_variant",
+                         "unspecified": "function_uncertain_variant",
+                         "dominant negative": "dominant_negative_variant",
+                         "misexpression": "transcript_function_variant",
+                         "activation": "translational_product_function_variant",
+                         "conditional": "translational_product_function_variant" }
+
 def insert_phenotype(curator_session, CREATED_BY, source_id, format_name, display_name, observable_id, qualifier_id):
 
     isSuccess = False
@@ -60,7 +73,7 @@ def insert_phenotype(curator_session, CREATED_BY, source_id, format_name, displa
     else:
         return returnValue
 
-def insert_allele(curator_session, CREATED_BY, source_id, allele):
+def insert_allele(curator_session, CREATED_BY, source_id, allele, mutant_id):
 
     a = curator_session.query(Alleledbentity).filter_by(display_name=allele).one_or_none()
     if a is not None:
@@ -69,7 +82,14 @@ def insert_allele(curator_session, CREATED_BY, source_id, allele):
     isSuccess = False
     returnValue = ""
     allele_id = None
-    so = curator_session.query(So).filter_by(display_name='structural variant').one_or_none()
+
+    mutant = curator_session.query(Apo).filter_by(apo_id=muatnt_id).one_or_none()
+    so_term = mutant_to_so_mapping.get(mutant.display_name)
+    if so_term is None:
+        return "The mutant: " + mutant.display_name + " is not in the mutant to SO mapping."
+    so = curator_session.query(So).filter_by(term_name=so_term).one_or_none()
+    if so is None:
+        return "The SO term: " + so_term + " is not in the database.""
     so_id = so.so_id
     x = None
     try:
@@ -735,7 +755,7 @@ def add_phenotype_annotations(request):
                 if str(allele).isdigit():
                     allele_id = int(allele)
                 else:
-                    returnValue = insert_allele(curator_session, CREATED_BY, source_id, allele)
+                    returnValue = insert_allele(curator_session, CREATED_BY, source_id, allele, mutant_id)
                     if str(returnValue).isdigit():
                         allele_id = returnValue
                         success_message = success_message + "<br>" + "The new allele '" + allele + "' has been added into the database. "
@@ -1127,7 +1147,7 @@ def update_phenotype_annotations(request):
                 if str(allele).isdigit():
                     allele_id = int(allele)
                 else:
-                    returnValue = insert_allele(curator_session, CREATED_BY, source_id, allele)
+                    returnValue = insert_allele(curator_session, CREATED_BY, source_id, allele, mutant_id)
                     if str(returnValue).isdigit():
                         allele_id = returnValue
                         success_message = success_message + "<br>" + "The new allele '" + allele + "' has been added into the database. "
