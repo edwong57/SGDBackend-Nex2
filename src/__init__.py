@@ -116,6 +116,8 @@ def main(global_config, **settings):
 
     config.add_route('complex', '/complex/{id}', request_method='GET')
 
+    config.add_route('allele', '/allele/{id}', request_method='GET')
+    
     config.add_route('goslim', '/goslim', request_method='GET')
 
     config.add_route('ambiguous_names', '/ambiguous_names', request_method='GET')
