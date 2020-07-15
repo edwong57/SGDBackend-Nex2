@@ -1,7 +1,6 @@
 from src.models import DBSession, Base, Colleague, ColleagueLocus, Dbentity, Locusdbentity, Filedbentity, FileKeyword, LocusAlias, Dnasequenceannotation, So, Locussummary, Phenotypeannotation, PhenotypeannotationCond, Phenotype, Goannotation, Go, Goslimannotation, Goslim, Apo, Straindbentity, Strainsummary, Reservedname, GoAlias, Goannotation, Referencedbentity, Referencedocument, Referenceauthor, ReferenceAlias, Chebi, Disease, Diseaseannotation, DiseaseAlias, Complexdbentity, ComplexAlias, ComplexReference, Complexbindingannotation
 from sqlalchemy import create_engine, and_
 from elasticsearch import Elasticsearch
-# from mapping import mapping
 from es7_mapping import mapping
 import os
 import requests
@@ -911,7 +910,7 @@ def index_part_2():
     index_disease_terms()
     index_complex_names()
     index_references()
-    index_variant_data()
+    # index_variant_data()
     
 def index_toolbar_links():
     links = [

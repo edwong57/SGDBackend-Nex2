@@ -1,20 +1,13 @@
 from elasticsearch import Elasticsearch
-from variant_data_mapping import mapping
+from es7_mapping import mapping
 import os
 import requests
-from threading import Thread
 import json
-from index_es_helpers import IndexESHelper
-import concurrent.futures
-import logging
 
 INDEX_NAME = os.environ.get("ES_VARIANT_INDEX_NAME", "variant_data_index")
 DOC_TYPE = "searchable_item"
 ES_URI = os.environ["WRITE_ES_URI"]
 es = Elasticsearch(ES_URI, retry_on_timeout=True)
-
-## will fix this to use prod URL when it is ready
-variant_url = "https://www.yeastgenome.org/backend/get_all_variant_objects"
 
 def delete_mapping():
     print("Deleting mapping...")
@@ -23,7 +16,6 @@ def delete_mapping():
         print(("ERROR: " + str(response.json())))
     else:
         print("SUCCESS")
-
 
 def put_mapping():
     print("Putting mapping... ")
@@ -36,11 +28,9 @@ def put_mapping():
     except Exception as e:
         print(e)
 
-
 def cleanup():
     delete_mapping()
     put_mapping()
-
 
 def setup():
     # see if index exists, if not create it
@@ -48,14 +38,15 @@ def setup():
     index_exists = INDEX_NAME in indices
     if not index_exists:
         put_mapping()
-
+        
 def index_variant_data():
+    variant_url = "https://www.yeastgenome.org/backend/get_all_variant_objects"
     variant_response = requests.get(variant_url).json()
     loci = variant_response['loci']
     bulk_data = []
     print(("Indexing " + str(len(loci)) + " variants"))
     for x in loci:
-        obj = { "category": "variant",
+        obj = { "category": 'variant',
                 "sgdid": x['sgdid'],
                 "name": x['name'],
                 "href": x['href'],
@@ -70,18 +61,21 @@ def index_variant_data():
                     "_index": INDEX_NAME,
                     "_id": "variant_" + x['format_name']
                 }
-            })         
+            })
+        
         bulk_data.append(obj)            
         if len(bulk_data) == 300:
                 es.bulk(index=INDEX_NAME, body=bulk_data, refresh=True)
                 bulk_data = []
+                
     if len(bulk_data) > 0:
         es.bulk(index=INDEX_NAME, body=bulk_data, refresh=True)
-    
+
+        
 if __name__ == "__main__":
+
     cleanup()
     setup()
-    # t = Thread(target=index_variant_data)
-    # t.start()
+
     index_variant_data()
-    
+        
