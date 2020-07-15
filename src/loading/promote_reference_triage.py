@@ -238,6 +238,11 @@ def insert_referencedbentity(pmid, source_id, record, created_by, method_obtaine
         publication_status = epub_status
         fulltext_status = epub_pdf_status
 
+    if year:
+        year = int(year)
+    if journal_id:
+        journal_id = int(journal_id)
+
     x = Referencedbentity(display_name = citation.split(')')[0] + ')',
                           source_id = source_id,
                           subclass = 'REFERENCE',
@@ -246,7 +251,7 @@ def insert_referencedbentity(pmid, source_id, record, created_by, method_obtaine
                           publication_status = publication_status,
                           fulltext_status = fulltext_status,
                           citation = citation,
-                          year = int(year),
+                          year = year,
                           pmid = int(pmid),
                           pmcid = pmcid,
                           date_published = pubdate,
@@ -256,7 +261,7 @@ def insert_referencedbentity(pmid, source_id, record, created_by, method_obtaine
                           volume = volume,
                           title = title,
                           doi = doi,
-                          journal_id = int(journal_id),
+                          journal_id = journal_id,
                           created_by = created_by)
 
     DBSession.add(x)
