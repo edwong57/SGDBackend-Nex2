@@ -9543,7 +9543,7 @@ class Alleledbentity(Dbentity):
         # locusallele_reference
         locusAllele = DBSession.query(LocusAllele).filter_by(allele_id=self.dbentity_id).one_or_none()
         if locusAllele is not None:
-            locusalleleRefs = DBSession.query(LocusalleleReference).filter_by(locus_allele_id=x.locus_allele_id).all()
+            locusalleleRefs = DBSession.query(LocusalleleReference).filter_by(locus_allele_id=locusAllele.locus_allele_id).all()
             for x in locusalleleRefs:
                 if x.reference.dbentity_id not in found:
                     references.append(x.reference.to_dict_citation())
