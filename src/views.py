@@ -1495,7 +1495,23 @@ def allele(request):
         return alleleObj.to_dict()
     else:
         return {}
+
+@view_config(route_name='allele_phenotype_details', renderer='json', request_method='GET')
+def allele_phenotype_details(request):
     
+    allele = request.matchdict['id'].replace('SGD:S', 'S')
+
+    alleleObj = None
+    if allele.startswith('S0'):
+        alleleObj = DBSession.query(Alleledbentity).filter_by(sgdid=allele).one_or_none()
+    else:
+        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.display_name.ilike(allele)).one_or_none()
+
+    if alleleObj is not None:
+        alleleObj.phenotype_to_dict()
+    else:
+        return HTTPNotFound()
+        
 @view_config(route_name='alignment', renderer='json', request_method='GET')
 def alignment(request):
 
