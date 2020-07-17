@@ -1508,9 +1508,9 @@ def allele_phenotype_details(request):
         alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.display_name.ilike(allele)).one_or_none()
 
     if alleleObj is not None:
-        alleleObj.phenotype_to_dict()
+        return alleleObj.phenotype_to_dict()
     else:
-        return HTTPNotFound()
+        return []
         
 @view_config(route_name='alignment', renderer='json', request_method='GET')
 def alignment(request):
