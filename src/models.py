@@ -9534,7 +9534,7 @@ class Alleledbentity(Dbentity):
         if la is None:
             phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
             if len(phenotype_annotations):
-                return phenotype_annotations[0].locus.display_name
+                return phenotype_annotations[0].dbentity.display_name
             return ''
         return la.locus.display_name
 
