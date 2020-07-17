@@ -9529,7 +9529,7 @@ class Alleledbentity(Dbentity):
         alleleRefs = DBSession.query(AlleleReference).filter_by(allele_id=self.dbentity_id).all()
         for x in alleleRefs:
             references.append(x.reference.to_dict_citation())
-            found[x.reference.dbentity_id]
+            found[x.reference.dbentity_id] = 1
             
         # allelealias_reference
         alleleAliases = DBSession.query(AlleleAlias).filter_by(allele_id=self.dbentity_id).all()
@@ -9538,7 +9538,7 @@ class Alleledbentity(Dbentity):
             for x in allelealiasRefs:
                 if x.reference.dbentity_id not in found:
                     references.append(x.reference.to_dict_citation())
-                    found[x.reference.dbentity_id]
+                    found[x.reference.dbentity_id] = 1
             
         # locusallele_reference
         locusAllele = DBSession.query(LocusAllele).filter_by(allele_id=self.dbentity_id).one_or_none()
