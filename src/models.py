@@ -9508,15 +9508,47 @@ class Alleledbentity(Dbentity):
     so = relationship('So')
     
     def to_dict(self):
-        return { "display_name": self.display_name,
+        obj =  { "display_name": self.display_name,
                  "sgdid": self.sgdid,
                  "allele_type": self.so.display_name,
                  "aliases": self.get_aliases(),
                  "affected_gene": self.get_gene_name(),
-                 "description": self.description,
-                 "phenotype": self.phenotype_to_dict() 
+                 "description": self.description
             }
+                 
+        obj["phenotype"] = self.phenotype_to_dict(),
+        obj["references"] = self.get_references()
 
+        return obj
+    
+    def get_references(self):
+
+        references = []
+        found = {}
+        # allele_reference
+        alleleRefs = DBSession.query(AlleleReference).filter_by(allele_id=self.dbentity_id).all()
+        for x in alleleRefs:
+            references.append(x.reference.to_dict_citation())
+            found[x.reference.dbentity_id]
+            
+        # allelealias_reference
+        alleleAliases = DBSession.query(AlleleAlias).filter_by(allele_id=self.dbentity_id).all()
+        for x in alleleAliases:
+            allelealiasRefs = DBSession.query(AllelealiasReference).filter_by(allele_alias_id=x.allele_alias_id).all()
+            for x in allelealiasRefs:
+                if x.reference.dbentity_id not in found:
+                    references.append(x.reference.to_dict_citation())
+                    found[x.reference.dbentity_id]
+            
+        # locusallele_reference
+        locusAllele = DBSession.query(LocusAllele).filter_by(allele_id=self.dbentity_id).one_or_none()
+        if locusAllele is not None:
+            locusalleleRefs = DBSession.query(LocusalleleReference).filter_by(locus_allele_id=x.locus_allele_id).all()
+            for x in locusalleleRefs:
+                if x.reference.dbentity_id not in found:
+                    references.append(x.reference.to_dict_citation())
+        return references
+    
     def phenotype_to_dict(self):
         
         phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
