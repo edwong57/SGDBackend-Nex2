@@ -9513,9 +9513,21 @@ class Alleledbentity(Dbentity):
                  "allele_type": self.so.display_name,
                  "aliases": self.get_aliases(),
                  "affected_gene": self.get_gene_name(),
-                 "description": self.description
+                 "description": self.description,
+                 "phenotype": self.phenotype_to_dict() 
             }
 
+    def phenotype_to_dict(self):
+        
+        phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
+        
+        obj = []
+        for annotation in phenotype_annotations:
+            obj += annotation.to_dict()
+
+        return obj
+
+    
     def get_gene_name(self):
         
         la = DBSession.query(LocusAllele).filter_by(allele_id = self.dbentity_id).one_or_none()
