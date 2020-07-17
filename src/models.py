@@ -9513,12 +9513,11 @@ class Alleledbentity(Dbentity):
                  "allele_type": self.so.display_name,
                  "aliases": self.get_aliases(),
                  "affected_gene": self.get_gene_name(),
-                 "description": self.description
+                 "description": self.description,
+                 "phenotype": self.phenotype_to_dict(),
+                 "references": self.get_references()
             }
                  
-        obj["phenotype"] = self.phenotype_to_dict(),
-        obj["references"] = self.get_references()
-
         return obj
     
     def get_references(self):
