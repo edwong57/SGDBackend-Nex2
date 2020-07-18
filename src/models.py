@@ -9515,10 +9515,19 @@ class Alleledbentity(Dbentity):
                  "affected_gene": self.get_gene_name(),
                  "description": self.description,
                  "phenotype": self.phenotype_to_dict(),
-                 "references": self.get_references()
+                 "references": self.get_references(),
+                 "urls": self.get_resource_urls()
             }
                  
         return obj
+
+    def get_resource_urls(self):
+        gene_name = self.get_gene_name()
+        locus = DBSession.query(Locusdbentity).filter(or_(Locusdbentity.gene_name == gene_name, Locusdbentity.systematic_name == gene_name)).one_or_none()
+        if locus is None:
+            return []
+        obj = locus.to_dict()
+        return obj['urls']
     
     def get_references(self):
 
