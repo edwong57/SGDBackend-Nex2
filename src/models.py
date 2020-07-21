@@ -9570,7 +9570,7 @@ class Alleledbentity(Dbentity):
             gene2 = annotation.dbentity2.display_name
             if gene not in [gene1, gene2]:
                 continue
-            obj.append(interaction.to_dict())
+            obj.append(annotation.to_dict())
 
         return obj
 
