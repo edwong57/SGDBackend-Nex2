@@ -118,6 +118,7 @@ def main(global_config, **settings):
     
     config.add_route('allele', '/allele/{id}', request_method='GET')
     config.add_route('allele_phenotype_details', '/allele/{id}/phenotype_details', request_method='GET')
+    config.add_route('allele_interaction_details', '/allele/{id}/interaction_details', request_method='GET')
     
     config.add_route('goslim', '/goslim', request_method='GET')
 
