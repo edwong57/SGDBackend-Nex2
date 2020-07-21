@@ -9515,6 +9515,7 @@ class Alleledbentity(Dbentity):
                  "affected_gene": self.get_gene_name(),
                  "description": self.description,
                  "phenotype": self.phenotype_to_dict(),
+                 "interaction": self.interaction_to_dict(),
                  "references": self.get_references(),
                  "urls": self.get_resource_urls()
             }
@@ -9556,13 +9557,31 @@ class Alleledbentity(Dbentity):
                 if x.reference.dbentity_id not in found:
                     references.append(x.reference.to_dict_citation())
         return references
-    
+
+    def interaction_to_dict(self):
+
+        gene = self.get_gene_name()
+        
+        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%' + gene  + '%')).all()
+
+        obj = []
+        for annotation in annotations:
+            gene1 = annotation.dbentity1.gene_name
+            name1 = annotation.dbentity1.systematic_name
+            gene2 = annotation.dbentity2.gene_name
+            name2 = annotation.dbentity2.systematic_name
+            if gene not in [gene1, name1, gene2, name2]:
+                continue
+            obj += annotation.to_dict()
+
+        return obj
+            
     def phenotype_to_dict(self):
         
-        phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
+        annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
         
         obj = []
-        for annotation in phenotype_annotations:
+        for annotation in annotations:
             obj += annotation.to_dict()
 
         return obj
