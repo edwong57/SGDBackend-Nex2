@@ -2780,9 +2780,9 @@ class Referencedbentity(Dbentity):
             get_count(Referencetype,"Referencetype")
             get_count(Referenceunlink,"Referenceunlink")
             get_count(ReferenceFile,"ReferenceFile")
-            get_count(CuratorActivity, "CuratorActivity")
             
-    
+            
+            
             return self.returnValue
 
         except Exception as e:
