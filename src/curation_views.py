@@ -2979,13 +2979,8 @@ def transfer_delete_reference_annotations(request):
 def delete_reference(request):
 
     def delete_helper(table,table_name):
-        count = 0
-        if table == 'CuratorActivity':
-            count = curator_session.query(table).filter_by(dbentity_id = reference.dbentity_id).count()
-            curator_session.query(table).filter_by(dbentity_id = reference.dbentity_id).delete()
-        else:
-            count = curator_session.query(table).filter_by(reference_id = reference.dbentity_id).count()
-            curator_session.query(table).filter_by(reference_id = reference.dbentity_id).delete()
+        count = curator_session.query(table).filter_by(reference_id = reference.dbentity_id).count()
+        curator_session.query(table).filter_by(reference_id = reference.dbentity_id).delete()
         log.info('{} records being deleted from {} for reference_id {}'.format(count,table_name,sgd_id))
 
     if not check_csrf_token(request, raises=False):
@@ -3041,10 +3036,13 @@ def delete_reference(request):
                         delete_helper(Referenceunlink,table_name)
                     elif table_name == 'ReferenceFile':
                         delete_helper(ReferenceFile,table_name)
-                    else:
-                        delete_helper(CuratorActivity,table_name)
-                    
-                
+
+            ### delete rows in CuratorActivity if there are any
+            count = curator_session.query(CuratorActivity).filter_by(dbentity_id = reference.dbentity_id).count()
+            if count > 0:
+                curator_session.query(CuratorActivity).filter_by(dbentity_id = reference.dbentity_id).delete()
+                log.info('{} records being deleted from {} for reference_id {}'.format(count, "CuratorActivity",sgd_id))
+        
             curator_session.delete(reference)
             transaction.commit()
 
