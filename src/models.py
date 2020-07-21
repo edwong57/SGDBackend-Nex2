@@ -9566,11 +9566,9 @@ class Alleledbentity(Dbentity):
 
         obj = []
         for annotation in annotations:
-            gene1 = annotation.dbentity1.gene_name
-            name1 = annotation.dbentity1.systematic_name
-            gene2 = annotation.dbentity2.gene_name
-            name2 = annotation.dbentity2.systematic_name
-            if gene not in [gene1, name1, gene2, name2]:
+            gene1 = annotation.dbentity1.display_name
+            gene2 = annotation.dbentity2.display_name
+            if gene not in [gene1, gene2]:
                 continue
             obj += annotation.to_dict()
 
