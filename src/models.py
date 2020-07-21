@@ -9523,12 +9523,21 @@ class Alleledbentity(Dbentity):
         return obj
 
     def get_resource_urls(self):
+        
         gene_name = self.get_gene_name()
+        
         locus = DBSession.query(Locusdbentity).filter(or_(Locusdbentity.gene_name == gene_name, Locusdbentity.systematic_name == gene_name)).one_or_none()
         if locus is None:
             return []
+
         obj = locus.to_dict()
-        return obj['urls']
+        allUrls = obj['urls']
+        urls = []
+        for x in allUrls:
+            if x['category'] in ['LOCUS_PHENOTYPE_RESOURCES_MUTANT_STRAINS', 'LOCUS_PHENOTYPE_RESOURCES_PHENOTYPE_RESOURCES', 'LOCUS_PHENOTYPE_RESOURCES_ONTOLOGY', 'LOCUS_INTERACTION']:
+                urls.append(x)
+        return urls
+    
     
     def get_references(self):
 
