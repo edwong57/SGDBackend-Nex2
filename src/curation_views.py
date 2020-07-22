@@ -1426,13 +1426,9 @@ def ptm_file_insert(request):
                 posttranslationannotation_existing['site_residue'] = str(row[COLUMNS['residue']]).split(SEPARATOR)[0]
                 if SEPARATOR in residue:
                     posttranslationannotation_update['site_residue'] = str(row[COLUMNS['residue']]).split(SEPARATOR)[1]
-
-                list_of_posttranslationannotation_errors.append('HELLO THERE')
                     
                 column = COLUMNS['modifier']
                 modifier = row[column]
-
-                list_of_posttranslationannotation_errors.append('HELLO THERE 2')
                 
                 if(pd.isnull(modifier)):
                     pass
@@ -1452,10 +1448,8 @@ def ptm_file_insert(request):
                             posttranslationannotation_update['modifier_id'] = systematic_name_to_dbentity_id[(modifier_new, 'LOCUS')]
                     
                 list_of_posttranslationannotation.append((posttranslationannotation_existing,posttranslationannotation_update))
-
-                list_of_posttranslationannotation_errors.append('HELLO THERE 3')
                 
-                check_key = (gene, taxonomy. reference, site_index, residue, psimod, modifier)
+                check_key = (gene, taxonomy. reference, site_index, residue, psimod, str(modifier))
 
                 list_of_posttranslationannotation_errors.append('KEY=' + str(check_key))
                 
