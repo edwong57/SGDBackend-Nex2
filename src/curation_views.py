@@ -1449,11 +1449,11 @@ def ptm_file_insert(request):
                     
                 list_of_posttranslationannotation.append((posttranslationannotation_existing,posttranslationannotation_update))
                 
-                check_key = gene + "|" + str(taxonomy) + "|" + str(reference) + "|" +str(site_index) + "|" + str(residue) + "|" + str(psimod) + "|" +str(modifier)
+                check_key = gene + "; " + str(taxonomy) + "; " + str(reference) + "; " +str(site_index) + "; " + str(residue) + "; " + str(psimod) + "; " +str(modifier)
                 
                 if check_key in found:
-                    list_of_posttranslationannotation_errors.append('Duplicate in row ' + str(index))  
-                found[check_key] = 1
+                    list_of_posttranslationannotation_errors.append('The row ' + str(index) + ' is a duplicate for ' + found[check_key] + ': ' + ) 
+                found[check_key] = str(index)
                 
             except ValueError as e:
                 log.error('Error in on row ' + str(index) + ', column ' + column + ', It is not a valid number.')
