@@ -1452,7 +1452,7 @@ def ptm_file_insert(request):
                 check_key = gene + "; " + str(taxonomy) + "; " + str(reference) + "; " +str(site_index) + "; " + str(residue) + "; " + str(psimod) + "; " +str(modifier)
                 
                 if check_key in found:
-                    list_of_posttranslationannotation_errors.append('The row ' + str(index) + ' is a duplicate for ' + found[check_key] + ': ' + ) 
+                    list_of_posttranslationannotation_errors.append('The row ' + str(index) + ' is a duplicate for row ' + found[check_key] + ' : ' + check_key) 
                 found[check_key] = str(index)
                 
             except ValueError as e:
