@@ -1429,6 +1429,15 @@ def ptm_file_insert(request):
 
                 column = COLUMNS['modifier']
                 modifier = row[column]
+
+                check_key = (gene, taxonomy. reference, site_index, residue, psimod, modifier)
+
+                list_of_posttranslationannotation_errors.append('KEY=' + str(check_key))
+
+                if check_key in found:
+                    list_of_posttranslationannotation_errors.append('Duplicate in row ' + str(index))
+                    found[check_key] = 1
+                
                 if(pd.isnull(modifier)):
                     pass
                 else:
