@@ -1290,6 +1290,8 @@ def ptm_file_insert(request):
                 log.error('No values in column ' + col + ' rows '+ rows)
                 list_of_posttranslationannotation_errors.append('No values in column ' + col + ' rows '+ rows)
 
+        list_of_posttranslationannotation_errors.append("HELLO")
+             
         if list_of_posttranslationannotation_errors:
             err = [e + '\n' for e in list_of_posttranslationannotation_errors]
             log.info('PTM file upload complete for file '+filename + ' with errors.')
