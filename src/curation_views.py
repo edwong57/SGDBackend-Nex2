@@ -1288,7 +1288,7 @@ def ptm_file_insert(request):
                 rows = df[df[col].isnull()].index.tolist()
                 rows = ','.join([ str(r+2) for r in rows])
                 log.error('No values in column ' + col + ' rows '+ rows)
-                list_of_posttranslationannotation_errors.append('No values in column ' + col + ' rows '+ rows)
+                list_of_posttranslationannotation_errors.append('No values in column ' + col + ' rows '+ rows + "<br>")
 
         if list_of_posttranslationannotation_errors:
             err = [e + '\n' for e in list_of_posttranslationannotation_errors]
@@ -1329,7 +1329,7 @@ def ptm_file_insert(request):
                     posttranslationannotation_existing['dbentity_id'] = systematic_name_to_dbentity_id[key]
                 else:
                     log.error('Error in gene on row ' + str(index) + ', column ' + column)
-                    list_of_posttranslationannotation_errors.append('Error in gene on row ' + str(index) + ', column ' + column)
+                    list_of_posttranslationannotation_errors.append('Error in gene on row ' + str(index) + ', column ' + column + "<br>")
                     continue
 
                 if SEPARATOR in gene:
@@ -1341,7 +1341,7 @@ def ptm_file_insert(request):
                         posttranslationannotation_update['dbentity_id'] = systematic_name_to_dbentity_id[key]
                     else:
                         log.error('Error in gene on row ' + str(index) + ', column ' + column)
-                        list_of_posttranslationannotation_errors.append('Error in gene on row ' + str(index) + ', column ' + column)
+                        list_of_posttranslationannotation_errors.append('Error in gene on row ' + str(index) + ', column ' + column + "<br>")
                         continue
 
                 column = COLUMNS['taxonomy']
@@ -1351,7 +1351,7 @@ def ptm_file_insert(request):
                     posttranslationannotation_existing['taxonomy_id'] = strain_to_taxonomy_id[taxonomy_current]
                 else:
                     log.error('Error in taxonomy on row ' + str(index) + ', column ' + column)
-                    list_of_posttranslationannotation_errors.append('Error in taxonomy on row ' + str(index) + ', column ' + column)
+                    list_of_posttranslationannotation_errors.append('Error in taxonomy on row ' + str(index) + ', column ' + column + "<br>")
                     continue
 
                 if SEPARATOR in taxonomy:
@@ -1360,7 +1360,7 @@ def ptm_file_insert(request):
                         posttranslationannotation_update['taxonomy_id'] = strain_to_taxonomy_id[taxonomy_new]
                     else:
                         log.error('Error in updating taxonomy on row ' + str(index) + ', column ' + column)
-                        list_of_posttranslationannotation_errors.append('Error in updating taxonomy on row ' + str(index) + ', column ' + column)
+                        list_of_posttranslationannotation_errors.append('Error in updating taxonomy on row ' + str(index) + ', column ' + column + "<br>")
                         continue
 
 
@@ -1376,7 +1376,7 @@ def ptm_file_insert(request):
                     posttranslationannotation_existing['reference_id'] = int(reference_current)
                 else:
                     log.error('Error in reference on row ' + str(index) + ', column ' + column)
-                    list_of_posttranslationannotation_errors.append('Error in reference on row ' + str(index) + ', column ' + column)
+                    list_of_posttranslationannotation_errors.append('Error in reference on row ' + str(index) + ', column ' + column + "<br>")
                     continue
 
 
@@ -1391,7 +1391,7 @@ def ptm_file_insert(request):
                         posttranslationannotation_update['reference_id'] = int(reference_new)
                     else:
                         log.error('Error in reference on row ' + str(index) + ', column ' + column)
-                        list_of_posttranslationannotation_errors.append('Error in reference on row ' + str(index) + ', column ' + column)
+                        list_of_posttranslationannotation_errors.append('Error in reference on row ' + str(index) + ', column ' + column + "<br>")
                         continue
 
             
@@ -1403,7 +1403,7 @@ def ptm_file_insert(request):
                     posttranslationannotation_existing['psimod_id'] = psimod_to_id[psimod_current]
                 else:
                     log.error('Error in psimod ' + str(index) + ', column ' + column)
-                    list_of_posttranslationannotation_errors.append('Error in psimod ' + str(index) + ', column ' + column)
+                    list_of_posttranslationannotation_errors.append('Error in psimod ' + str(index) + ', column ' + column + "<br>")
                     continue
 
                 if SEPARATOR in psimod:
@@ -1412,7 +1412,7 @@ def ptm_file_insert(request):
                         posttranslationannotation_update['psimod_id'] = psimod_to_id[psimod_new]
                     else:
                         log.error('Error in psimod ' + str(index) + ', column ' + column)
-                        list_of_posttranslationannotation_errors.append('Error in psimod ' + str(index) + ', column ' + column)
+                        list_of_posttranslationannotation_errors.append('Error in psimod ' + str(index) + ', column ' + column + "<br>")
                         continue
                 
                 column = COLUMNS['index']
@@ -1449,8 +1449,11 @@ def ptm_file_insert(request):
                 list_of_posttranslationannotation.append((posttranslationannotation_existing,posttranslationannotation_update))
 
                 check_key = (gene, taxonomy. reference, site_index, residue, psimod, modifier)
+
+                list_of_posttranslationannotation_errors.append("key=" + str(check_key) + "<br>")
+                
                 if check_key in found:
-                    list_of_posttranslationannotation_errors.append('Duplicate in row ' + str(index))
+                    list_of_posttranslationannotation_errors.append('Duplicate in row ' + str(index) + "<br>")
                     found[check_key] = 1
                 
             except ValueError as e:
