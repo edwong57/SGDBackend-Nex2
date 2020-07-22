@@ -1289,8 +1289,6 @@ def ptm_file_insert(request):
                 rows = ','.join([ str(r+2) for r in rows])
                 log.error('No values in column ' + col + ' rows '+ rows)
                 list_of_posttranslationannotation_errors.append('No values in column ' + col + ' rows '+ rows)
-
-        list_of_posttranslationannotation_errors.append("HELLO")
              
         if list_of_posttranslationannotation_errors:
             err = [e + '\n' for e in list_of_posttranslationannotation_errors]
@@ -1429,16 +1427,12 @@ def ptm_file_insert(request):
                 if SEPARATOR in residue:
                     posttranslationannotation_update['site_residue'] = str(row[COLUMNS['residue']]).split(SEPARATOR)[1]
 
+                list_of_posttranslationannotation_errors.append('HELLO THERE')
+                    
                 column = COLUMNS['modifier']
                 modifier = row[column]
 
-                check_key = (gene, taxonomy. reference, site_index, residue, psimod, modifier)
-
-                list_of_posttranslationannotation_errors.append('KEY=' + str(check_key))
-
-                if check_key in found:
-                    list_of_posttranslationannotation_errors.append('Duplicate in row ' + str(index))
-                    found[check_key] = 1
+                list_of_posttranslationannotation_errors.append('HELLO THERE 2')
                 
                 if(pd.isnull(modifier)):
                     pass
@@ -1459,6 +1453,8 @@ def ptm_file_insert(request):
                     
                 list_of_posttranslationannotation.append((posttranslationannotation_existing,posttranslationannotation_update))
 
+                list_of_posttranslationannotation_errors.append('HELLO THERE 3')
+                
                 check_key = (gene, taxonomy. reference, site_index, residue, psimod, modifier)
 
                 list_of_posttranslationannotation_errors.append('KEY=' + str(check_key))
