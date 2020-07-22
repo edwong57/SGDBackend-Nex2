@@ -1450,15 +1450,15 @@ def ptm_file_insert(request):
 
                 check_key = (gene, taxonomy. reference, site_index, residue, psimod, modifier)
                 if check_key in found:
-                    list_of_posttranslationannotation_errors.append('Duplicate row on row ' + str(index))
+                    list_of_posttranslationannotation_errors.append('Duplicate in row ' + str(index))
                     found[check_key] = 1
                 
             except ValueError as e:
                 log.error('Error in on row ' + str(index) + ', column ' + column + ', It is not a valid number.')
-                list_of_posttranslationannotation_errors.append('Error in on row ' + str(index) + ', column ' + column + ', It is not a valid number.')
+                list_of_posttranslationannotation_errors.append('Error in row ' + str(index) + ', column ' + column + ', It is not a valid number.'+ "<br>")
             except Exception as e:
                 log.exception('Error in on row ' + str(index) + ', column ' + column)
-                list_of_posttranslationannotation_errors.append('Error in on row ' + str(index) + ', column ' + column + ' ' + str(e))
+                list_of_posttranslationannotation_errors.append('Error in row ' + str(index) + ', column ' + column + ' ' + str(e) + "<br>")
 
         if list_of_posttranslationannotation_errors:
             err = [ e + '\n'  for e in list_of_posttranslationannotation_errors]
