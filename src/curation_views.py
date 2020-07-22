@@ -1301,6 +1301,7 @@ def ptm_file_insert(request):
         posttranslationannotation_to_site = models_helper.posttranslationannotation_with_key_index()
         pubmed_id_to_reference, reference_to_dbentity_id = models_helper.get_references_all()
 
+        found = {}
         for index_row, row in df.iterrows():
             index = index_row + 2
             column = ''
@@ -1446,7 +1447,12 @@ def ptm_file_insert(request):
                             posttranslationannotation_update['modifier_id'] = systematic_name_to_dbentity_id[(modifier_new, 'LOCUS')]
                     
                 list_of_posttranslationannotation.append((posttranslationannotation_existing,posttranslationannotation_update))
-            
+
+                check_key = (gene, taxonomy. reference, site_index, residue, psimod, modifier)
+                if check_key in found:
+                    list_of_posttranslationannotation_errors.append('Duplicate row on row ' + str(index))
+                    found[check_key] = 1
+                
             except ValueError as e:
                 log.error('Error in on row ' + str(index) + ', column ' + column + ', It is not a valid number.')
                 list_of_posttranslationannotation_errors.append('Error in on row ' + str(index) + ', column ' + column + ', It is not a valid number.')
