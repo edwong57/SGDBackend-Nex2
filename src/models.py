@@ -9628,7 +9628,9 @@ class Alleledbentity(Dbentity):
         network_nodes_ids[self.format_name] = True
 
         ## phenotype
-
+        
+        allele_in_pheno_nodes = []
+        
         phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
@@ -9658,6 +9660,7 @@ class Alleledbentity(Dbentity):
                         "category": "ALLELE",
                     })
                     network_nodes_ids[allele_format_name] = True
+                    allele_in_pheno_nodes.append(allele_display_name.upper())
                 if pheno_id not in network_nodes_ids:
                     network_nodes.append({
                         "name": p.phenotype.display_name,
@@ -9687,9 +9690,9 @@ class Alleledbentity(Dbentity):
 
         allele_to_id = dict([(x.display_name.upper(), x.dbentity_id) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
-        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).filter_by(annotation_type='manually curated').all()
+        # annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).filter_by(annotation_type='manually curated').all()
 
-        # annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
+        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
         
         for x in annotations:
             
@@ -9712,7 +9715,7 @@ class Alleledbentity(Dbentity):
                     curr_allele = word
                 elif word.upper() in allele_to_id and word not in other_allele_list:
                     other_allele_list.append(word)                    
-            if curr_allele and len(other_allele_list) > 0:
+            if curr_allele and len(other_allele_list) > 0 and curr_allele.upper() in allele_in_pheno_nodes:
                 interaction_format_name = gene1 + "|" + gene2
                 if interaction_format_name not in network_nodes_ids:
                     network_nodes.append({
