@@ -9650,7 +9650,7 @@ class Alleledbentity(Dbentity):
                 if allele_display_name is None:
                     continue
                 allele_format_name = allele_display_name.replace(' ', '_')
-                if allete_format_name not in network_nodes_ids:
+                if allele_format_name not in network_nodes_ids:
                     network_nodes.append({
                         "name": allele_display_name,
                         "id": allele_format_namte,
