@@ -9641,7 +9641,7 @@ class Alleledbentity(Dbentity):
 
             other_annotations = DBSession.query(Phenotypeannotation).filter_by(phenotype_id=p.phenotype_id, experiment_id=p.experiment_id, mutant_id=p.mutant_id).all()
                 
-            for p2 in other_annotations:
+            for x in other_annotations:
                 if x.allele_id is None:
                     continue
                 if x.allele_id == self.dbentity_id:
@@ -9681,7 +9681,9 @@ class Alleledbentity(Dbentity):
                     
         ## interaction
 
+        ###
         ### need to rewrite this part after allele_interaction is populated
+        ###
         
         all_allele_names = DBSession.query(Dbentity.display_name).filter_by(subclass='ALLELE').all()
         
