@@ -9628,17 +9628,20 @@ class Alleledbentity(Dbentity):
         network_nodes_ids[self.format_name] = True
 
         ## phenotype
-        
-        allele_in_pheno_nodes = []
-        
+                
         phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
+
+        allele_key_to_phenotype_list = {}
         
         for p in phenotype_annotations:
             if p.allele_id is None:
                 continue
 
-            ## phenotype_key = combination of phenotype_id, experiment_id, mutant_id 
+            ## one phenotype = combination of phenotype_id, experiment_id, mutant_id
+            ## in order to show up in the diagram, other allele nodes have to share
+            ## at least two phenotypes with the focus one
+
             pheno_id = "phenotype_" + str(p.phenotype_id) + "_"	+ str(p.experiment_id) + "_" + str(p.mutant_id)
 
             other_annotations = DBSession.query(Phenotypeannotation).filter_by(phenotype_id=p.phenotype_id, experiment_id=p.experiment_id, mutant_id=p.mutant_id).all()
@@ -9652,35 +9655,47 @@ class Alleledbentity(Dbentity):
                 if allele_display_name is None:
                     continue
                 allele_format_name = allele_display_name.replace(' ', '_')
+                phenotype_list = []
+                allele_key = (allele_display_name, allele_format_name, "/allele/" + allele_format_name)
+                if key in allele_key_to_phenotype_list:
+                    phenotype_list = allele_key_to_phenotype_list[key]
+                phenotype_list.append((p.phenotype.display_name, pheno_id, p.phenotype.obj_url))
+                allele_key_to_phenotype_list[key] = phenotype_list
+                
+        for key in allele_key_to_phenotype_list:
+            phenotype_list = allele_key_to_phenotype_list[key]
+            if len(phenotype_list) > 1:
+                (allele_display_name, allele_format_name, allele_link) = key                
                 if allele_format_name not in network_nodes_ids:
                     network_nodes.append({
                         "name": allele_display_name,
                         "id": allele_format_name,
-                        "href": "/allele/" + allele_format_name,
+                        "href": allele_link,
                         "category": "ALLELE",
                     })
                     network_nodes_ids[allele_format_name] = True
-                    allele_in_pheno_nodes.append(allele_display_name.upper())
-                if pheno_id not in network_nodes_ids:
-                    network_nodes.append({
-                        "name": p.phenotype.display_name,
-                        "id": pheno_id,
-                        "href": p.phenotype.obj_url,
-                        "category": "PHENOTYPE",
-                    })
-                    network_nodes_ids[pheno_id] = True
-                if (self.format_name, pheno_id) not in network_edges_added:
-                    network_edges.append({
-                        "source": self.format_name,
-                        "target": pheno_id
-                    })
-                    network_edges_added[(self.format_name, pheno_id)] = True
-                if (allele_format_name, pheno_id) not in network_edges_added:
-                    network_edges.append({
-                        "source": allele_format_name,
-                        "target": pheno_id
-                    })
-                    network_edges_added[(allele_format_name, pheno_id)] = True
+                for phenotype in phenotype_list:
+                    (pheno_display_name, pheno_id, pheno_link) = phenotype
+                    if pheno_id not in network_nodes_ids:
+                        network_nodes.append({
+                            "name": pheno_display_name,
+                            "id": pheno_id,
+                            "href": pheno_link,
+                            "category": "PHENOTYPE",
+                        })
+                        network_nodes_ids[pheno_id] = True
+                    if (self.format_name, pheno_id) not in network_edges_added:
+                        network_edges.append({
+                            "source": self.format_name,
+                            "target": pheno_id
+                        })
+                        network_edges_added[(self.format_name, pheno_id)] = True
+                    if (allele_format_name, pheno_id) not in network_edges_added:
+                        network_edges.append({
+                            "source": allele_format_name,
+                            "target": pheno_id
+                        })
+                        network_edges_added[(allele_format_name, pheno_id)] = True
                                         
         ## interaction
 
@@ -9690,8 +9705,6 @@ class Alleledbentity(Dbentity):
 
         allele_to_id = dict([(x.display_name.upper(), x.dbentity_id) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
-        # annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).filter_by(annotation_type='manually curated').all()
-
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
         
         for x in annotations:
@@ -9718,7 +9731,6 @@ class Alleledbentity(Dbentity):
                     if pieces[-1].isdigit() and int(pieces[-1]) >= 5000:
                         continue
                     other_allele_list.append(word)                    
-            # if curr_allele and len(other_allele_list) > 0 and curr_allele.upper() in allele_in_pheno_nodes:
             if curr_allele and len(other_allele_list) > 0:
                 interaction_format_name = gene1 + "|" + gene2
                 if interaction_format_name not in network_nodes_ids:
