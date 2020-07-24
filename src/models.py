@@ -9687,8 +9687,10 @@ class Alleledbentity(Dbentity):
 
         allele_to_id = dict([(x.display_name.upper(), x.dbentity_id) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
-        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).filter_by(annotation_type='manually curated').all()
-    
+        # annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).filter_by(annotation_type='manually curated').all()
+
+        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
+        
         for x in annotations:
             
             gene1 = x.dbentity1.display_name
