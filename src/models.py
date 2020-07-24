@@ -9690,10 +9690,23 @@ class Alleledbentity(Dbentity):
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
     
         for x in annotations:
+
             
             gene1 = x.dbentity1.display_name
             gene2 = x.dbentity2.display_name
-    
+
+            
+            ## testing from here
+            interaction_format_name = gene1 + "|" + gene2
+            network_nodes.append({
+                "name": interaction_format_name,
+                "id": interaction_format_name,
+                "href": x.description,
+                "category": "INTERACTIION",
+            })
+            ## end testing
+
+            
             ## check description to see if this interaction annotation has both given allele name and other allele info 
             words = x.description.split(' ')
             curr_allele = None
