@@ -9653,7 +9653,7 @@ class Alleledbentity(Dbentity):
                 if allele_format_name not in network_nodes_ids:
                     network_nodes.append({
                         "name": allele_display_name,
-                        "id": allele_format_namte,
+                        "id": allele_format_name,
                         "href": "/allele/" + allele_format_name,
                         "category": "ALLELE",
                     })
