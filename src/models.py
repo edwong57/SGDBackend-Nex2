@@ -9737,7 +9737,7 @@ class Alleledbentity(Dbentity):
                     network_nodes_ids[interaction_format_name] = True    
                 for other_allele in other_allele_list:
                     allele_format_name = other_allele.replace(' ', '_')
-                    if allete_format_name not in network_nodes_ids:
+                    if allele_format_name not in network_nodes_ids:
                         network_nodes.append({
                             "name": other_allele,
                             "id": allele_format_name,
