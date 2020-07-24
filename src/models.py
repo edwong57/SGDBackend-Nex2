@@ -9678,9 +9678,7 @@ class Alleledbentity(Dbentity):
                         "target": pheno_id
                     })
                     network_edges_added[(allele_format_name, pheno_id)] = True
-                    
-        return []
-                    
+                                        
         ## interaction
 
         ###
@@ -9691,6 +9689,12 @@ class Alleledbentity(Dbentity):
         
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
 
+
+        
+        return []
+
+
+    
         for annotation in annotations:
             
             gene1 = annotation.dbentity1.display_name
