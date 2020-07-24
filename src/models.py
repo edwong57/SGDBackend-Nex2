@@ -9709,22 +9709,7 @@ class Alleledbentity(Dbentity):
                 if word == self.display_name:
                     curr_allele = word
                 elif word.upper() in allele_to_id and word not in other_allele_list:
-                    other_allele_list.append(word)
-
-
-                    ## testing from here
-                    
-                    interaction_format_name = gene1 + "|" + gene2
-                    network_nodes.append({
-                        "name": other_allele_list,
-                        "id": interaction_format_name,
-                        "href": x.description,
-                        "category": "INTERACTIION",
-                    })
-                    ## end testing
-                    
-                    
-                    
+                    other_allele_list.append(word)                    
             if curr_allele and len(other_allele_list) > 0:
                 interaction_format_name = gene1 + "|" + gene2
                 if interaction_format_name not in network_nodes_ids:
