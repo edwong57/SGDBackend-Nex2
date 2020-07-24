@@ -9630,7 +9630,7 @@ class Alleledbentity(Dbentity):
         ## phenotype
 
         phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
-        allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in nex_session.query(Dbentity).filter_by(subclass='ALLELE').all()])
+        allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
         for p in phenotype_annotations:
             if p.allele_id is None:
