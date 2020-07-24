@@ -9717,7 +9717,7 @@ class Alleledbentity(Dbentity):
                         "name": interaction_format_name,
                         "id": interaction_format_name,
                         "href": '',
-                        "category": "INTERACTIION",
+                        "category": "INTERACTION",
                     })
                     network_nodes_ids[interaction_format_name] = True    
                 for other_allele in other_allele_list:
