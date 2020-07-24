@@ -9684,8 +9684,8 @@ class Alleledbentity(Dbentity):
         ###
         ### need to rewrite this part after allele_interaction is populated
         ###
-        
-        all_allele_names = DBSession.query(Dbentity.display_name).filter_by(subclass='ALLELE').all()
+
+        allele_to_id = dict([(x.display_name.upper(), x.dbentity_id) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
     
@@ -9708,7 +9708,7 @@ class Alleledbentity(Dbentity):
                     word = word[1:]
                 if word == self.display_name:
                     curr_allele = word
-                elif word in all_allele_names and word not in other_allele_list:
+                elif word.upper() in allele_to_id and word not in other_allele_list:
                     other_allele_list.append(word)
 
 
