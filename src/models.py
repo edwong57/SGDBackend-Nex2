@@ -9629,8 +9629,6 @@ class Alleledbentity(Dbentity):
 
         ## phenotype
 
-        return []
-        
         phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
@@ -9681,6 +9679,7 @@ class Alleledbentity(Dbentity):
                     })
                     network_edges_added[(allele_format_name, pheno_id)] = True
                     
+        return []
                     
         ## interaction
 
