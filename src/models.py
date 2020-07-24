@@ -9714,6 +9714,9 @@ class Alleledbentity(Dbentity):
                 if word == self.display_name:
                     curr_allele = word
                 elif word.upper() in allele_to_id and word not in other_allele_list:
+                    pieces = word.split('-')
+                    if pieces[-1].isdigit() and int(pieces[-1]) >= 5000:
+                        continue
                     other_allele_list.append(word)                    
             if curr_allele and len(other_allele_list) > 0 and curr_allele.upper() in allele_in_pheno_nodes:
             # if curr_allele and len(other_allele_list) > 0:
