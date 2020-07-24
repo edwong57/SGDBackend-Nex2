@@ -9639,9 +9639,13 @@ class Alleledbentity(Dbentity):
             ## phenotype_key = combination of phenotype_id, experiment_id, mutant_id 
             pheno_id = "phenotype_" + str(p.phenotype_id) + "_"	+ str(p.experiment_id) + "_" + str(p.mutant_id)
 
-            other_annotations = DBSession.query(Phenotypeannotation).filter_by(phenotype_id=p.phenotype_id, experiment_id=p.experiment_id, mutant_id=p.mutant_id).filter_by(allele_id!=self.dbentity_id).all()
+            other_annotations = DBSession.query(Phenotypeannotation).filter_by(phenotype_id=p.phenotype_id, experiment_id=p.experiment_id, mutant_id=p.mutant_id).all()
                 
             for p2 in other_annotations:
+                if x.allele_id is None:
+                    continue
+                if x.allele_id == self.dbentity_id:
+                    continue
                 allele_display_name = allele_id_to_name.get(x.allele_id)
                 if allele_display_name is None:
                     continue
