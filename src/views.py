@@ -1489,7 +1489,7 @@ def allele(request):
     if allele.startswith('S0'):
         alleleObj = DBSession.query(Alleledbentity).filter_by(sgdid=allele).one_or_none()
     else:
-        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.display_name.ilike(allele)).one_or_none()
+        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.format_name.ilike(allele)).one_or_none()
         
     if alleleObj is not None:
         return alleleObj.to_dict()
@@ -1505,13 +1505,14 @@ def allele_phenotype_details(request):
     if allele.startswith('S0'):
         alleleObj = DBSession.query(Alleledbentity).filter_by(sgdid=allele).one_or_none()
     else:
-        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.display_name.ilike(allele)).one_or_none()
+        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.format_name.ilike(allele)).one_or_none()
 
     if alleleObj is not None:
         return alleleObj.phenotype_to_dict()
     else:
         return []
 
+    
 @view_config(route_name='allele_interaction_details', renderer='json', request_method='GET')
 def allele_interaction_details(request):
 
@@ -1521,14 +1522,32 @@ def allele_interaction_details(request):
     if allele.startswith('S0'):
         alleleObj = DBSession.query(Alleledbentity).filter_by(sgdid=allele).one_or_none()
     else:
-        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.display_name.ilike(allele)).one_or_none()
+        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.format_name.ilike(allele)).one_or_none()
 
     if alleleObj is not None:
         return alleleObj.interaction_to_dict()
     else:
         return []
 
+    
+@view_config(route_name='allele_network_graph', renderer='json', request_method='GET')
+def allele_network_graph(request):
 
+    allele = request.matchdict['id'].replace('SGD:S', 'S')
+    
+    alleleObj = None
+    if allele.startswith('S0'):
+        alleleObj = DBSession.query(Alleledbentity).filter_by(sgdid=allele).one_or_none()
+    else:
+        alleleObj = DBSession.query(Alleledbentity).filter(Alleledbentity.format_name.ilike(allele)).one_or_none()
+
+    if alleleObj is not None:
+        return alleleObj.allele_network()
+    else:
+        # return HTTPNotFound()
+        return []
+
+    
 @view_config(route_name='alignment', renderer='json', request_method='GET')
 def alignment(request):
 

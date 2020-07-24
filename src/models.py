@@ -9516,6 +9516,7 @@ class Alleledbentity(Dbentity):
                  "description": self.description,
                  "phenotype": self.phenotype_to_dict(),
                  "interaction": self.interaction_to_dict(),
+                 "network_graph": self.allele_network(),
                  "references": self.get_references(),
                  "urls": self.get_resource_urls()
             }
@@ -9610,7 +9611,46 @@ class Alleledbentity(Dbentity):
             objs.append(x.display_name)
         return objs
             
+    def allele_network(self):
 
+        network_nodes =[]
+        network_edges =[]
+
+        network_nodes_ids = {}
+        network_edges_added = {}
+
+        network_nodes.append({
+            "name": self.display_name,
+            "id": self.format_name,
+            "href": "/allele/" + self.sgdid,
+            "category": "FOCUS",
+        })
+        network_nodes_ids[self.format_name] = True
+
+        ## phenotype
+
+        phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
+
+        return []
+
+
+    
+        # for p in phenotype_annotations:
+        #    pheno_id = "phenotype_" + str(p.phenotype_id)
+
+            ## phenotype_key = 
+            ## phenotype_id or
+            ## combination of phenotype_id, mutant_id, experiment_id or
+            ## combination of phenotype_id, mutant_id, experiment_id, reference_id
+
+            ## and check if there are any other allele(s) that are associated with same phenotype_key
+
+
+        ## interaction
+
+        
+        
+    
 class AlleleReference(Base):
     __tablename__ = 'allele_reference'
     __table_args__ = (
