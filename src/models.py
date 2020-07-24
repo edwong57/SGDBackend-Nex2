@@ -9622,7 +9622,7 @@ class Alleledbentity(Dbentity):
         network_nodes.append({
             "name": self.display_name,
             "id": self.format_name,
-            "href": "/allele/" + self.sgdid,
+            "href": "/allele/" + self.format_name,
             "category": "FOCUS",
         })
         network_nodes_ids[self.format_name] = True
@@ -9630,27 +9630,118 @@ class Alleledbentity(Dbentity):
         ## phenotype
 
         phenotype_annotations = DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all()
+        allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in nex_session.query(Dbentity).filter_by(subclass='ALLELE').all()])
+        
+        for p in phenotype_annotations:
+            if p.allele_id is None:
+                continue
 
-        return []
+            ## phenotype_key = combination of phenotype_id, experiment_id, mutant_id 
+            pheno_id = "phenotype_" + str(p.phenotype_id) + "_"	+ str(p.experiment_id) + "_" + str(p.mutant_id)
 
-
-    
-        # for p in phenotype_annotations:
-        #    pheno_id = "phenotype_" + str(p.phenotype_id)
-
-            ## phenotype_key = 
-            ## phenotype_id or
-            ## combination of phenotype_id, mutant_id, experiment_id or
-            ## combination of phenotype_id, mutant_id, experiment_id, reference_id
-
-            ## and check if there are any other allele(s) that are associated with same phenotype_key
-
-
+            other_annotations = DBSession.query(Phenotypeannotation).filter_by(phenotype_id=p.phenotype_id, experiment_id=p.experiment_id, mutant_id=p.mutant_id).filter_by(allele_id!=self.dbentity_id).all()
+                
+            for p2 in other_annotations:
+                allele_display_name = allele_id_to_name.get(x.allele_id)
+                if allele_display_name is None:
+                    continue
+                allele_format_name = allele_display_name.replace(' ', '_')
+                if allete_format_name not in network_nodes_ids:
+                    network_nodes.append({
+                        "name": allele_display_name,
+                        "id": allele_format_namte,
+                        "href": "/allele/" + allele_format_name,
+                        "category": "ALLELE",
+                    })
+                    network_nodes_ids[allele_format_name] = True
+                if pheno_id not in network_nodes_ids:
+                    network_nodes.append({
+                        "name": p.phenotype.display_name,
+                        "id": pheno_id,
+                        "href": p.phenotype.obj_url,
+                        "category": "PHENOTYPE",
+                    })
+                    network_nodes_ids[pheno_id] = True
+                if (self.format_name, pheno_id) not in network_edges_added:
+                    network_edges.append({
+                        "source": self.format_name,
+                        "target": pheno_id
+                    })
+                    network_edges_added[(self.format_name, pheno_id)] = True
+                if (allele_format_name, pheno_id) not in network_edges_added:
+                    network_edges.append({
+                        "source": allele_format_name,
+                        "target": pheno_id
+                    })
+                    network_edges_added[(allele_format_name, pheno_id)] = True
+                    
         ## interaction
 
+        ### need to rewrite this part after allele_interaction is populated
         
+        all_allele_names = DBSession.query(Dbentity.display_name).filter_by(subclass='ALLELE').all()
         
+        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
+
+        for annotation in annotations:
+            
+            gene1 = annotation.dbentity1.display_name
+            gene2 = annotation.dbentity2.display_name
     
+            ## check description to see if this interaction annotation has both given allele name and other allele info 
+            words = x.description.split(' ')
+            curr_allele = None
+            other_allele_list = []
+            for word in words:
+                if len(word) < 4:
+                    continue
+                if word[-1] in [')', ',', '/', '|', ';', ':', '.']:
+                    word = word[0:-2]
+                if word[0] in ['(', '/', '|']:
+                    word = word[1:]
+                if word == self.display_name:
+                    curr_allele = word
+                elif word in all_allele_names and word not in other_allele_list:
+                    other_allele_list.append(word)
+            if curr_allele and len(other_allele_list) > 0:
+                interaction_format_name = gene1 + "|" + gene2
+                if interaction_format_name not in network_nodes_ids:
+                    network_nodes.append({
+                        "name": interaction_format_name,
+                        "id": interaction_format_name,
+                        "href": '',
+                        "category": "INTERACTIION",
+                    })
+                    network_nodes_ids[interaction_format_name] = True    
+                for other_allele in other_allele_list:
+                    allele_format_name = other_allele.replace(' ', '_')
+                    if allete_format_name not in network_nodes_ids:
+                        network_nodes.append({
+                            "name": other_allele,
+                            "id": allele_format_name,
+                            "href": "/allele/" + allele_format_name,
+                            "category": "ALLELE",
+                        })
+                        network_nodes_ids[allele_format_name] = True      
+                    if (self.format_name, interaction_format_name) not in network_edges_added:
+                        network_edges.append({
+                            "source": self.format_name,
+                            "target": interaction_format_name
+                        })
+                        network_edges_added[(self.format_name, interaction_format_name)] = True
+                    if (allele_format_name, interaction_format_name) not in network_edges_added:
+                        network_edges.append({
+                            "source": allele_format_name,
+                            "target": interaction_format_name
+                        })
+                        network_edges_added[(allele_format_name, interaction_format_name)] = True
+
+
+        data = { "edges": network_edges, "nodes": network_nodes }
+
+        return data
+
+          
 class AlleleReference(Base):
     __tablename__ = 'allele_reference'
     __table_args__ = (
