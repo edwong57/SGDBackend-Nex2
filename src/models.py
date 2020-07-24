@@ -9657,10 +9657,10 @@ class Alleledbentity(Dbentity):
                 allele_format_name = allele_display_name.replace(' ', '_')
                 phenotype_list = []
                 allele_key = (allele_display_name, allele_format_name, "/allele/" + allele_format_name)
-                if key in allele_key_to_phenotype_list:
-                    phenotype_list = allele_key_to_phenotype_list[key]
+                if allele_key in allele_key_to_phenotype_list:
+                    phenotype_list = allele_key_to_phenotype_list[allele_key]
                 phenotype_list.append((p.phenotype.display_name, pheno_id, p.phenotype.obj_url))
-                allele_key_to_phenotype_list[key] = phenotype_list
+                allele_key_to_phenotype_list[allele_key] = phenotype_list
                 
         for key in allele_key_to_phenotype_list:
             phenotype_list = allele_key_to_phenotype_list[key]
