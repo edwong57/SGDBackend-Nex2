@@ -9511,15 +9511,15 @@ class Alleledbentity(Dbentity):
 
         reference_mapping = {}
 
-        global ref_order
+        ref_order = 1
         
-        obj = { "name": self.get_name(reference_mapping) }
+        obj = { "name": self.get_name(reference_mapping, ref_order) }
         
         obj["sgdid"] = self.sgdid
         obj["allele_type"] = self.so.display_name
         obj["description"] = self.description
-        obj['aliases'] = self.get_aliases(reference_mapping)
-        obj['affected_gene'] = self.get_gene_name(reference_mapping)     
+        obj['aliases'] = self.get_aliases(reference_mapping, ref_order)
+        obj['affected_gene'] = self.get_gene_name(reference_mapping, ref_order)     
         obj['phenotype'] = self.phenotype_to_dict()
         obj['interaction'] = self.interaction_to_dict()
         obj['network_graph'] = self.allele_network()
@@ -9528,11 +9528,10 @@ class Alleledbentity(Dbentity):
         
         return obj
 
-    def get_name(self, reference_mapping):
+    def get_name(self, reference_mapping, ref_order):
         
         references = []
         alleleRefs = DBSession.query(AlleleReference).filter_by(allele_id=self.dbentity_id).all()
-        ref_order = 1
         for x in alleleRefs:
             reference = x.reference.to_dict_citation()
             references.append(reference)
@@ -9618,7 +9617,7 @@ class Alleledbentity(Dbentity):
         return obj
 
     
-    def get_gene_name(self, reference_mapping):
+    def get_gene_name(self, reference_mapping, ref_order):
         
         la = DBSession.query(LocusAllele).filter_by(allele_id = self.dbentity_id).one_or_none()
         if la is None:
@@ -9640,7 +9639,7 @@ class Alleledbentity(Dbentity):
                  "references": references }
 
     
-    def get_aliases(self, reference_mapping):
+    def get_aliases(self, reference_mapping, ref_order):
 
         alleleAliases = DBSession.query(AlleleAlias).filter_by(allele_id = self.dbentity_id).all()
         objs = []
