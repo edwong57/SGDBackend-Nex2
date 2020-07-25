@@ -9733,8 +9733,8 @@ class Alleledbentity(Dbentity):
                     if pieces[-1].isdigit() and int(pieces[-1]) >= 5000:
                         continue
                     other_allele_list.append(word)
-            # if curr_allele and len(other_allele_list) > 0:
-            if curr_allele and len(other_allele_list) == 1:
+            if curr_allele and len(other_allele_list) > 0:
+            # if curr_allele and len(other_allele_list) == 1:
                 for other_allele in other_allele_list:
                     allele_format_name = other_allele.replace(' ', '_')
                     ###
