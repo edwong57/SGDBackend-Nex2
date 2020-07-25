@@ -9535,7 +9535,8 @@ class Alleledbentity(Dbentity):
 
     def get_resource_urls(self):
         
-        gene_name = self.get_gene_name()
+        gene = self.get_gene_name()
+        gene_name = gene.display_name
         
         locus = DBSession.query(Locusdbentity).filter(or_(Locusdbentity.gene_name == gene_name, Locusdbentity.systematic_name == gene_name)).one_or_none()
         if locus is None:
