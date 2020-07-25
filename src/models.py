@@ -9523,6 +9523,7 @@ class Alleledbentity(Dbentity):
         obj['network_graph'] = self.allele_network()
         obj['references'] = self.get_references()
         obj['urls'] = self.get_resource_urls()
+        obj["reference_mapping"] = reference_mapping
         
         return obj
 
