@@ -9521,7 +9521,7 @@ class Alleledbentity(Dbentity):
         obj['aliases'] = self.get_aliases(reference_mapping, ref_order)
         obj['affected_gene'] = self.get_gene_name(reference_mapping, ref_order)     
         obj['phenotype'] = self.phenotype_to_dict()
-        obj['interaction'] = self.interaction_to_dict()
+        obj['interaction'] = self.interaction_to_dict(reference_mapping, ref_order)
         obj['network_graph'] = self.allele_network()
         obj['references'] = self.get_references()
         obj['urls'] = self.get_resource_urls()
@@ -9588,11 +9588,11 @@ class Alleledbentity(Dbentity):
                     references.append(x.reference.to_dict_citation())
         return references
 
-    def interaction_to_dict(self):
+    def interaction_to_dict(self, reference_mapping, ref_order):
         
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('% ' + self.display_name + ' %')).all()
 
-        geneObj = self.get_gene_name()
+        geneObj = self.get_gene_name(reference_mapping, ref_order)
         gene = geneObj['display_name']
                     
         obj = []
