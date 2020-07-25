@@ -9511,7 +9511,7 @@ class Alleledbentity(Dbentity):
 
         reference_mapping = {}
 
-        global ref_order = 1
+        global ref_order
     
         obj["name"] = self.get_name(reference_mapping, ref_order)
         obj["sgdid"] = self.sgdid
@@ -9531,6 +9531,7 @@ class Alleledbentity(Dbentity):
         
         references = []
         alleleRefs = DBSession.query(AlleleReference).filter_by(allele_id=self.dbentity_id).all()
+        ref_order = 1
         for x in alleleRefs:
             reference = x.reference.to_dict_citation()
             references.append(reference)
