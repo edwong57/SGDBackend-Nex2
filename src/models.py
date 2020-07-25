@@ -9734,7 +9734,7 @@ class Alleledbentity(Dbentity):
                         continue
                     other_allele_list.append(word)
             # if curr_allele and len(other_allele_list) > 0:
-            if curr_allele and len(other_allele_list) = 1:
+            if curr_allele and len(other_allele_list) == 1:
                 interaction_format_name = gene1 + "|" + gene2
                 if interaction_format_name not in network_nodes_ids:
                     network_nodes.append({
