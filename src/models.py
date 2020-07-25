@@ -9515,7 +9515,7 @@ class Alleledbentity(Dbentity):
         }
         
         # obj['aliases'] = self.get_aliases()
-        # obj['affected_gene'] = self.get_gene_name()     
+        obj['affected_gene'] = self.get_gene_name()     
         
         # obj['phenotype'] = self.phenotype_to_dict()
         # obj['interaction'] = self.interaction_to_dict()
