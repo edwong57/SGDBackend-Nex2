@@ -9735,17 +9735,19 @@ class Alleledbentity(Dbentity):
                     other_allele_list.append(word)
             # if curr_allele and len(other_allele_list) > 0:
             if curr_allele and len(other_allele_list) == 1:
-                interaction_format_name = gene1 + "|" + gene2
-                if interaction_format_name not in network_nodes_ids:
-                    network_nodes.append({
-                        "name": interaction_format_name,
-                        "id": interaction_format_name,
-                        "href": '/locus/' + gene1,
-                        "category": "INTERACTION",
-                    })
-                    network_nodes_ids[interaction_format_name] = True    
                 for other_allele in other_allele_list:
                     allele_format_name = other_allele.replace(' ', '_')
+                    ###
+                    interaction_format_name = curr_allele + "|" + other_allele
+                    if interaction_format_name not in network_nodes_ids:
+                        network_nodes.append({
+                            "name": '',
+                            "id": interaction_format_name,
+                            "href": '/allele/' + allele_format_name,
+                            "category": "INTERACTION",
+                        })
+                        network_nodes_ids[interaction_format_name] = True
+                    ###
                     if allele_format_name not in network_nodes_ids:
                         network_nodes.append({
                             "name": other_allele,
