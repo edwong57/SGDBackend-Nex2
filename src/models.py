@@ -9656,7 +9656,7 @@ class Alleledbentity(Dbentity):
                 if reference["id"] not in reference_mapping:
                     reference_mapping[reference["id"]] = ref_order
                     ref_order += 1
-            objs.append({ "display_name": x.display_name,
+            objs.append({ "display_name": x.alias.display_name,
                           "references": references })
         return objs
 
