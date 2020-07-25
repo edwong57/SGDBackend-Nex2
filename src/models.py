@@ -9585,8 +9585,9 @@ class Alleledbentity(Dbentity):
         
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('% ' + self.display_name + ' %')).all()
 
-        gene = self.get_gene_name()
-        
+        geneObj = self.get_gene_name()
+        gene = geneObj['display_name]'
+                    
         obj = []
         for annotation in annotations:
             gene1 = annotation.dbentity1.display_name
