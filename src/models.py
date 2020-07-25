@@ -9702,12 +9702,12 @@ class Alleledbentity(Dbentity):
         ## interaction
 
         ###
-        ### need to rewrite this part after allele_interaction is populated
+        ### need to rewrite this part after allele_interaction table is populated
         ###
 
         allele_to_id = dict([(x.display_name.upper(), x.dbentity_id) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
         
-        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
+        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('% ' + self.display_name + ' %')).all()
         
         for x in annotations:
             
