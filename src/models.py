@@ -9642,9 +9642,9 @@ class Alleledbentity(Dbentity):
             ## in order to show up in the diagram, other allele nodes have to share
             ## at least two phenotypes with the focus one
 
-            pheno_id = "phenotype_" + str(p.phenotype_id) + "_"	+ str(p.experiment_id) + "_" + str(p.mutant_id)
+            pheno_id = "phenotype_" + str(p.phenotype_id) + "_"	+ str(p.experiment_id) + "_" + str(p.mutant_id) + "_" + str(p.taxonomy_id)
 
-            other_annotations = DBSession.query(Phenotypeannotation).filter_by(phenotype_id=p.phenotype_id, experiment_id=p.experiment_id, mutant_id=p.mutant_id).all()
+            other_annotations = DBSession.query(Phenotypeannotation).filter_by(phenotype_id=p.phenotype_id, experiment_id=p.experiment_id, mutant_id=p.mutant_id, taxonomy_id=p.taxonomy_id).all()
                 
             for x in other_annotations:
                 if x.allele_id is None:
