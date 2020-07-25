@@ -9614,6 +9614,7 @@ class Alleledbentity(Dbentity):
 
 
     def get_gene_name(self):
+
         la = DBSession.query(LocusAllele).filter_by(allele_id = self.dbentity_id).one_or_none()
         if la is None:
             return ''
@@ -9637,7 +9638,7 @@ class Alleledbentity(Dbentity):
                     reference_mapping[reference["id"]] = ref_order
                     ref_order += 1
                                     
-        return { "display_name": la.locus.display_name,
+        return { "display_name": gene,
                  "references": references }
 
     
