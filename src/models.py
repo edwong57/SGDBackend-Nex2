@@ -9509,19 +9509,17 @@ class Alleledbentity(Dbentity):
     
     def to_dict(self):
 
+        obj = { "sgdid": self.sgdid,
+                "allele_type": self.so.display_name,
+                "description": self.description,
+        }
         reference_mapping = {}
-
         ref_order = 1
-        
-        obj = { "name": self.get_name(reference_mapping, ref_order) }
-        
-        obj["sgdid"] = self.sgdid
-        obj["allele_type"] = self.so.display_name
-        obj["description"] = self.description
+        obj["name"] = self.get_name(reference_mapping, ref_order)
         obj['aliases'] = self.get_aliases(reference_mapping, ref_order)
-        obj['affected_gene'] = self.get_gene_name(reference_mapping, ref_order)     
+        obj['affected_gene'] = self.get_gene_name_info(reference_mapping, ref_order)     
         obj['phenotype'] = self.phenotype_to_dict()
-        obj['interaction'] = self.interaction_to_dict(reference_mapping, ref_order)
+        obj['interaction'] = self.interaction_to_dict()
         obj['network_graph'] = self.allele_network()
         obj['references'] = self.get_references()
         obj['urls'] = self.get_resource_urls()
@@ -9544,9 +9542,8 @@ class Alleledbentity(Dbentity):
 
     def get_resource_urls(self):
         
-        name = self.get_gene_name()
-        gene_name = name['display_name']
-        
+        gene_name = self.get_gene_name()
+                
         locus = DBSession.query(Locusdbentity).filter(or_(Locusdbentity.gene_name == gene_name, Locusdbentity.systematic_name == gene_name)).one_or_none()
         if locus is None:
             return []
@@ -9588,12 +9585,11 @@ class Alleledbentity(Dbentity):
                     references.append(x.reference.to_dict_citation())
         return references
 
-    def interaction_to_dict(self, reference_mapping, ref_order):
+    def interaction_to_dict(self):
         
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('% ' + self.display_name + ' %')).all()
 
-        geneObj = self.get_gene_name(reference_mapping, ref_order)
-        gene = geneObj['display_name']
+        gene = self.get_gene_name()
                     
         obj = []
         for annotation in annotations:
@@ -9616,11 +9612,17 @@ class Alleledbentity(Dbentity):
 
         return obj
 
-    
-    def get_gene_name(self, reference_mapping, ref_order):
-        
+
+    def get_gene_name(self):
         la = DBSession.query(LocusAllele).filter_by(allele_id = self.dbentity_id).one_or_none()
         if la is None:
+            return ''
+        return la.locus.display_name
+    
+    def get_gene_name_info(self, reference_mapping, ref_order):
+        
+        gene = self.get_gene_name()
+        if gene is None:
             return { "display_name": '',
                      "references": [] }
         
