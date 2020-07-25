@@ -9512,8 +9512,9 @@ class Alleledbentity(Dbentity):
         reference_mapping = {}
 
         global ref_order
-    
-        obj["name"] = self.get_name(reference_mapping)
+        
+        obj = { "name": self.get_name(reference_mapping) }
+        
         obj["sgdid"] = self.sgdid
         obj["allele_type"] = self.so.display_name
         obj["description"] = self.description
