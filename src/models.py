@@ -9508,19 +9508,19 @@ class Alleledbentity(Dbentity):
     so = relationship('So')
     
     def to_dict(self):
+        
         obj =  { "name": self.get_name(),
                  "sgdid": self.sgdid,
                  "allele_type": self.so.display_name,
                  "description": self.description,
         }
         
-        # obj['aliases'] = self.get_aliases()
+        obj['aliases'] = self.get_aliases()
         obj['affected_gene'] = self.get_gene_name()     
-        
-        # obj['phenotype'] = self.phenotype_to_dict()
-        # obj['interaction'] = self.interaction_to_dict()
-        # obj['network_graph'] = self.allele_network()
-        # obj['references'] = self.get_references()
+        obj['phenotype'] = self.phenotype_to_dict()
+        obj['interaction'] = self.interaction_to_dict()
+        obj['network_graph'] = self.allele_network()
+        obj['references'] = self.get_references()
         obj['urls'] = self.get_resource_urls()
         
         return obj
@@ -9586,7 +9586,7 @@ class Alleledbentity(Dbentity):
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('% ' + self.display_name + ' %')).all()
 
         geneObj = self.get_gene_name()
-        gene = geneObj['display_name]'
+        gene = geneObj['display_name']
                     
         obj = []
         for annotation in annotations:
