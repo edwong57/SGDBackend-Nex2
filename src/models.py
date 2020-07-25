@@ -9517,11 +9517,11 @@ class Alleledbentity(Dbentity):
         # obj['aliases'] = self.get_aliases()
         # obj['affected_gene'] = self.get_gene_name()     
         
-        obj['phenotype'] = self.phenotype_to_dict()
-        obj['interaction'] = self.interaction_to_dict()
-        obj['network_graph'] = self.allele_network()
-        obj['references'] = self.get_references()
-        obj['urls'] = self.get_resource_urls()
+        # obj['phenotype'] = self.phenotype_to_dict()
+        # obj['interaction'] = self.interaction_to_dict()
+        # obj['network_graph'] = self.allele_network()
+        # obj['references'] = self.get_references()
+        # obj['urls'] = self.get_resource_urls()
         
         return obj
 
