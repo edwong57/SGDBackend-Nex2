@@ -9638,7 +9638,7 @@ class Alleledbentity(Dbentity):
             if p.allele_id is None:
                 continue
 
-            ## one phenotype = combination of phenotype_id, experiment_id, mutant_id
+            ## one phenotype = combination of phenotype_id, experiment_id, mutant_id, taxonomy_id
             ## in order to show up in the diagram, other allele nodes have to share
             ## at least two phenotypes with the focus one
 
