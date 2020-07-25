@@ -9570,7 +9570,7 @@ class Alleledbentity(Dbentity):
 
     def interaction_to_dict(self):
         
-        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('%' + self.display_name + '%')).all()
+        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('% ' + self.display_name + ' %')).all()
 
         gene = self.get_gene_name()
         
