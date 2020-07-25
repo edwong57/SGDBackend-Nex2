@@ -9508,7 +9508,7 @@ class Alleledbentity(Dbentity):
     so = relationship('So')
     
     def to_dict(self):
-        obj =  { "display_name": self.display_name,
+        obj =  { "name": self.get_name(),
                  "sgdid": self.sgdid,
                  "allele_type": self.so.display_name,
                  "aliases": self.get_aliases(),
@@ -9522,6 +9522,16 @@ class Alleledbentity(Dbentity):
             }
                  
         return obj
+
+    def get_name(self):
+        
+        references = []
+        alleleRefs = DBSession.query(AlleleReference).filter_by(allele_id=self.dbentity_id).all()
+        for x in alleleRefs:
+            references.append(x.reference.to_dict_citation())
+
+        return { "display_name": self.display_name,
+                 "references": references }
 
     def get_resource_urls(self):
         
@@ -9600,15 +9610,31 @@ class Alleledbentity(Dbentity):
         
         la = DBSession.query(LocusAllele).filter_by(allele_id = self.dbentity_id).one_or_none()
         if la is None:
-            return ''
-        return la.locus.display_name
+            return { "display_name": '',
+                     "references": [] }
+        
+        locusAllele = DBSession.query(LocusAllele).filter_by(allele_id=self.dbentity_id).one_or_none()
+        references = []
+        if locusAllele is not None:
+            locusalleleRefs = DBSession.query(LocusalleleReference).filter_by(locus_allele_id=locusAllele.locus_allele_id).all()
+            for x in locusalleleRefs:
+                references.append(x.reference.to_dict_citation())
+                    
+        return { "display_name": la.locus.display_name,
+                 "references": references }
 
+    
     def get_aliases(self):
 
-        aliasObjs = DBSession.query(AlleleAlias).filter_by(allele_id = self.dbentity_id).all()
+        alleleAliases = DBSession.query(AlleleAlias).filter_by(allele_id = self.dbentity_id).all()
         objs = []
-        for x in aliasObjs:
-            objs.append(x.display_name)
+        for x in alleleAliases:
+            allelealiasRefs = DBSession.query(AllelealiasReference).filter_by(allele_alias_id=x.allele_alias_id).all()
+            references = []
+            for x in allelealiasRefs:
+                references.append(x.reference.to_dict_citation())    
+            objs.append({ "display_name": x.display_name,
+                          "references": references })
         return objs
             
     def allele_network(self):
