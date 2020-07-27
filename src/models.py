@@ -9823,7 +9823,6 @@ class Alleledbentity(Dbentity):
 
         return data
 
-          
 class AlleleReference(Base):
     __tablename__ = 'allele_reference'
     __table_args__ = (
@@ -9841,7 +9840,26 @@ class AlleleReference(Base):
     allele = relationship('Alleledbentity')
     source = relationship('Source')
     reference = relationship('Referencedbentity')
+    
+class AlleleGeninteraction(Base):
+    __tablename__ = 'allele_geninteraction'
+    __table_args__ = (
+        UniqueConstraint('allele_id', 'interaction_id'),
+        {'schema': 'nex'}
+    )
 
+    allele_geninteraction_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
+    allele_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), nullable=False)
+    interaction_id = Column(ForeignKey('nex.geninteractionannotation.annotation_id', ondelete='CASCADE'), nullable=False, index=True)
+    source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+    allele = relationship('Alleledbentity')
+    source = relationship('Source')
+    interaction = relationship('Geninteractionannotation')
+
+    
 class AlleleAlias(Base):
     __tablename__ = 'allele_alias'
     __table_args__ = (
