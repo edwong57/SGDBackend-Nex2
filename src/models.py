@@ -9751,6 +9751,8 @@ class Alleledbentity(Dbentity):
         interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.dbentity_id).all()
              
         allAlleleIds = DBSession.query(AlleleGeninteraction.allele_id).distinct(AlleleGeninteraction.allele_id).filter(AlleleGeninteraction.interaction_id.in_(interaction_ids)).all()
+
+        all_alleles = []
         
         curr_allele = self.display_name
 
@@ -9762,7 +9764,13 @@ class Alleledbentity(Dbentity):
             other_allele = allele_id_to_name.get(allele_id)
             if other_allele is None:                
                 continue
-                
+
+
+            
+            all_alleles.append(other_allele)
+
+            
+            
             allele_format_name = other_allele.replace(' ', '_')
             interaction_format_name = curr_allele + "|" + allele_format_name
         
@@ -9796,7 +9804,9 @@ class Alleledbentity(Dbentity):
                 network_edges_added[(allele_format_name, interaction_format_name)] = True
 
         data = { "edges": network_edges, "nodes": network_nodes }
-    
+
+        return all_alleles
+        
         return data
 
     
