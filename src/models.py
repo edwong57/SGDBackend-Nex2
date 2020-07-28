@@ -9754,7 +9754,11 @@ class Alleledbentity(Dbentity):
         
         curr_allele = self.display_name
 
-        all_alleles = []
+
+        
+        # all_alleles = []
+
+
         
         for row in allAlleleIds:
             
@@ -9770,7 +9774,7 @@ class Alleledbentity(Dbentity):
 
 
             
-            all_alleles.append(interaction_format_name)
+            # all_alleles.append(interaction_format_name)
 
 
             
@@ -9807,7 +9811,7 @@ class Alleledbentity(Dbentity):
         data = { "edges": network_edges, "nodes": network_nodes }
 
 
-        return all_alleles
+        # return all_alleles
     
         
         return data
