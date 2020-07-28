@@ -9588,7 +9588,7 @@ class Alleledbentity(Dbentity):
 
     def interaction_to_dict(self):
 
-        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.allele_id).all()
+        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.dbentity_id).all()
         
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.annotation_id.in_(interaction_ids)).all()
                     
