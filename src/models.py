@@ -9746,73 +9746,48 @@ class Alleledbentity(Dbentity):
                                         
         ## interaction
 
-        ###
-        ### need to rewrite this part after allele_interaction table is populated
-        ###
+        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.dbentity_id).all()
 
-        allele_to_id = dict([(x.display_name.upper(), x.dbentity_id) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
-        
-        annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.description.ilike('%allele%')).filter(Geninteractionannotation.description.ilike('% ' + self.display_name + ' %')).all()
-        
-        for x in annotations:
-            
-            gene1 = x.dbentity1.display_name
-            gene2 = x.dbentity2.display_name
+        allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
 
-                  
-            ## check description to see if this interaction annotation has both given allele name and other allele info 
-            words = x.description.split(' ')
-            curr_allele = None
-            other_allele_list = []
-            for word in words:
-                if len(word) < 4:
+        curr_allele = self.display_name
+        
+        for interaction_id in interaction_ids:
+            otherAlleleIds = DBSession.query(AlleleGeninteraction.allele_id).distinct(AlleleGeninteraction.allele_id).filter_by(interaction_id=interaction_id).filter_by(allele_id != self.dbentity_id).all()
+            for other_allele_id in otherAlleleIds:
+                other_allele = allele_id_to_name.get(other_allele_id)
+                if other_allele is None:
                     continue
-                if word[-1] in [')', ',', '/', '|', ';', ':', '.']:
-                    word = word[0:-2]
-                if word[0] in ['(', '/', '|']:
-                    word = word[1:]
-                if word == self.display_name:
-                    curr_allele = word
-                elif word.upper() in allele_to_id and word not in other_allele_list:
-                    pieces = word.split('-')
-                    if pieces[-1].isdigit() and int(pieces[-1]) >= 5000:
-                        continue
-                    other_allele_list.append(word)
-            if curr_allele and len(other_allele_list) > 0:
-            # if curr_allele and len(other_allele_list) == 1:
-                for other_allele in other_allele_list:
-                    allele_format_name = other_allele.replace(' ', '_')
-                    ###
-                    interaction_format_name = curr_allele + "|" + other_allele
-                    if interaction_format_name not in network_nodes_ids:
-                        network_nodes.append({
-                            "name": '',
-                            "id": interaction_format_name,
-                            "href": '/allele/' + allele_format_name,
-                            "category": "INTERACTION",
-                        })
-                        network_nodes_ids[interaction_format_name] = True
-                    ###
-                    if allele_format_name not in network_nodes_ids:
-                        network_nodes.append({
-                            "name": other_allele,
-                            "id": allele_format_name,
-                            "href": "/allele/" + allele_format_name,
-                            "category": "ALLELE",
-                        })
-                        network_nodes_ids[allele_format_name] = True      
-                    if (self.format_name, interaction_format_name) not in network_edges_added:
-                        network_edges.append({
-                            "source": self.format_name,
-                            "target": interaction_format_name
-                        })
-                        network_edges_added[(self.format_name, interaction_format_name)] = True
-                    if (allele_format_name, interaction_format_name) not in network_edges_added:
-                        network_edges.append({
-                            "source": allele_format_name,
-                            "target": interaction_format_name
-                        })
-                        network_edges_added[(allele_format_name, interaction_format_name)] = True
+                allele_format_name = other_allele.replace(' ', '_')
+                interaction_format_name = curr_allele + "|" + allele_format_name
+                if interaction_format_name not in network_nodes_ids:
+                    network_nodes.append({
+                        "name": '',
+                        "id": interaction_format_name,
+                        "href": '/allele/' + allele_format_name,
+                        "category": "INTERACTION",
+                    })
+                    network_nodes_ids[interaction_format_name] = True
+                if allele_format_name not in network_nodes_ids:
+                    network_nodes.append({
+                        "name": other_allele,
+                        "id": allele_format_name,
+                        "href": "/allele/" + allele_format_name,
+                        "category": "ALLELE",
+                    })
+                    network_nodes_ids[allele_format_name] = True      
+                if (self.format_name, interaction_format_name) not in network_edges_added:
+                    network_edges.append({
+                        "source": self.format_name,
+                        "target": interaction_format_name
+                    })
+                    network_edges_added[(self.format_name, interaction_format_name)] = True
+                if (allele_format_name, interaction_format_name) not in network_edges_added:
+                    network_edges.append({
+                        "source": allele_format_name,
+                        "target": interaction_format_name
+                    })
+                    network_edges_added[(allele_format_name, interaction_format_name)] = True
 
 
         data = { "edges": network_edges, "nodes": network_nodes }
