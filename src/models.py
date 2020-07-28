@@ -9757,10 +9757,10 @@ class Alleledbentity(Dbentity):
     
         all_alleles = []
 
-
         
-        for allele_id in allAlleleIds:        
-                
+        for row in allAlleleIds:
+            
+            allele_id = row[0]
             if allele_id == self.dbentity_id:
                 continue
             other_allele = allele_id_to_name.get(allele_id)
