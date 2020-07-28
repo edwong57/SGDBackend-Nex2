@@ -9744,10 +9744,16 @@ class Alleledbentity(Dbentity):
                         })
                         network_edges_added[(allele_format_name, pheno_id)] = True
                                         
-        ## interaction
+        ## interaction 
 
         interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.dbentity_id).all()
 
+
+        return interaction_ids
+
+    
+
+    
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
 
         curr_allele = self.display_name
