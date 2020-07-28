@@ -9764,16 +9764,15 @@ class Alleledbentity(Dbentity):
             if allele_id == self.dbentity_id:
                 continue
             other_allele = allele_id_to_name.get(allele_id)
-            if other_allele is None:                
+            if other_allele is None:
+
+                all_alleles.append(allele_id)
+                
                 continue
                 
             allele_format_name = other_allele.replace(' ', '_')
             interaction_format_name = curr_allele + "|" + allele_format_name
-
-            all_alleles.append(allele_format_name)
-
-            continue
-            
+        
             if interaction_format_name not in network_nodes_ids:
                 network_nodes.append({
                     "name": '',
