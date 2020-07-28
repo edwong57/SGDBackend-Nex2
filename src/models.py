@@ -9750,6 +9750,13 @@ class Alleledbentity(Dbentity):
      
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
 
+
+        
+        return allele_id_to_name
+
+    
+        
+        
         curr_allele = self.display_name
         
         for interaction_id in interaction_ids:
@@ -9762,10 +9769,7 @@ class Alleledbentity(Dbentity):
                 if other_allele_id == self.dbentity_id:
                     continue
                 other_allele = allele_id_to_name.get(other_allele_id)
-                if other_allele is None:
-                    
-                    return other_allele_id
-                
+                if other_allele is None:                
                     continue
                 
                 allele_format_name = other_allele.replace(' ', '_')
