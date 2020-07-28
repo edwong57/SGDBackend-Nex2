@@ -9753,8 +9753,10 @@ class Alleledbentity(Dbentity):
         curr_allele = self.display_name
         
         for interaction_id in interaction_ids:
-            otherAlleleIds = DBSession.query(AlleleGeninteraction.allele_id).distinct(AlleleGeninteraction.allele_id).filter_by(interaction_id=interaction_id).filter_by(allele_id != self.dbentity_id).all()
+            otherAlleleIds = DBSession.query(AlleleGeninteraction.allele_id).distinct(AlleleGeninteraction.allele_id).filter_by(interaction_id=interaction_id).all()
             for other_allele_id in otherAlleleIds:
+                if other_allele_id == self.dbentity_id:
+                    continue
                 other_allele = allele_id_to_name.get(other_allele_id)
                 if other_allele is None:
                     continue
