@@ -9754,20 +9754,13 @@ class Alleledbentity(Dbentity):
         
         curr_allele = self.display_name
 
-    
-        all_alleles = []
-
-        
         for row in allAlleleIds:
             
             allele_id = row[0]
             if allele_id == self.dbentity_id:
                 continue
             other_allele = allele_id_to_name.get(allele_id)
-            if other_allele is None:
-
-                all_alleles.append(allele_id)
-                
+            if other_allele is None:                
                 continue
                 
             allele_format_name = other_allele.replace(' ', '_')
@@ -9803,11 +9796,6 @@ class Alleledbentity(Dbentity):
                 network_edges_added[(allele_format_name, interaction_format_name)] = True
 
         data = { "edges": network_edges, "nodes": network_nodes }
-
-        
-        return all_alleles
-
-
     
         return data
 
