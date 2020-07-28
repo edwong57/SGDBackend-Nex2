@@ -9747,19 +9747,21 @@ class Alleledbentity(Dbentity):
         ## interaction 
 
         interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.dbentity_id).all()
-
-
-        return interaction_ids
-
-    
-
-    
+     
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
 
         curr_allele = self.display_name
         
         for interaction_id in interaction_ids:
             otherAlleleIds = DBSession.query(AlleleGeninteraction.allele_id).distinct(AlleleGeninteraction.allele_id).filter_by(interaction_id=interaction_id).all()
+
+
+            
+            return otherAlleleIds
+
+        
+
+            
             for other_allele_id in otherAlleleIds:
                 if other_allele_id == self.dbentity_id:
                     continue
