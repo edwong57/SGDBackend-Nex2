@@ -641,53 +641,6 @@ def parse_conditions(request, observable_id, qualifier_id, reporter_id):
 
     return [1, conditions]
 
-def insert_locus_allele(curator_session, locus_id, allele_id, source_id, created_by):
-
-    la = curator_session.query(LocusAllele).filter_by(locus_id=locus_id, allele_id=allele_id).one_or_none()
-    if la:
-        return la.locus_allele_id
-
-    returnValue = None
-    try:
-        x = LocusAllele(locus_id = locus_id,
-                        allele_id = allele_id,
-                        source_id = source_id,
-                        created_by = created_by)
-
-        curator_session.add(x)
-        curator_session.flush()
-        curator_session.refresh(x)
-        returnValue = x.locus_allele_id
-    except Exception as e:
-        transaction.abort()
-        if curator_session:
-            curator_session.rollback()
-        returnValue = 'Insert locus_allele failed: ' + str(e.orig.pgerror)
-        
-    return returnValue 
-
-
-def insert_locusallele_reference(curator_session, reference_id, locus_allele_id, source_id, created_by):
-
-    lar = curator_session.query(LocusalleleReference).filter_by(reference_id=reference_id, locus_allele_id=locus_allele_id).one_or_none()
-    if lar:
-        return 1
-
-    returnValue = 1
-    try:
-        x = LocusalleleReference(reference_id = reference_id,
-                                 locus_allele_id = locus_allele_id,
-                                 source_id = source_id,
-                                 created_by = created_by)
-        curator_session.add(x)
-    except Exception as e:
-        transaction.abort()
-        if curator_session:
-            curator_session.rollback()
-        returnValue = 'Insert locusallele_reference failed: ' + str(e.orig.pgerror)
-
-    return returnValue
-
 
 def add_phenotype_annotations(request):
 
@@ -810,7 +763,7 @@ def add_phenotype_annotations(request):
                         return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
             else:
                 return err
-            
+
         # return HTTPBadRequest(body=json.dumps({'error': "TEST-4"}), content_type='text/json') 
 
         ## adding reporter if it is not in the database yet
@@ -884,18 +837,6 @@ def add_phenotype_annotations(request):
 
             index = index + 1
 
-
-            ## adding allele and gene into locus_allele table if it is not there already
-            if allele_id is not None:
-                returnValue = insert_locus_allele(curator_session, dbentity_id, allele_id, source_id, CREATED_BY)
-                if str(returnValue).isdigit() is False:
-                    return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
-                locus_allele_id = int(returnValue)
-                returnValue = insert_locusallele_reference(curator_session, reference_id, locus_allele_id, source_id, CREATED_BY)
-                if str(returnValue).isdigit() is False:
-                    return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
-
-                
         transaction.commit()
         return HTTPOk(body=json.dumps({'success': success_message, 'phenotype': "PHENOTYPE"}), content_type='text/json')
     except Exception as e:
@@ -1423,17 +1364,11 @@ def update_phenotype_annotations(request):
                     success_message = success_message + "<br>" + "The phenotypeannotation_cond row(s) have been updated for gene " + gene_name + "."
 
 
-            ## return HTTPBadRequest(body=json.dumps({'error': "TEST - UPDATE CONDITIONS"}), content_type='text/json')
-            if allele_id is not None:
-                returnValue = insert_locus_allele(curator_session, paRow.dbentity_id, allele_id, source_id, CREATED_BY)
-                if str(returnValue).isdigit() is False:
-                    return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
-                locus_allele_id = int(returnValue)
-                returnValue = insert_locusallele_reference(curator_session, reference_id, locus_allele_id, source_id, CREATED_BY)
-                if str(returnValue).isdigit() is False:
-                    return HTTPBadRequest(body=json.dumps({'error': returnValue}), content_type='text/json')
+                # return HTTPBadRequest(body=json.dumps({'error': "TEST - UPDATE CONDITIONS"}), content_type='text/json')
 
-            
+
+
+
             if success_message == "" or success_message == NO_UPDATE_MESSAGE:
                 success_message = "Nothing is changed in the Phenotypeannotation and Phenotypeannotation_cond tables."
             success_message = success_message + "<br>DONE!"    
