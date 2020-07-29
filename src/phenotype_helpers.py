@@ -4,7 +4,7 @@ import transaction
 import json
 from src.models import DBSession, Phenotypeannotation, PhenotypeannotationCond, Phenotype,\
      Alleledbentity, Reporter, Apo, Chebi, Source, Dbentity, Locusdbentity, Referencedbentity,\
-     Straindbentity, So
+     Straindbentity, So, LocusAllele, LocusalleleReference
 from src.curation_helpers import get_curator_session
 
 # "mutant_type": "functional_effect_variant",
