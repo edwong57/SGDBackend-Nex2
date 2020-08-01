@@ -2199,6 +2199,9 @@ class Referencedbentity(Dbentity):
         return obj
 
     def to_dict(self):
+
+        return ["Hello"]
+    
         obj = {
             "display_name": self.display_name,
             "citation": self.citation,
@@ -2209,17 +2212,11 @@ class Referencedbentity(Dbentity):
             "sgdid": self.sgdid,
             "year": self.year,
             "id": self.dbentity_id,
-
             "related_references": [],
             "expression_datasets": [],
             "downloadable_files": []
         }
-
-
-        return obj
-
     
-        
         if self.pmid != None:
             obj["journal"] = {
                 "med_abbr": self.journal.med_abbr
