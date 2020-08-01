@@ -545,7 +545,10 @@ def reference(request):
         reference = DBSession.query(Referencedbentity).filter_by(sgdid=request.matchdict['id']).one_or_none()
 
     if reference:
-        return reference.to_dict()
+        if reference.journal_id:
+            return reference.to_dict()
+        else:
+            return ["Hello world!!!"]
     else:
         return HTTPNotFound()
 
