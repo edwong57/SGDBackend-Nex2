@@ -35,16 +35,38 @@ for x in all:
             scores = pieces[1].replace("]", "").replace(" P-value = ", "").split(',')
             sga_score = scores[0]
             pvalue = scores[1]
+            allele1 = alleles[0].strip()
+            allele2 = alleles[1].strip()
+            
             if float(sga_score) < 0.16 or float(pvalue) >= 0.05:
                 continue
-            if alleles[0] in allele_to_skip or alleles[1] in allele_to_skip:
+            
+            if allele1 in allele_to_skip:
+                allele1 = None
+            if allele2 in allele_to_skip:
+                allele2 = None
+            if allele1 is None and allele2 is None:
                 continue
-            if alleles[0] in [orf.upper(), gene.upper(), orf2.upper(), gene2.upper()] and alleles[1] in [orf.upper(), gene.upper(), orf2.upper(), gene2.upper()]:
+
+            if allele1 is not None:
+                if allele1.upper() == gene.upper() or allele1.upper() == gene2.upper():
+                    allele1 = None
+                elif not allele1.upper().startswith(gene.upper()) and not allele1.upper().startswith(gene2.upper()):
+                    allele1 = None
+                    
+            if allele2 is not None:
+                if allele2.upper() == gene.upper() or allele2.upper() == gene2.upper():
+                    allele2 = None
+                elif not allele2.upper().startswith(gene.upper()) and not allele2.upper().startswith(gene2.upper()):
+                    allele2 = None
+                                    
+            if allele1 is None or allele2 is None:
+            # if allele1 is None and allele2 is None: 
                 continue
 
             pmid = reference_id_to_pmid.get(x.reference_id)
 
-            print (alleles[0] + "\t" + alleles[1]+ "\t" + str(x.annotation_id) + "\t" + gene + "/" + orf + "\t" + gene2 + "/" + orf2 + "\t" + str(x.reference_id) + "\t" + str(pmid) + "\t" + str(sga_score) + "\t" + str(pvalue) + "\t" + x.description + "\t" + str(x.date_created).split(' ')[0])
+            print (str(allele1) + "\t" + str(allele2) + "\t" + str(x.annotation_id) + "\t" + gene + "/" + orf + "\t" + gene2 + "/" + orf2 + "\t" + str(x.reference_id) + "\t" + str(pmid) + "\t" + str(sga_score) + "\t" + str(pvalue) + "\t" + x.description + "\t" + str(x.date_created).split(' ')[0])
                 
 nex_session.close()
 
