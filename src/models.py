@@ -9954,18 +9954,22 @@ class AlleleReference(Base):
 class AlleleGeninteraction(Base):
     __tablename__ = 'allele_geninteraction'
     __table_args__ = (
-        UniqueConstraint('allele_id', 'interaction_id'),
+        UniqueConstraint('allele1_id', 'allele2_id', 'interaction_id'),
         {'schema': 'nex'}
     )
 
     allele_geninteraction_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.link_seq'::regclass)"))
-    allele_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), nullable=False)
+    allele1_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), nullable=False)
+    allele2_id = Column(ForeignKey('nex.alleledbentity.dbentity_id', ondelete='CASCADE'), nullable=True)
     interaction_id = Column(ForeignKey('nex.geninteractionannotation.annotation_id', ondelete='CASCADE'), nullable=False, index=True)
+    sga_score = Column(Numeric, nullable=False)
+    pvalue = Column(Numeric, nullable=False)
     source_id = Column(ForeignKey('nex.source.source_id', ondelete='CASCADE'), nullable=False, index=True)
     date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
     created_by = Column(String(12), nullable=False)
 
-    allele = relationship('Alleledbentity')
+    allele1 = relationship('Alleledbentity', primaryjoin='AlleleGeninteraction.allele1_id == Alleledbentity.dbentity_id')
+    allele2 = relationship('Alleledbentity', primaryjoin='AlleleGeninteraction.allele2_id == Alleledbentity.dbentity_id')
     source = relationship('Source')
     interaction = relationship('Geninteractionannotation')
 
