@@ -29,7 +29,7 @@ def load_data(infile):
     count = 0
 
     allele_id_to_so_id_desc = {}
-    allele_id_to_so_id_desc[allele_id]
+    allele_id_to_so_id_desc = {}
     for line in f:
         pieces = line.strip().split("\t")
         allele_name = pieces[0]
@@ -57,7 +57,7 @@ def load_data(infile):
     count = 0
     for x in all:
         if x.dbentity_id not in allele_id_to_so_id_desc:
-            log.info("The allele_id: " + int(x.dbentity_id) + " is not in the mapping file.")
+            log.info("The allele_id: " + str(x.dbentity_id) + " is not in the mapping file.")
             continue
         (so_id, desc) = allele_id_to_so_id_desc[x.dbentity_id]
         updated = 0
