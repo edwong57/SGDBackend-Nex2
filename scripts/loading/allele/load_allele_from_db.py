@@ -32,6 +32,7 @@ def load_data():
         log.info("adding alleledbentiy: " + x.display_name + "...")
         insert_alleledbentity(nex_session, x.format_name, x.display_name, x.description,
                               source_id, so_id, x.date_created, x.created_by)
+        count = count + 1
         if count >= 300:
             # nex_session.rollback()  
             nex_session.commit()
