@@ -53,6 +53,7 @@ def load_data(infile):
     allele_loaded = {}
     locus_allele_loaded = {}
     ref_loaded = {}
+    allele_interaction_loaded = {}
     for line in f:
         pieces = line.strip().split("\t")
         reference_id = int(pieces[5])
@@ -82,11 +83,12 @@ def load_data(infile):
                                        locus_allele_to_id, locus_allele_loaded,
                                        locus_allele_reference_to_id, ref_loaded)
 
+
         
-        if (allele1_id, allele2_id, interaction_id) not in allele_interaction_to_id:
+        if (allele1_id, allele2_id, interaction_id) not in allele_interaction_to_id and (allele1_id, allele2_id, interaction_id) not in allele_interaction_loaded:
             log.info("loading data into allele_geninteraction table...")
             insert_allele_geninteraction(nex_session, allele1_id, allele2_id, interaction_id, score, pvalue, source_id, date_created)
-
+            allele_interaction_loaded[(allele1_id, allele2_id, interaction_id)] = 1
         count = count + 1
         
         if count >= 300:
