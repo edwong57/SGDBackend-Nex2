@@ -7,7 +7,7 @@ from scripts.loading.database_session import get_session
 
 __author__ = 'sweng66'
 
-mapping_file = "scripts/loading/allele/data/phenotypeannotation_id_to_allele_mapping.txt"
+mapping_file = "scripts/loading/allele/data/phenotypeannotation_id_to_allele_mapping.txt_QA"
 
 def update_data():
 
