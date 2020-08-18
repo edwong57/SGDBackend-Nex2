@@ -83,9 +83,9 @@ def load_data(infile):
                                        locus_allele_reference_to_id, ref_loaded)
 
         
-        #if (allele1_id, allele2_id, interaction_id) not in allele_interaction_to_id:
-        #    log.info("loading data into allele_geninteraction table...")
-        #    insert_allele_geninteraction(nex_session, allele1_id, allele2_id, interaction_id, score, pvalue, source_id, date_created)
+        if (allele1_id, allele2_id, interaction_id) not in allele_interaction_to_id:
+            log.info("loading data into allele_geninteraction table...")
+            insert_allele_geninteraction(nex_session, allele1_id, allele2_id, interaction_id, score, pvalue, source_id, date_created)
 
         count = count + 1
         
