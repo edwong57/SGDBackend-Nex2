@@ -71,12 +71,12 @@ def load_data(infile):
             nex_session.add(x)
             count = count + 1
         if count > 300:
-            nex_session.rollback()
-            # nex_session.commit()
+            # nex_session.rollback()
+            nex_session.commit()
             count = 0
 
-    nex_session.rollback()
-    # nex_session.commit()
+    # nex_session.rollback()
+    nex_session.commit()
     
     nex_session.close()
     
