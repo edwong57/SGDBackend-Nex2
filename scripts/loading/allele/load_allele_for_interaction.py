@@ -73,9 +73,6 @@ def load_data(infile):
                                        allele_loaded, gene_to_locus_id, allele_to_id,
                                        locus_allele_to_id, locus_allele_loaded,
                                        locus_allele_reference_to_id, ref_loaded)
-        if allele1_id is None:
-            log.info("Warning: Bad allele_name: "+allele1_name)
-            continue
         
         allele2_id = insert_allele_etc(nex_session, allele2_name, gene1, name1, gene2, name2,
                                        reference_id, source_id, so_id, date_created,
@@ -83,7 +80,11 @@ def load_data(infile):
                                        locus_allele_to_id, locus_allele_loaded,
                                        locus_allele_reference_to_id, ref_loaded)
 
-
+        if allele1_id is None and allele2_id is None:
+            continue
+        
+        if allele1_id is None:
+            (allele1_id, allele2_id) = (allele2_id, allele1_id)
         
         if (allele1_id, allele2_id, interaction_id) not in allele_interaction_to_id and (allele1_id, allele2_id, interaction_id) not in allele_interaction_loaded:
             log.info("loading data into allele_geninteraction table...")
