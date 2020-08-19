@@ -43,7 +43,7 @@ def load_data(infile):
         allele2_id = None
         if x.allele2_id:
             allele2_id = x.allele2_id
-            allele_interaction_to_id[(x.allele1_id, allele2_id, x.interaction_id)] = x.allele_geninteraction_id
+        allele_interaction_to_id[(x.allele1_id, allele2_id, x.interaction_id)] = x.allele_geninteraction_id
 
             
     f = open(infile)
