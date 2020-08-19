@@ -7039,6 +7039,19 @@ class Geninteractionannotation(Base):
                 "link": phenotype.obj_url
             }
 
+        ## adding alleles/scores/pvalues
+        alleles = []
+        for x in DBSession.query(AlleleGeninteraction).filter_by(interaction_id=self.annotation_id).all():
+            allele1_name = x.allele1.display_name
+            allele2_name = ""
+            if x.allele2_id:
+                allele2_name = x.allele2.display_name
+            alleles.append({ allele1_name: allele1_name,
+                             allele2_name: allele2_name,
+                             sga_score: x.sga_score,
+                             pvalue: x.pvalue })
+        obj['alleles'] = alleles
+
         return obj
 
 
@@ -9721,7 +9734,7 @@ class Alleledbentity(Dbentity):
 
     def interaction_to_dict(self):
 
-        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.dbentity_id).all()
+        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter(or_(AlleleGeninteraction.allele1_id==self.dbentity_id, AlleleGeninteraction.allele2_id==self.dbentity_id)).all()
         
         annotations = DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.annotation_id.in_(interaction_ids)).all()
                     
@@ -9880,16 +9893,20 @@ class Alleledbentity(Dbentity):
         ## interaction 
 
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
+                  
+        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter(or_(AlleleGeninteraction.allele1_id==self.dbentity_id, AlleleGeninteraction.allele2_id==self.dbentity_id)).all()
         
-        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter_by(allele_id=self.dbentity_id).all()
-             
-        allAlleleIds = DBSession.query(AlleleGeninteraction.allele_id).distinct(AlleleGeninteraction.allele_id).filter(AlleleGeninteraction.interaction_id.in_(interaction_ids)).all()
-        
+        allAlleleIds = []
+        for x in DBSession.query(AlleleGeninteraction).filter(AlleleGeninteraction.interaction_id.in_(interaction_ids)).all():
+            if x.allele1_id not in allAlleleIds:
+                allAlleleIds.append(x.allele1_id)
+            if x.allele2_id and x.allele2_id not in allAlleleIds:
+                allAlleleIds.append(x.allele2_id)
+
         curr_allele = self.display_name
         
-        for row in allAlleleIds:
+        for allele_id in allAlleleIds:
             
-            allele_id = row[0]
             if allele_id == self.dbentity_id:
                 continue
             other_allele = allele_id_to_name.get(allele_id)
