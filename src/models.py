@@ -7046,10 +7046,10 @@ class Geninteractionannotation(Base):
             allele2_name = ""
             if x.allele2_id:
                 allele2_name = x.allele2.display_name
-            alleles.append({ allele1_name: allele1_name,
-                             allele2_name: allele2_name,
-                             sga_score: x.sga_score,
-                             pvalue: x.pvalue })
+            alleles.append({ "allele1_name": allele1_name,
+                             "allele2_name": allele2_name,
+                             "sga_score": x.sga_score,
+                             "pvalue": x.pvalue })
         obj['alleles'] = alleles
 
         return obj
