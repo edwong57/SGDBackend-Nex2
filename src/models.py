@@ -9894,25 +9894,23 @@ class Alleledbentity(Dbentity):
 
         allele_id_to_name = dict([(x.dbentity_id, x.display_name) for x in DBSession.query(Dbentity).filter_by(subclass='ALLELE').all()])
                   
-        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter(or_(AlleleGeninteraction.allele1_id==self.dbentity_id, AlleleGeninteraction.allele2_id==self.dbentity_id)).all()
+        # interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter(or_(AlleleGeninteraction.allele1_id==self.dbentity_id, AlleleGeninteraction.allele2_id==self.dbentity_id)).all()
         
-        allAlleleIds = []
-        for x in DBSession.query(AlleleGeninteraction).filter(AlleleGeninteraction.interaction_id.in_(interaction_ids)).all():
-            if x.allele1_id not in allAlleleIds:
-                allAlleleIds.append(x.allele1_id)
-            if x.allele2_id and x.allele2_id not in allAlleleIds:
-                allAlleleIds.append(x.allele2_id)
+        # for x in DBSession.query(AlleleGeninteraction).filter(AlleleGeninteraction.interaction_id.in_(interaction_ids)).all():
 
         curr_allele = self.display_name
         
-        for allele_id in allAlleleIds:
-            
-            if allele_id == self.dbentity_id:
-                continue
-            other_allele = allele_id_to_name.get(allele_id)
-            if other_allele is None:                
-                continue
+        for x in DBSession.query(AlleleGeninteraction).filter(or_(AlleleGeninteraction.allele1_id==self.dbentity_id, AlleleGeninteraction.allele2_id==self.dbentity_id)).all():
 
+            if x.allele2_id is None:
+                continue
+            other_allele = None
+            if x.allele1_id != self.dbentity_id:
+                other_allele = allele_id_to_name.get(x.allele1_id)
+            else:
+                other_allele = allele_id_to_name.get(x.allele2_id)
+            if other_allele is None:
+                continue
             allele_format_name = other_allele.replace(' ', '_')
             interaction_format_name = curr_allele + "|" + allele_format_name
 
