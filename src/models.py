@@ -2311,9 +2311,7 @@ class Referencedbentity(Dbentity):
     def interactions_to_dict(self):
         obj = []
 
-        # interactions = DBSession.query(Physinteractionannotation).filter_by(reference_id=self.dbentity_id).all() + DBSession.query(Geninteractionannotation).filter_by(reference_id=self.dbentity_id).all()
-
-        interactions = DBSession.query(Physinteractionannotation).filter_by(reference_id=self.dbentity_id).all()
+        interactions = DBSession.query(Physinteractionannotation).filter_by(reference_id=self.dbentity_id).all() + DBSession.query(Geninteractionannotation).filter_by(reference_id=self.dbentity_id).all()
         
         return [interaction.to_dict(self) for interaction in interactions]
 
