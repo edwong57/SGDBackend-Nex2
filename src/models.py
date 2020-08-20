@@ -7041,15 +7041,15 @@ class Geninteractionannotation(Base):
 
         ## adding alleles/scores/pvalues
         alleles = []
-        for x in DBSession.query(AlleleGeninteraction).filter_by(interaction_id=self.annotation_id).all():
-            allele1_name = x.allele1.display_name
-            allele2_name = ""
-            if x.allele2_id:
-                allele2_name = x.allele2.display_name
-            alleles.append({ "allele1_name": allele1_name,
-                             "allele2_name": allele2_name,
-                             "sga_score": str(x.sga_score),
-                             "pvalue": str(x.pvalue) })
+        # for x in DBSession.query(AlleleGeninteraction).filter_by(interaction_id=self.annotation_id).all():
+        #    allele1_name = x.allele1.display_name
+        #    allele2_name = ""
+        #    if x.allele2_id:
+        #        allele2_name = x.allele2.display_name
+        #    alleles.append({ "allele1_name": allele1_name,
+        #                     "allele2_name": allele2_name,
+        #                     "sga_score": str(x.sga_score),
+        #                     "pvalue": str(x.pvalue) })
         obj['alleles'] = alleles
 
         return obj
