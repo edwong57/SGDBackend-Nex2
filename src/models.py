@@ -9668,6 +9668,8 @@ class Alleledbentity(Dbentity):
         obj['interaction'] = self.interaction_to_dict()
         obj['network_graph'] = self.allele_network()
         obj['references'] = self.get_references()
+        obj['phenotype_references'] = self.get_phenotype_references()
+        obj['interaction_references'] = self.get_interaction_references()
         obj['urls'] = self.get_resource_urls()
         obj["reference_mapping"] = reference_mapping
         
@@ -9703,6 +9705,22 @@ class Alleledbentity(Dbentity):
                 urls.append(x)
         return urls
     
+    def get_phenotype_references(self):
+        references = []
+        for x in DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all():
+            if x.reference.to_dict_citation() not in references:
+                references.append(x.reference.to_dict_citation())
+        return references
+
+    def get_interaction_references(self):
+
+        interaction_ids = DBSession.query(AlleleGeninteraction.interaction_id).distinct(AlleleGeninteraction.interaction_id).filter(or_(AlleleGeninteraction.allele1_id==self.dbentity_id, AlleleGeninteraction.allele2_id==self.dbentity_id)).all()
+        
+        references = []
+        for x in DBSession.query(Geninteractionannotation).filter(Geninteractionannotation.annotation_id.in_(interaction_ids)).all():
+            if x.reference.to_dict_citation() not in references:
+                references.append(x.reference.to_dict_citation())
+        return references
     
     def get_references(self):
 
