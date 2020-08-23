@@ -59,7 +59,7 @@ for x in all:
                 continue
 
             if allele1 is not None:
-                if allele1 == gene.upper() or allele1.upper() == gene2.upper():
+                if allele1.upper() == gene.upper() or allele1.upper() == gene2.upper():
                 # if allele1 in [gene.upper(), gene2.upper(), orf.upper(), orf2.upper()]:
                     allele1 = None
                 elif not allele1.upper().startswith(gene.upper()) and not allele1.upper().startswith(gene2.upper()):

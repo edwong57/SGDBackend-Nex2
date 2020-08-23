@@ -9642,6 +9642,23 @@ class Proteinabundanceannotation(Base):
         }
 
 
+class Tools(Base):
+    __tablename__ = 'tools'
+    __table_args__ = (
+        UniqueConstraint('format_name'),
+        {'schema': 'nex'}
+    )
+
+    tool_id = Column(BigInteger, primary_key=True, server_default=text("nextval('nex.annotation_seq'::regclass)"))
+    format_name = Column(String(200), nullable=False)
+    display_name = Column(String(200), nullable=False)
+    link_url = Column(String(200), nullable=False)
+    index_key = Column(String(200), nullable=True)
+    status = Column(String(200), nullable=False)
+    date_created = Column(DateTime, nullable=False, server_default=text("('now'::text)::timestamp without time zone"))
+    created_by = Column(String(12), nullable=False)
+
+
 class Alleledbentity(Dbentity):
     __tablename__ = 'alleledbentity'
     __table_args__ = {'schema': 'nex'}
@@ -9704,7 +9721,7 @@ class Alleledbentity(Dbentity):
             if x['category'] in ['LOCUS_PHENOTYPE_RESOURCES_MUTANT_STRAINS', 'LOCUS_PHENOTYPE_RESOURCES_PHENOTYPE_RESOURCES', 'LOCUS_PHENOTYPE_RESOURCES_ONTOLOGY', 'LOCUS_INTERACTION']:
                 urls.append(x)
         return urls
-    
+  
     def get_phenotype_references(self):
         references = []
         for x in DBSession.query(Phenotypeannotation).filter_by(allele_id=self.dbentity_id).all():
