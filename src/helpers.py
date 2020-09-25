@@ -1,3 +1,4 @@
+import redis
 from math import pi, sqrt, acos
 import datetime
 import hashlib
@@ -38,7 +39,6 @@ FILE_EXTENSIONS = [
 MAX_QUERY_ATTEMPTS = 3
 S3_BUCKET = os.environ['S3_BUCKET']
 
-import redis
 disambiguation_table = redis.Redis()
 
 # get list of URLs to visit from comma-separated ENV variable cache_urls 'url1, url2'
@@ -73,6 +73,7 @@ def get_locus_by_id(id):
 def get_go_by_id(id):
     return dbentity_safe_query(id, Go)
 
+
 def get_disease_by_id(id):
     return dbentity_safe_query(id, Disease)
 
@@ -87,9 +88,11 @@ def dbentity_safe_query(id, entity_class):
                 dbentity = DBSession.query(Locusdbentity).filter_by(
                     dbentity_id=id).one_or_none()
             elif entity_class is Go:
-                dbentity = DBSession.query(Go).filter_by(go_id=id).one_or_none()
+                dbentity = DBSession.query(
+                    Go).filter_by(go_id=id).one_or_none()
             elif entity_class is Disease:
-                dbentity = DBSession.query(Disease).filter_by(disease_id=id).one_or_none()
+                dbentity = DBSession.query(Disease).filter_by(
+                    disease_id=id).one_or_none()
             break
         # close connection that has idle-in-transaction
         except InternalError:
@@ -330,8 +333,10 @@ def upload_file(username, file, **kwargs):
         did = fdb.dbentity_id
         transaction.commit()
         DBSession.flush()
-        fdb = DBSession.query(Filedbentity).filter(Filedbentity.dbentity_id == did).one_or_none()
-        fdb.upload_file_to_s3(file=file, filename=filename, is_web_file=is_web_file, file_path=full_file_path, flag=False)
+        fdb = DBSession.query(Filedbentity).filter(
+            Filedbentity.dbentity_id == did).one_or_none()
+        fdb.upload_file_to_s3(file=file, filename=filename,
+                              is_web_file=is_web_file, file_path=full_file_path, flag=False)
         transaction.commit()
     except Exception as e:
         DBSession.rollback()
@@ -372,11 +377,12 @@ def link_gene_names(raw, locus_names_ids):
             url = '/locus/' + sgdid
             left = p_original_word.find(original_word[0])
             right = p_original_word.rfind(original_word[-1])
-            new_str = p_original_word[0:left] +  '<a href="' + url + '">' + original_word + '</a>' + p_original_word[right+1:]
+            new_str = p_original_word[0:left] + '<a href="' + url + \
+                '">' + original_word + '</a>' + p_original_word[right+1:]
             processed.append(new_str)
         else:
             processed.append(p_original_word)
-    
+
     processedString = ' '.join(processed)
     return processedString
 
@@ -409,7 +415,8 @@ def primer3_parser(primer3_results):
                     primer_pairs[id][key]['length'] = primer3_results[k][1]
             elif tmp[0] == 'EXPLAIN':
                 notes[key] = primer3_results[k]
-            elif tmp == ['NUM','RETURNED']: pass
+            elif tmp == ['NUM', 'RETURNED']:
+                pass
             else:
                 print(k)
         elif 'PRIMER_LEFT' == k[:11]:
@@ -428,7 +435,8 @@ def primer3_parser(primer3_results):
                     primer_pairs[id][key]['length'] = primer3_results[k][1]
             elif tmp[0] == 'EXPLAIN':
                 notes[key] = primer3_results[k]
-            elif tmp == ['NUM','RETURNED']: pass
+            elif tmp == ['NUM', 'RETURNED']:
+                pass
             else:
                 print(k)
         elif 'PRIMER_PAIR' == k[:11]:
@@ -446,7 +454,8 @@ def primer3_parser(primer3_results):
                     print((k, primer3_results[k]))
             elif tmp[0] == 'EXPLAIN':
                 notes[key] = primer3_results[k]
-            elif tmp == ['NUM','RETURNED']: pass
+            elif tmp == ['NUM', 'RETURNED']:
+                pass
             else:
                 print(k)
         elif 'PRIMER_INTERNAL' == k[:15]:
@@ -465,7 +474,8 @@ def primer3_parser(primer3_results):
                     primer_pairs[id][key]['length'] = primer3_results[k][1]
             elif tmp[0] == 'EXPLAIN':
                 notes['pair'] = primer3_results[k]
-            elif tmp == ['NUM','RETURNED']: pass
+            elif tmp == ['NUM', 'RETURNED']:
+                pass
             else:
                 print((k, tmp[0]))
         else:
@@ -496,7 +506,7 @@ def file_upload_to_dict(file_upload, delimiter="\t"):
             list_dictionary.append(
                 {k.decode('utf-8-sig'): v
                  for k, v in list(item.items()) if k not in (None, '')}
-                )
+            )
         return list_dictionary
     else:
         return list_dictionary
@@ -504,28 +514,30 @@ def file_upload_to_dict(file_upload, delimiter="\t"):
 
 def send_newsletter_email(subject, recipients, msg):
     try:
-        SENDER_EMAIL = "Mike Cherry <cherry@stanford.edu>" 
+        SENDER_EMAIL = "Mike Cherry <cherry@stanford.edu>"
         REPLY_TO = "sgd-helpdesk@lists.stanford.edu"
 
-        message = MIMEMultipart("alternative")        
+        message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = SENDER_EMAIL
-        message.add_header('reply-to',REPLY_TO)
+        message.add_header('reply-to', REPLY_TO)
         html_message = MIMEText(msg, "html")
         message.attach(html_message)
-        
+
         server = smtplib.SMTP("localhost", 25)
-        any_recipients_error = server.sendmail(SENDER_EMAIL, recipients, message.as_string())
+        any_recipients_error = server.sendmail(
+            SENDER_EMAIL, recipients, message.as_string())
         server.quit()
 
         if(len(any_recipients_error) > 0):
             error_message = ''
             for key in any_recipients_error:
-                error_message = error_message + ' ' + key + ' ' + str(any_recipients_error[key]) + ' ;' + '\n'
-            
+                error_message = error_message + ' ' + key + ' ' + \
+                    str(any_recipients_error[key]) + ' ;' + '\n'
+
             error_message = "Email sending unsuccessful for this recipients " + error_message
             return {"error": error_message}
-                
+
         return {"success": "Email was successfully sent."}
 
     except smtplib.SMTPHeloError as e:
@@ -537,29 +549,33 @@ def send_newsletter_email(subject, recipients, msg):
     except smtplib.SMTPDataError as e:
         return {"error", "The server replied with an unexpected"}
     except Exception as e:
-        return {"error":"Error occured while sending email."}
+        return {"error": "Error occured while sending email."}
 
-#TODO: abstract this function in second release
+# TODO: abstract this function in second release
+
+
 def update_curate_activity(locus_summary_object):
     ''' Add curator locus-summary event to curator activity table
-    
+
     Paramaters
     ----------
     locus_summary_object: LocusSummary
         locus-summary object
-    
+
     Returns
     -------
     bool: The return value. True for success, False otherwise
     '''
     flag = False
     try:
-        curator_session = get_curator_session(locus_summary_object['created_by'])
-        existing = curator_session.query(CuratorActivity).filter(CuratorActivity.dbentity_id == locus_summary_object['dbentity_id']).one_or_none()
+        curator_session = get_curator_session(
+            locus_summary_object['created_by'])
+        existing = curator_session.query(CuratorActivity).filter(
+            CuratorActivity.dbentity_id == locus_summary_object['dbentity_id']).one_or_none()
         message = 'added'
         new_curate_activity = None
         if existing:
-            #curator_session.delete(existing)
+            # curator_session.delete(existing)
             message = 'updated'
             new_curate_activity = CuratorActivity(
                 display_name=locus_summary_object['display_name'],
@@ -587,7 +603,7 @@ def update_curate_activity(locus_summary_object):
         traceback.print_exc()
         transaction.abort()
         raise(e)
-        
+
     return flag
 
 
@@ -614,6 +630,7 @@ def set_string_format(str_param, char_format='_'):
     else:
         return None
 
+
 def get_file_delimiter(file_upload):
     ''' Check file delimiters
 
@@ -637,7 +654,9 @@ def get_file_delimiter(file_upload):
     else:
         raise ValueError(
             'file format error, acceptable formats are txt, tsv, xls')
-#TODO: develop this into an endpoint that will check the file before uploading in the next release
+# TODO: develop this into an endpoint that will check the file before uploading in the next release
+
+
 def summary_file_is_valid(file_upload):
     ''' Check if file is valid for upload
 
@@ -665,7 +684,7 @@ def summary_file_is_valid(file_upload):
                 gene_id = item.get(k, None)
                 if gene_id:
                     file_gene_ids.append(gene_id.strip())
-                
+
     valid_genes = DBSession.query(Locusdbentity.format_name).filter(
         Locusdbentity.format_name.in_(file_gene_ids)).all()
     valid_genes = [str(d[0]) for d in valid_genes]
@@ -743,7 +762,7 @@ def update_readme_files_with_urls(readme_name, update_all=False):
 
                 if readme_file:
                     update_urls_helper(readme_file)
-                    #transaction.commit()
+                    # transaction.commit()
         else:
             all_files = DBSession.query(Dbentity).all()
 
@@ -811,7 +830,7 @@ def get_edam_data(session=None):
     -------
     dict:
         file_id(key): edam.display_name 
-    
+
     Notes:
         From filedbentity topic_id, mapp to Edam table and get the Edam.display_name
         query and filter where edam_namespace is 'topic'
@@ -909,7 +928,7 @@ def upload_new_file(req_obj, session=None):
                             'file': val,
                         }
                         other_files.append(new_obj)
-                    
+
                 if key.endswith(other_extensions):
                     other_files.append(
                         {
@@ -944,16 +963,20 @@ def upload_new_file(req_obj, session=None):
                         if item['display_name']:
                             temp_file = item['file']
                             # regex to find matching metadata for new file
-                            mod_display_name = re.sub('[^a-zA-Z0-9 \n\.]','_', item['display_name'])
-                            search_string = re.search('(?:19|20)\d{2}\_\w+[0-9]{4}', mod_display_name).group(0)
+                            mod_display_name = re.sub(
+                                '[^a-zA-Z0-9 \n\.]', '_', item['display_name'])
+                            search_string = re.search(
+                                '(?:19|20)\d{2}\_\w+[0-9]{4}', mod_display_name).group(0)
                             alt_string = search_string.replace('_', '-', 1)
-                            pattern = '(%s|%s)' %(search_string, alt_string)
-                            matches = curator_session.query(Filedbentity).filter(Filedbentity.display_name.op('~*')(pattern)).all()
-                            
+                            pattern = '(%s|%s)' % (search_string, alt_string)
+                            matches = curator_session.query(Filedbentity).filter(
+                                Filedbentity.display_name.op('~*')(pattern)).all()
+
                             new_obj = None
-                            new_file_extension = item['display_name'].split('.')[1]
+                            new_file_extension = item['display_name'].split('.')[
+                                1]
                             file_date = datetime.datetime.strptime(
-                                    item['file_date'], '%Y-%m-%d')
+                                item['file_date'], '%Y-%m-%d')
                             if len(matches) > 0:
                                 try:
                                     match = None
@@ -990,10 +1013,12 @@ def upload_new_file(req_obj, session=None):
                                         'is_web_file': True
                                     }
 
-                                    upload_file(username, item['file'], **new_obj)
+                                    upload_file(
+                                        username, item['file'], **new_obj)
                                     transaction.commit()
 
-                                    db_new_file = get_existing_meta_data(item['display_name'], curator_session)
+                                    db_new_file = get_existing_meta_data(
+                                        item['display_name'], curator_session)
 
                                     update_obj = {
                                         'display_name': item['display_name'],
@@ -1004,7 +1029,8 @@ def upload_new_file(req_obj, session=None):
                                         'json': json.dumps({'file curation data': db_new_file.to_simple_dict(), "modified_date": str(datetime.datetime.now())}),
                                     }
                                     msg = 'Add new file for file curation'
-                                    update_curator_feed(update_obj, msg, curator_session)
+                                    update_curator_feed(
+                                        update_obj, msg, curator_session)
 
                                 except Exception as e:
                                     transaction.abort()

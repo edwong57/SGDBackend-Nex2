@@ -73,7 +73,6 @@ numpy==1.16.2
 pyramid_swagger==2.6.2
 pathlib==1.0.1
 biopython==1.68
-multiprocess==0.70.5
 primer3-py==0.5.5
 coverage==4.0.3
 python-coveralls==2.9.1
@@ -81,4 +80,3 @@ webcolors==1.8.1
 pandas==0.24.2
 xlrd==1.2.0
 urllib3==1.25.3
-Paste==3.4.0
